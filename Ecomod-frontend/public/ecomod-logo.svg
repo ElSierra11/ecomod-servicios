@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 320">
+<style>
+.bg { fill: #0a0a0f; }
+.sub { fill: #555566; font-family: 'DM Sans', sans-serif; font-weight: 400; font-size: 14px; letter-spacing: 4px; }
+.dot1 { fill: #7cfc6e; }
+.dot2 { fill: #00e5ff; }
+.dot3 { fill: #a78bfa; }
+.conn { stroke: #7cfc6e; stroke-width: 1; opacity: 0.25; fill: none; }
+.conn2 { stroke: #00e5ff; stroke-width: 0.8; opacity: 0.2; fill: none; }
+</style>
+
+<rect class="bg" x="0" y="0" width="680" height="320" rx="20"/>
+
+<circle cx="60" cy="80" r="5" class="dot2"/>
+<circle cx="60" cy="80" r="12" style="fill:none;stroke:#00e5ff;stroke-width:1;opacity:0.4"/>
+<circle cx="100" cy="140" r="4" class="dot3"/>
+<circle cx="100" cy="140" r="10" style="fill:none;stroke:#a78bfa;stroke-width:1;opacity:0.4"/>
+<circle cx="55" cy="200" r="3" class="dot1"/>
+<circle cx="55" cy="200" r="9" style="fill:none;stroke:#7cfc6e;stroke-width:1.5;opacity:0.6"/>
+<circle cx="110" cy="250" r="4" class="dot2"/>
+<line x1="60" y1="80" x2="100" y2="140" class="conn2"/>
+<line x1="100" y1="140" x2="55" y2="200" class="conn"/>
+<line x1="55" y1="200" x2="110" y2="250" class="conn2"/>
+<line x1="60" y1="80" x2="55" y2="200" class="conn"/>
+
+<circle cx="620" cy="80" r="5" class="dot1"/>
+<circle cx="620" cy="80" r="12" style="fill:none;stroke:#7cfc6e;stroke-width:1.5;opacity:0.6"/>
+<circle cx="580" cy="145" r="4" class="dot2"/>
+<circle cx="580" cy="145" r="10" style="fill:none;stroke:#00e5ff;stroke-width:1;opacity:0.4"/>
+<circle cx="625" cy="210" r="3" class="dot3"/>
+<circle cx="625" cy="210" r="9" style="fill:none;stroke:#a78bfa;stroke-width:1;opacity:0.4"/>
+<circle cx="575" cy="260" r="4" class="dot1"/>
+<line x1="620" y1="80" x2="580" y2="145" class="conn"/>
+<line x1="580" y1="145" x2="625" y2="210" class="conn2"/>
+<line x1="625" y1="210" x2="575" y2="260" class="conn"/>
+<line x1="620" y1="80" x2="625" y2="210" class="conn2"/>
+
+<circle cx="340" cy="155" r="52" style="fill:none;stroke:#7cfc6e;stroke-width:1;opacity:0.15"/>
+<circle cx="340" cy="155" r="38" style="fill:none;stroke:#7cfc6e;stroke-width:1.5;opacity:0.25"/>
+<circle cx="340" cy="155" r="24" style="fill:#7cfc6e;opacity:0.12"/>
+<circle cx="340" cy="155" r="8" class="dot1"/>
+
+<line x1="316" y1="155" x2="110" y2="250" class="conn"/>
+<line x1="316" y1="148" x2="100" y2="140" class="conn2"/>
+<line x1="364" y1="155" x2="575" y2="260" class="conn"/>
+<line x1="364" y1="148" x2="580" y2="145" class="conn2"/>
+
+<text x="210" y="190" text-anchor="start" style="fill:#7cfc6e;font-family:'DM Sans',sans-serif;font-weight:900;font-size:80px;">Eco</text>
+<text x="378" y="190" text-anchor="start" style="fill:#ffffff;font-family:'DM Sans',sans-serif;font-weight:900;font-size:80px;">Mod</text>
+
+<text x="340" y="228" text-anchor="middle" class="sub">COMMERCE PLATFORM</text>
+<line x1="240" y1="240" x2="440" y2="240" style="stroke:#7cfc6e;stroke-width:0.5;opacity:0.3"/>
+
+<circle cx="268" cy="260" r="3" class="dot1"/>
+<circle cx="284" cy="260" r="3" class="dot2"/>
+<circle cx="300" cy="260" r="3" class="dot3"/>
+<circle cx="316" cy="260" r="3" class="dot1"/>
+<circle cx="332" cy="260" r="3" class="dot2"/>
+<circle cx="348" cy="260" r="3" class="dot3"/>
+<circle cx="364" cy="260" r="3" class="dot1"/>
+<circle cx="380" cy="260" r="3" class="dot2"/>
+<text x="340" y="285" text-anchor="middle" style="fill:#333344;font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:2px;">8 MICROSERVICIOS</text>
+</svg>

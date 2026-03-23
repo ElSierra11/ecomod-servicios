@@ -1,0 +1,12 @@
+fastapi==0.104.1
+uvicorn==0.24.0
+sqlalchemy==2.0.23
+psycopg2-binary==2.9.9
+pydantic==2.5.0
+# FIX: faltaban estos dos paquetes:
+# - python-multipart: FastAPI lo necesita para parsear request bodies (Form, File)
+# - email-validator:  necesario para EmailStr en Pydantic
+python-multipart==0.0.6
+email-validator==2.1.0
+python-dotenv==1.0.0
+python-jose[cryptography]==3.3.0
