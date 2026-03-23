@@ -1,0 +1,4 @@
+Ecomod2/.env
+Ecomod-frontend/node_modules/
+Ecomod2/**/__pycache__/
+Ecomod2/**/*.pyc
