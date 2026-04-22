@@ -36,12 +36,7 @@ async def get_connection():
 
 
 async def publish_event(event_type: str, payload: dict):
-    """
-    Publica un evento en el exchange de EcoMod.
-    
-    Ejemplo:
-        await publish_event("order.created", {"order_id": 1, "user_id": 5, ...})
-    """
+
     try:
         connection = await get_connection()
         async with connection:
@@ -66,16 +61,7 @@ async def publish_event(event_type: str, payload: dict):
 
 
 async def subscribe_events(routing_keys: list, callback, queue_name: str):
-    """
-    Suscribe a uno o varios eventos.
-    
-    Ejemplo:
-        await subscribe_events(
-            ["inventory.reserved", "inventory.failed"],
-            handle_inventory_event,
-            "payment-service-queue"
-        )
-    """
+
     try:
         connection = await get_connection()
         channel = await connection.channel()

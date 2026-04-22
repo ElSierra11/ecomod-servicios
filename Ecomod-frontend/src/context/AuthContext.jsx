@@ -162,7 +162,7 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  // Login mejorado
+  // Login
   const login = useCallback(
     async (email, password, rememberMe = false) => {
       setError(null);

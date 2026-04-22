@@ -42,9 +42,8 @@ def save_and_send(db: Session, notif_data: dict, to_email: str, subject: str, bo
     return notif
 
 
-# ─────────────────────────────────────────
+
 # HEALTH
-# ─────────────────────────────────────────
 
 @router.get("/health")
 def health():
@@ -55,9 +54,8 @@ def health():
     }
 
 
-# ─────────────────────────────────────────
+
 # EVENTOS — DISPARADOS POR OTROS SERVICIOS
-# ─────────────────────────────────────────
 
 @router.post("/events/order-confirmed", response_model=schemas.NotificationResponse, status_code=201)
 def on_order_confirmed(event: schemas.OrderConfirmedEvent, db: Session = Depends(get_db)):
@@ -172,9 +170,7 @@ def on_shipment_delivered(event: schemas.ShipmentDeliveredEvent, db: Session = D
     )
 
 
-# ─────────────────────────────────────────
 # CRUD NOTIFICACIONES
-# ─────────────────────────────────────────
 
 @router.post("/", response_model=schemas.NotificationResponse, status_code=201)
 def create_notification(body: schemas.NotificationCreate, db: Session = Depends(get_db)):

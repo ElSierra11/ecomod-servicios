@@ -10,7 +10,7 @@
   padding: 0;
 }
 
-/* ── TEMA OSCURO (default) ── */
+/* ── TEMA OSCURO  */
 :root,
 [data-theme="dark"] {
   --bg: #0a0a0f;
@@ -38,7 +38,7 @@
   --glow: 0 0 24px rgba(124, 252, 110, 0.15);
 }
 
-/* ── TEMA CLARO PREMIUM ── */
+/* ── TEMA CLARO */
 [data-theme="light"] {
   --bg: #f0ede8;
   --bg2: #faf8f5;
@@ -1135,7 +1135,6 @@ tbody tr:hover td {
     padding: 20px;
   }
 }
-/* Agrega al final de tu index.css */
 @keyframes pulse {
   0%,
   100% {
@@ -1146,7 +1145,7 @@ tbody tr:hover td {
   }
 }
 
-/* Mejora hover de servicios en sidebar */
+/*  hover de servicios en sidebar */
 .service-item {
   transition: all 0.2s ease;
 }
@@ -1164,7 +1163,7 @@ tbody tr:hover td {
   gap: 8px;
 }
 
-/* Scrollbar más elegante */
+/* Scrollbar  */
 ::-webkit-scrollbar {
   width: 4px;
   height: 4px;

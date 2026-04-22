@@ -341,9 +341,7 @@ services:
     networks:
       - ecomod-network
 
-  # ─────────────────────────────────────────
-  # KONG API GATEWAY — MODO DECLARATIVO (DB-less)
-  # ─────────────────────────────────────────
+  # KONG API GATEWAY
   kong:
     image: kong:3.6
     environment:
@@ -390,9 +388,7 @@ services:
       - ecomod-network
     restart: on-failure
 
-  # ─────────────────────────────────────────
   # FRONTEND
-  # ─────────────────────────────────────────
   frontend:
     image: nginx:alpine
     ports:

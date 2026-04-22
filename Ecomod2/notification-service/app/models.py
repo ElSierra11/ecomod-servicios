@@ -12,8 +12,6 @@ class Notification(Base):
     user_id = Column(Integer, nullable=True, index=True)
     email = Column(String, nullable=True)
 
-    # Tipo: order_confirmed, payment_succeeded, payment_failed,
-    #       shipment_created, shipment_delivered, password_reset, welcome
     type = Column(String, nullable=False, index=True)
 
     # Canal: email, push, sms
@@ -24,8 +22,8 @@ class Notification(Base):
     body = Column(Text, nullable=False)
 
     # Referencia al recurso relacionado
-    reference_id = Column(Integer, nullable=True)    # order_id, payment_id, etc.
-    reference_type = Column(String, nullable=True)   # "order", "payment", "shipment"
+    reference_id = Column(Integer, nullable=True) 
+    reference_type = Column(String, nullable=True)   
 
     # Estado
     sent = Column(Boolean, default=False)

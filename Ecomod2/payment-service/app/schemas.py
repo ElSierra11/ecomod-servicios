@@ -3,11 +3,11 @@ from typing import Optional, List, Literal
 from datetime import datetime
 
 
-# ─── Métodos de pago permitidos ───────────────────────────────────────────────
+# ─── Métodos de pago permitidos
 PAYMENT_METHODS = Literal["card_stripe", "paypal"]
 
 
-# ─── Datos de envío opcionales (para encadenar Saga automáticamente) ──────────
+# ─── Datos de envío opcionales (para encadenar Saga automáticamente) 
 class ShippingData(BaseModel):
     recipient_name: str
     address:        str
@@ -18,13 +18,13 @@ class ShippingData(BaseModel):
     carrier:        Optional[str] = "Servientrega"
 
 
-# ─── Items de la orden (compensación si el pago falla) ───────────────────────
+# ─── Items de la orden (compensación si el pago falla) 
 class OrderItemRef(BaseModel):
     product_id: int
     quantity:   int
 
 
-# ─── Crear pago ───────────────────────────────────────────────────────────────
+# ─── Crear pago 
 class PaymentCreate(BaseModel):
     order_id:       int
     user_id:        int
@@ -40,7 +40,7 @@ class PaymentCreate(BaseModel):
     order_items:    Optional[List[OrderItemRef]] = None
 
 
-# ─── Respuesta de pago ────────────────────────────────────────────────────────
+# ─── Respuesta de pago 
 class PaymentResponse(BaseModel):
     id:             int
     order_id:       int
@@ -57,6 +57,6 @@ class PaymentResponse(BaseModel):
         from_attributes = True
 
 
-# ─── Reembolso ────────────────────────────────────────────────────────────────
+# ─── Reembolso
 class PaymentRefundRequest(BaseModel):
     reason: Optional[str] = "Reembolso solicitado por el cliente"

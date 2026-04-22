@@ -45,7 +45,7 @@ def build_order_confirmed_email(order_id: int, total: float, items: int) -> dict
     }
 
 
-# FIX: email propio para orden cancelada
+#  email propio para orden cancelada
 def build_order_cancelled_email(order_id: int, reason: str) -> dict:
     return {
         "subject": f"❌ Orden #{order_id} cancelada — EcoMod",

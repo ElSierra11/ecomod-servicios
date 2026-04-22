@@ -7,14 +7,14 @@ from app.models import Base
 # Crear tablas en la base de datos
 Base.metadata.create_all(bind=engine)
 
-# el include_router de la primera se perdía. Ahora solo hay una instancia.
+# include_router 
 app = FastAPI(
     title="Auth Service",
     description="Microservicio de autenticación — registro, login, JWT",
     version="1.0.0"
 )
 
-# CORS ausente en auth-service. El frontend no podía llamarlo directamente.
+# CORS .
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

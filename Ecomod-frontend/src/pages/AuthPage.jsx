@@ -116,13 +116,11 @@ export default function AuthPage() {
     setMsg(null);
     setLoading(true);
     try {
-      const res = await fetch("/auth/forgot-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: form.email }),
+      await authApi.forgotPassword(form.email);
+      setMsg({
+        type: "success",
+        text: "📧 Se ha enviado un enlace de recuperación a tu correo.",
       });
-      const data = await res.json();
-      setMsg({ type: "success", text: "📧 " + data.message });
       setTimeout(() => switchTab("reset"), 2000);
     } catch (err) {
       setMsg({ type: "error", text: err.message });
@@ -147,17 +145,11 @@ export default function AuthPage() {
     }
     setLoading(true);
     try {
-      const res = await fetch("/auth/reset-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          token: resetForm.token,
-          new_password: resetForm.new_password,
-        }),
+      await authApi.resetPassword(resetForm.token, resetForm.new_password);
+      setMsg({
+        type: "success",
+        text: "✓ Contraseña actualizada correctamente. Redirigiendo...",
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || "Error al restablecer");
-      setMsg({ type: "success", text: "✓ " + data.message });
       setTimeout(() => switchTab("login"), 2000);
     } catch (err) {
       setMsg({ type: "error", text: err.message });
@@ -165,7 +157,6 @@ export default function AuthPage() {
       setLoading(false);
     }
   };
-
   const getPasswordStrengthText = () => {
     const strengths = ["Muy débil", "Débil", "Media", "Fuerte", "Muy fuerte"];
     const colors = ["#ff6b6b", "#ffa502", "#ffd32a", "#7cfc6e", "#00ff88"];

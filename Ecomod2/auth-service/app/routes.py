@@ -125,9 +125,7 @@ def get_current_user_info(current_user: User = Depends(get_current_user)):
     return get_profile(current_user)
 
 
-# ─────────────────────────────────────────
 # RECUPERACIÓN DE CONTRASEÑA
-# ─────────────────────────────────────────
 
 @router.post("/forgot-password")
 async def forgot_password(body: dict = Body(...), db: Session = Depends(get_db)):
@@ -238,10 +236,7 @@ def root():
             "/auth/verify-token (GET)", "/auth/health (GET)"
         ]
     }
-# ============================================================
 # ADMINISTRACIÓN DE USUARIOS (SOLO ADMIN)
-# ============================================================
-
 @router.get("/users", response_model=List[UserResponse])
 def get_all_users(
     current_user: User = Depends(get_current_user),

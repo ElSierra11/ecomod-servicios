@@ -24,10 +24,7 @@ def get_db():
 
 
 async def update_order_status(order_id: int, new_status: str):
-    """
-    FIX SAGA PASO 4→5: Cuando el envío se crea, notifica a order-service
-    para actualizar el estado de la orden a 'shipped'.
-    """
+
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
             await client.patch(
@@ -89,7 +86,7 @@ async def create_shipment(body: schemas.ShipmentCreate, db: Session = Depends(ge
     db.commit()
     db.refresh(shipment)
 
-    # FIX SAGA PASO 4→5: actualizar orden a 'shipped' ahora que el envío existe
+    #  actualizar orden a 'shipped' ahora que el envío existe
     await update_order_status(body.order_id, "shipped")
 
     # Notificar al usuario

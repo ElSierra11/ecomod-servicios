@@ -205,7 +205,7 @@ export default function Dashboard() {
     },
   ];
 
-  // Datos de ejemplo para el gráfico
+  // Datos del gráfico
   const chartData = [12, 19, 15, 27, 22, 34, 42, 38, 45, 52, 48, 58];
 
   return (
@@ -482,7 +482,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Saga Flow */}
+      {/* Flujo de saga */}
       <div className="saga-section">
         <div className="section-header">
           <div className="section-title">
@@ -573,7 +573,7 @@ export default function Dashboard() {
           transition: all 0.3s ease;
         }
 
-        /* ==================== MODO OSCURO (original mejorado) ==================== */
+        /*  MODO OSCURO  */
         .dashboard-modern.dark-theme {
           background: linear-gradient(135deg, #0a0a0f, #0f0f1a);
         }

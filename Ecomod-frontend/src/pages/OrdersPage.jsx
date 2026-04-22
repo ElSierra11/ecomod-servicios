@@ -14,7 +14,7 @@ import {
   Calendar,
   AlertCircle,
   Loader2,
-  CreditCard, // ← ESTA FALTABA
+  CreditCard,
 } from "lucide-react";
 
 const STATUS = {

@@ -14,8 +14,10 @@ import AdminUsers from "./pages/AdminUsers";
 import AdminStats from "./pages/AdminStats";
 import AppLayout from "./components/AppLayout";
 import PaypalReturn from "./pages/PaypalReturn";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
-// Guard para rutas que requieren rol admin
+//rutas que requieren rol admin
 function AdminOnly({ user, children }) {
   if (user?.role !== "admin") {
     return (
@@ -69,7 +71,7 @@ function AppContent() {
       </div>
     );
 
-  // Guard principal — si no hay usuario, mostrar login
+  // principal — si no hay usuario, mostrar login
   if (!user) return <AuthPage />;
 
   return (
@@ -86,7 +88,7 @@ function AppContent() {
       {page === "payments" && <PaymentsPage />}
       {page === "shipping" && <ShippingPage />}
       {page === "notifications" && <NotificationsPage />}
-      {/* 👇 NUEVAS PÁGINAS DE ADMIN */}
+      {/*PÁGINAS DE ADMIN */}
       {page === "admin-users" && (
         <AdminOnly user={user}>
           <AdminUsers />
@@ -110,6 +112,8 @@ export default function App() {
           <Route path="/*" element={<AppContent />} />
           {/* Ruta independiente para retorno de PayPal (sin layout) */}
           <Route path="/paypal-return" element={<PaypalReturn />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

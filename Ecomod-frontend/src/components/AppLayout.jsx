@@ -17,8 +17,8 @@ import {
   ChevronRight,
   Activity,
   Server,
-  Users, // 👈 NUEVO
-  BarChart3, // 👈 NUEVO
+  Users,
+  BarChart3,
 } from "lucide-react";
 
 export default function AppLayout({ children, page, setPage }) {
@@ -35,7 +35,7 @@ export default function AppLayout({ children, page, setPage }) {
     { id: "payments", icon: CreditCard, label: "Pagos" },
     { id: "shipping", icon: Truck, label: "Envíos" },
     { id: "notifications", icon: Bell, label: "Notificaciones" },
-    // 👇 NUEVOS ITEMS SOLO PARA ADMIN
+    //ITEMS SOLO PARA ADMIN
     { id: "admin-users", icon: Users, label: "Usuarios", adminOnly: true },
     {
       id: "admin-stats",
@@ -71,8 +71,8 @@ export default function AppLayout({ children, page, setPage }) {
     payments: "Pagos",
     shipping: "Envíos",
     notifications: "Notificaciones",
-    "admin-users": "Gestión de Usuarios", // 👈 NUEVO
-    "admin-stats": "Estadísticas", // 👈 NUEVO
+    "admin-users": "Gestión de Usuarios",
+    "admin-stats": "Estadísticas",
   };
 
   const initials = user

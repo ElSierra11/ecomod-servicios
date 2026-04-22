@@ -141,7 +141,7 @@ export default function CartPage() {
 
   const handleCheckout = () => {
     setIsCheckingOut(true);
-    // Aquí redirigir a OrdersPage o crear orden directamente
+    // redirigir a OrdersPage o crear orden directamente
     setTimeout(() => {
       setIsCheckingOut(false);
       setMsg({ type: "success", text: "Redirigiendo al pago..." });

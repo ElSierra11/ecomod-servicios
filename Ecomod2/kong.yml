@@ -17,7 +17,7 @@ services:
           - PUT
           - DELETE
           - OPTIONS
-      # 👇 NUEVAS RUTAS PARA ADMINISTRACIÓN
+      # RUTAS PARA ADMIN
       - name: auth-users-route
         paths:
           - /auth/users

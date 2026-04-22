@@ -8,7 +8,7 @@ class Shipment(Base):
 
     id = Column(Integer, primary_key=True, index=True)
 
-    # Referencia a la orden (sin FK real — microservicios desacoplados)
+    # Referencia a la orden 
     order_id = Column(Integer, nullable=False, index=True, unique=True)
     user_id = Column(Integer, nullable=False, index=True)
 
@@ -25,7 +25,7 @@ class Shipment(Base):
     tracking_number = Column(String, nullable=True, unique=True)
     shipping_cost = Column(Float, nullable=False, default=0.0)
 
-    # Estado: pending, processing, shipped, in_transit, delivered, returned
+    # Estado
     status = Column(String, default="pending", nullable=False)
 
     # Fechas estimadas

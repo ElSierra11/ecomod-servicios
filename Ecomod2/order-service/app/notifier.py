@@ -24,7 +24,7 @@ async def notify_order_confirmed(order_id: int, user_id: int, email: str, total:
         pass
 
 
-# FIX: ahora usa el endpoint correcto /order-cancelled con su propio evento
+#usa el endpoint correcto /order-cancelled con su propio evento
 async def notify_order_cancelled(order_id: int, user_id: int, email: str, reason: str):
     try:
         async with httpx.AsyncClient(timeout=5.0) as client:

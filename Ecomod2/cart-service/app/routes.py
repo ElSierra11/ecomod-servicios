@@ -18,10 +18,7 @@ def get_db():
         db.close()
 
 
-# ─────────────────────────────────────────
 # HEALTH
-# ─────────────────────────────────────────
-
 @router.get("/health")
 def health():
     return {
@@ -31,9 +28,7 @@ def health():
     }
 
 
-# ─────────────────────────────────────────
 # CREAR CARRITO
-# ─────────────────────────────────────────
 
 @router.post("/", response_model=schemas.CartResponse, status_code=status.HTTP_201_CREATED)
 def create_cart(body: schemas.CartCreate, db: Session = Depends(get_db)):
@@ -60,9 +55,7 @@ def create_cart(body: schemas.CartCreate, db: Session = Depends(get_db)):
     return schemas.CartResponse.model_validate(cart)
 
 
-# ─────────────────────────────────────────
 # OBTENER CARRITO
-# ─────────────────────────────────────────
 
 @router.get("/user/{user_id}", response_model=schemas.CartResponse)
 def get_cart_by_user(user_id: int, db: Session = Depends(get_db)):
@@ -103,10 +96,7 @@ def get_cart(cart_id: int, db: Session = Depends(get_db)):
         )
     return schemas.CartResponse.model_validate(cart)
 
-
-# ─────────────────────────────────────────
 # AGREGAR ITEM AL CARRITO
-# ─────────────────────────────────────────
 
 @router.post("/{cart_id}/items", response_model=schemas.CartItemResponse, status_code=status.HTTP_201_CREATED)
 def add_item(cart_id: int, item: schemas.CartItemCreate, db: Session = Depends(get_db)):
@@ -143,9 +133,7 @@ def add_item(cart_id: int, item: schemas.CartItemCreate, db: Session = Depends(g
     return schemas.CartItemResponse.model_validate(new_item)
 
 
-# ─────────────────────────────────────────
 # ACTUALIZAR CANTIDAD DE UN ITEM
-# ─────────────────────────────────────────
 
 @router.put("/{cart_id}/items/{item_id}", response_model=schemas.CartItemResponse)
 def update_item(cart_id: int, item_id: int, update: schemas.CartItemUpdate, db: Session = Depends(get_db)):
@@ -162,10 +150,7 @@ def update_item(cart_id: int, item_id: int, update: schemas.CartItemUpdate, db: 
     db.refresh(item)
     return schemas.CartItemResponse.model_validate(item)
 
-
-# ─────────────────────────────────────────
 # ELIMINAR ITEM DEL CARRITO
-# ─────────────────────────────────────────
 
 @router.delete("/{cart_id}/items/{item_id}", status_code=status.HTTP_204_NO_CONTENT)
 def remove_item(cart_id: int, item_id: int, db: Session = Depends(get_db)):
@@ -182,9 +167,7 @@ def remove_item(cart_id: int, item_id: int, db: Session = Depends(get_db)):
     return None
 
 
-# ─────────────────────────────────────────
 # VACIAR CARRITO
-# ─────────────────────────────────────────
 
 @router.delete("/{cart_id}/items", status_code=status.HTTP_204_NO_CONTENT)
 def clear_cart(cart_id: int, db: Session = Depends(get_db)):
@@ -200,9 +183,7 @@ def clear_cart(cart_id: int, db: Session = Depends(get_db)):
     return None
 
 
-# ─────────────────────────────────────────
-# MERGE: carrito anónimo → autenticado
-# ─────────────────────────────────────────
+# MERGE: carrito anónimo autenticado
 
 @router.post("/merge", response_model=schemas.CartResponse)
 def merge_carts(request: schemas.CartMergeRequest, db: Session = Depends(get_db)):

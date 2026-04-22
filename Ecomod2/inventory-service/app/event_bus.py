@@ -24,7 +24,6 @@ EXCHANGE_NAME = "ecomod.events"
 
 
 async def get_connection():
-    """Obtiene conexión a RabbitMQ con reintentos."""
     for attempt in range(10):
         try:
             connection = await aio_pika.connect_robust(RABBITMQ_URL)
@@ -66,16 +65,6 @@ async def publish_event(event_type: str, payload: dict):
 
 
 async def subscribe_events(routing_keys: list, callback, queue_name: str):
-    """
-    Suscribe a uno o varios eventos.
-    
-    Ejemplo:
-        await subscribe_events(
-            ["inventory.reserved", "inventory.failed"],
-            handle_inventory_event,
-            "payment-service-queue"
-        )
-    """
     try:
         connection = await get_connection()
         channel = await connection.channel()

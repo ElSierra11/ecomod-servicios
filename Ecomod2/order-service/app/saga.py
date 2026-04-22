@@ -11,11 +11,7 @@ INVENTORY_SERVICE_URL = os.getenv(
 
 
 async def reserve_stock_for_order(items: List[OrderItemCreate]) -> dict:
-    """
-    Saga paso 2: reservar stock en inventory-service para cada item.
-    Si algún item falla, libera todo lo reservado (rollback).
-    Retorna: {"success": True/False, "failed_product_id": int|None, "reserved": []}
-    """
+
     reserved = []
 
     async with httpx.AsyncClient(timeout=10.0) as client:

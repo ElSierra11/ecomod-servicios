@@ -19,67 +19,43 @@ async function req(path, options = {}) {
   return data;
 }
 
-// ============================================================
 // AUTH API
-// ============================================================
 export const authApi = {
   register: (body) =>
     req("/auth/register", { method: "POST", body: JSON.stringify(body) }),
-
   login: (body) =>
     req("/auth/login", { method: "POST", body: JSON.stringify(body) }),
-
   profile: () => req("/auth/profile"),
-
   health: () => req("/auth/health"),
-
-  // Token
   refreshToken: (refreshToken) =>
     req("/auth/refresh", {
       method: "POST",
       body: JSON.stringify({ refresh_token: refreshToken }),
     }),
-
   logout: () => req("/auth/logout", { method: "POST" }),
-
-  // Perfil
   updateProfile: (profileData) =>
-    req("/auth/profile", {
-      method: "PUT",
-      body: JSON.stringify(profileData),
-    }),
-
+    req("/auth/profile", { method: "PUT", body: JSON.stringify(profileData) }),
   changePassword: ({ current_password, new_password }) =>
     req("/auth/change-password", {
       method: "POST",
       body: JSON.stringify({ current_password, new_password }),
     }),
-
-  // Recuperación de contraseña
   forgotPassword: (email) =>
     req("/auth/forgot-password", {
       method: "POST",
       body: JSON.stringify({ email }),
     }),
-
   resetPassword: (token, new_password) =>
     req("/auth/reset-password", {
       method: "POST",
       body: JSON.stringify({ token, new_password }),
     }),
-
-  // Verificación de email
   verifyEmail: (token) => req(`/auth/verify-email/${token}`, { method: "GET" }),
-
   resendVerification: (email) =>
     req("/auth/resend-verification", {
       method: "POST",
       body: JSON.stringify({ email }),
     }),
-
-  // ─────────────────────────────────────────
-  // ADMINISTRACIÓN DE USUARIOS (solo admin)
-  // ─────────────────────────────────────────
   getAllUsers: () => req("/auth/users"),
   getUserById: (userId) => req(`/auth/users/${userId}`),
   updateUserRole: (userId, role) =>
@@ -96,9 +72,7 @@ export const authApi = {
   getUserStats: () => req("/auth/stats/users"),
 };
 
-// ============================================================
 // CATALOG API
-// ============================================================
 export const catalogApi = {
   getProducts: (params = "") => req(`/catalog/products${params}`),
   getProduct: (id) => req(`/catalog/products/${id}`),
@@ -118,9 +92,7 @@ export const catalogApi = {
   health: () => req("/catalog/health"),
 };
 
-// ============================================================
 // INVENTORY API
-// ============================================================
 export const inventoryApi = {
   getAll: () => req("/inventory/"),
   getStock: (pid) => req(`/inventory/${pid}`),
@@ -135,9 +107,7 @@ export const inventoryApi = {
   health: () => req("/inventory/health"),
 };
 
-// ============================================================
 // CART API
-// ============================================================
 export const cartApi = {
   create: (body = {}) =>
     req("/cart/", { method: "POST", body: JSON.stringify(body) }),
@@ -162,9 +132,7 @@ export const cartApi = {
   health: () => req("/cart/health"),
 };
 
-// ============================================================
 // ORDERS API
-// ============================================================
 export const ordersApi = {
   create: (body) =>
     req("/orders/", {
@@ -194,25 +162,22 @@ export const ordersApi = {
   health: () => req("/orders/health"),
 };
 
-// ============================================================
 // PAYMENTS API
-// ============================================================
 export const paymentsApi = {
-  // ── Stripe ──────────────────────────────────────────────────────────────
+  // ── Stripe (rutas actualizadas)
   createIntent: (body) =>
-    req("/payments/create-intent", {
+    req("/payments/stripe/create-intent", {
       method: "POST",
       body: JSON.stringify(body),
     }),
 
   confirmIntent: (body) =>
-    req("/payments/confirm", { method: "POST", body: JSON.stringify(body) }),
+    req("/payments/stripe/confirm", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
 
-  // ── Métodos alternativos (Nequi, Daviplata, simulaciones) ────────────────
-  process: (body) =>
-    req("/payments/", { method: "POST", body: JSON.stringify(body) }),
-
-  // ── PayPal ──────────────────────────────────────────────────────────────
+  // ── PayPal
   createPaypalOrder: (body) =>
     req("/payments/paypal/create", {
       method: "POST",
@@ -222,18 +187,16 @@ export const paymentsApi = {
   executePaypalOrder: (paymentId, payerId, orderId) =>
     req(
       `/payments/paypal/execute?paymentId=${paymentId}&PayerID=${payerId}&order_id=${orderId}`,
-      {
-        method: "GET",
-      },
+      { method: "GET" },
     ),
 
-  // ── Consultas ────────────────────────────────────────────────────────────
+  // ── Consultas
   getAll: () => req("/payments/"),
   getById: (id) => req(`/payments/${id}`),
   getByOrder: (orderId) => req(`/payments/order/${orderId}`),
   getByUser: (userId) => req(`/payments/user/${userId}`),
 
-  // ── Reembolso ────────────────────────────────────────────────────────────
+  // ── Reembolso
   refund: (id, body = {}) =>
     req(`/payments/${id}/refund`, {
       method: "POST",
@@ -243,9 +206,7 @@ export const paymentsApi = {
   health: () => req("/payments/health"),
 };
 
-// ============================================================
 // SHIPPING API
-// ============================================================
 export const shippingApi = {
   create: (body) =>
     req("/shipping/", { method: "POST", body: JSON.stringify(body) }),
@@ -267,9 +228,7 @@ export const shippingApi = {
   health: () => req("/shipping/health"),
 };
 
-// ============================================================
 // NOTIFICATIONS API
-// ============================================================
 export const notificationsApi = {
   getAll: () => req("/notifications/"),
   getByUser: (userId) => req(`/notifications/user/${userId}`),
@@ -291,9 +250,7 @@ export const notificationsApi = {
   health: () => req("/notifications/health"),
 };
 
-// ============================================================
 // TOKEN UTILS
-// ============================================================
 export const tokenUtils = {
   getToken,
   getRefreshToken,

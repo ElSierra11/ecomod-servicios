@@ -2,7 +2,7 @@ import uuid
 import random
 from datetime import datetime, timedelta
 
-# Tarifas por departamento (simuladas — en producción se llamaría a la API del transportista)
+# Tarifas por departamento 
 SHIPPING_RATES = {
     "Bogotá":          {"cost": 8500,  "days": 1},
     "Antioquia":       {"cost": 9000,  "days": 2},
