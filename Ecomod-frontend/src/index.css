@@ -1135,3 +1135,50 @@ tbody tr:hover td {
     padding: 20px;
   }
 }
+/* Agrega al final de tu index.css */
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Mejora hover de servicios en sidebar */
+.service-item {
+  transition: all 0.2s ease;
+}
+
+.service-item:hover {
+  background: var(--surface) !important;
+  transform: translateX(4px);
+}
+
+/* Mejora botones */
+.btn-logout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Scrollbar más elegante */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg2);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border2);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}

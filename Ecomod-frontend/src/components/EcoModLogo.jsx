@@ -1,7 +1,16 @@
 import { useState, useEffect, useRef } from "react";
+import { Activity, Server, Zap, Network } from "lucide-react";
 
 const SERVICES = [
-  { id: "auth", label: "Auth Service", x: 60, y: 80, color: "#7cfc6e", r: 5 },
+  {
+    id: "auth",
+    label: "Auth Service",
+    x: 60,
+    y: 80,
+    color: "#7cfc6e",
+    r: 5,
+    icon: "🔐",
+  },
   {
     id: "catalog",
     label: "Catalog Service",
@@ -9,6 +18,7 @@ const SERVICES = [
     y: 140,
     color: "#a78bfa",
     r: 4,
+    icon: "📚",
   },
   {
     id: "inventory",
@@ -17,8 +27,17 @@ const SERVICES = [
     y: 200,
     color: "#7cfc6e",
     r: 3,
+    icon: "📦",
   },
-  { id: "cart", label: "Cart Service", x: 110, y: 250, color: "#00e5ff", r: 4 },
+  {
+    id: "cart",
+    label: "Cart Service",
+    x: 110,
+    y: 250,
+    color: "#00e5ff",
+    r: 4,
+    icon: "🛒",
+  },
   {
     id: "orders",
     label: "Order Service",
@@ -26,6 +45,7 @@ const SERVICES = [
     y: 80,
     color: "#7cfc6e",
     r: 5,
+    icon: "📋",
   },
   {
     id: "payments",
@@ -34,6 +54,7 @@ const SERVICES = [
     y: 145,
     color: "#00e5ff",
     r: 4,
+    icon: "💳",
   },
   {
     id: "shipping",
@@ -42,6 +63,7 @@ const SERVICES = [
     y: 210,
     color: "#a78bfa",
     r: 3,
+    icon: "🚚",
   },
   {
     id: "notifications",
@@ -50,6 +72,7 @@ const SERVICES = [
     y: 260,
     color: "#f472b6",
     r: 4,
+    icon: "🔔",
   },
 ];
 
@@ -98,16 +121,35 @@ export default function EcoModLogo() {
       y: CENTER.y,
       color: "#7cfc6e",
       r: 8,
+      icon: "🚪",
     },
   ];
 
   return (
-    <div style={{ position: "relative", width: "100%" }}>
+    <div style={{ position: "relative", width: "100%", cursor: "pointer" }}>
       <svg
         width="100%"
         viewBox="0 0 680 300"
         style={{ display: "block", overflow: "visible" }}
       >
+        <defs>
+          <linearGradient id="ecoGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#7cfc6e" />
+            <stop offset="100%" stopColor="#00e5ff" />
+          </linearGradient>
+          <linearGradient id="kongGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#7cfc6e" />
+            <stop offset="100%" stopColor="#f472b6" />
+          </linearGradient>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+            <feMerge>
+              <feMergeNode in="coloredBlur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+
         {/* Conexiones animadas */}
         {CONNECTIONS.map(([a, b], i) => {
           const nodeA = allNodes[a];
@@ -121,11 +163,12 @@ export default function EcoModLogo() {
               y1={nodeA.y}
               x2={nodeB.x}
               y2={nodeB.y}
-              stroke={isActive ? nodeA.color : "#7cfc6e"}
-              strokeWidth={isActive ? 1.5 : 0.8}
-              opacity={isActive ? 0.7 : 0.2}
-              strokeDasharray="4 4"
+              stroke={isActive ? nodeA.color : "currentColor"}
+              strokeWidth={isActive ? 2 : 0.8}
+              opacity={isActive ? 0.8 : 0.15}
+              strokeDasharray="4 6"
               strokeDashoffset={dashOffset + i * 2}
+              style={{ transition: "all 0.3s ease" }}
             />
           );
         })}
@@ -136,24 +179,25 @@ export default function EcoModLogo() {
           cy={CENTER.y}
           r={52 + tick * 2}
           fill="none"
-          stroke="#7cfc6e"
-          strokeWidth="0.8"
+          stroke="url(#kongGrad)"
+          strokeWidth="1"
           opacity={0.1 + Math.abs(tick) * 0.15}
         />
         <circle
           cx={CENTER.x}
           cy={CENTER.y}
-          r="38"
+          r="40"
           fill="none"
-          stroke="#7cfc6e"
-          strokeWidth="1.2"
-          opacity="0.25"
+          stroke="url(#kongGrad)"
+          strokeWidth="1.5"
+          opacity="0.3"
+          strokeDasharray="4 8"
         />
         <circle
           cx={CENTER.x}
           cy={CENTER.y}
-          r="24"
-          fill="#7cfc6e"
+          r="26"
+          fill="url(#kongGrad)"
           opacity="0.08"
         />
 
@@ -168,31 +212,50 @@ export default function EcoModLogo() {
               onMouseEnter={() => setHovered(node.id)}
               onMouseLeave={() => setHovered(null)}
             >
+              {/* Halo de hover */}
               <circle
                 cx={node.x}
                 cy={node.y}
-                r={node.r + 8}
+                r={node.r + 12}
+                fill="none"
+                stroke={node.color}
+                strokeWidth="1.5"
+                opacity={isHov ? 0.4 : 0}
+                style={{ transition: "opacity 0.2s ease" }}
+              />
+
+              {/* Núcleo */}
+              <circle
+                cx={node.x}
+                cy={node.y}
+                r={isHov ? node.r + 3 : node.r + Math.abs(pulse) * 1.5}
+                fill={node.color}
+                opacity={isHov ? 1 : 0.7 + Math.abs(pulse) * 0.2}
+                filter={isHov ? "url(#glow)" : "none"}
+              />
+
+              {/* Pulso */}
+              <circle
+                cx={node.x}
+                cy={node.y}
+                r={node.r + 5 + Math.abs(pulse) * 3}
                 fill="none"
                 stroke={node.color}
                 strokeWidth="1"
-                opacity={isHov ? 0.5 : 0}
+                opacity={0.2 + Math.abs(pulse) * 0.2}
               />
-              <circle
-                cx={node.x}
-                cy={node.y}
-                r={isHov ? node.r + 2 : node.r + Math.abs(pulse) * 1.5}
-                fill={node.color}
-                opacity={isHov ? 1 : 0.6 + Math.abs(pulse) * 0.3}
-              />
-              <circle
-                cx={node.x}
-                cy={node.y}
-                r={node.r + 4 + Math.abs(pulse) * 2}
-                fill="none"
-                stroke={node.color}
-                strokeWidth="0.8"
-                opacity={0.15 + Math.abs(pulse) * 0.2}
-              />
+
+              {/* Icono */}
+              <text
+                x={node.x}
+                y={node.y + 4}
+                textAnchor="middle"
+                fontSize={node.r + 2}
+                fill={isHov ? "#fff" : "rgba(0,0,0,0.6)"}
+                style={{ pointerEvents: "none" }}
+              >
+                {node.icon}
+              </text>
             </g>
           );
         })}
@@ -203,34 +266,64 @@ export default function EcoModLogo() {
           onMouseEnter={() => setHovered("kong")}
           onMouseLeave={() => setHovered(null)}
         >
+          {/* Anillos decorativos */}
           <circle
             cx={CENTER.x}
             cy={CENTER.y}
-            r={hovered === "kong" ? 11 : 8 + Math.abs(tick)}
-            fill="#7cfc6e"
-            opacity={0.8 + Math.abs(tick) * 0.2}
-          />
-          <circle
-            cx={CENTER.x}
-            cy={CENTER.y}
-            r="14"
+            r="22"
             fill="none"
-            stroke="#7cfc6e"
+            stroke="url(#kongGrad)"
             strokeWidth="1"
+            opacity={0.4}
+            strokeDasharray="2 6"
+          />
+
+          {/* Núcleo central */}
+          <circle
+            cx={CENTER.x}
+            cy={CENTER.y}
+            r={hovered === "kong" ? 14 : 10 + Math.abs(tick) * 1.5}
+            fill="url(#kongGrad)"
+            opacity={0.9 + Math.abs(tick) * 0.1}
+            filter={hovered === "kong" ? "url(#glow)" : "none"}
+          />
+
+          {/* Icono Kong */}
+          <text
+            x={CENTER.x}
+            y={CENTER.y + 5}
+            textAnchor="middle"
+            fontSize="16"
+            fill="#fff"
+            style={{ pointerEvents: "none", fontWeight: "bold" }}
+          >
+            🚪
+          </text>
+
+          {/* Pulso */}
+          <circle
+            cx={CENTER.x}
+            cy={CENTER.y}
+            r="18"
+            fill="none"
+            stroke="url(#kongGrad)"
+            strokeWidth="1.5"
             opacity={hovered === "kong" ? 0.6 : Math.abs(tick) * 0.3}
+            style={{ transition: "opacity 0.2s ease" }}
           />
         </g>
 
         {/* Texto EcoMod */}
         <text
-          x="210"
+          x="195"
           y="192"
           textAnchor="start"
           style={{
-            fill: "#7cfc6e",
+            fill: "url(#ecoGrad)",
             fontFamily: "'Syne','DM Sans',sans-serif",
             fontWeight: 900,
             fontSize: 78,
+            letterSpacing: -2,
           }}
         >
           Eco
@@ -240,10 +333,11 @@ export default function EcoModLogo() {
           y="192"
           textAnchor="start"
           style={{
-            fill: "#ffffff",
+            fill: "var(--text)",
             fontFamily: "'Syne','DM Sans',sans-serif",
             fontWeight: 900,
             fontSize: 78,
+            letterSpacing: -2,
           }}
         >
           Mod
@@ -255,10 +349,11 @@ export default function EcoModLogo() {
           y="228"
           textAnchor="middle"
           style={{
-            fill: "#555566",
-            fontFamily: "sans-serif",
-            fontSize: 13,
-            letterSpacing: 4,
+            fill: "var(--text3)",
+            fontFamily: "var(--font-body)",
+            fontSize: 12,
+            letterSpacing: 5,
+            fontWeight: 600,
           }}
         >
           COMMERCE PLATFORM
@@ -270,12 +365,12 @@ export default function EcoModLogo() {
           y1="240"
           x2="440"
           y2="240"
-          stroke="#7cfc6e"
-          strokeWidth="0.5"
-          opacity="0.25"
+          stroke="url(#ecoGrad)"
+          strokeWidth="0.8"
+          opacity="0.3"
         />
 
-        {/* 8 puntos */}
+        {/* 8 puntos animados */}
         {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
           <circle
             key={i}
@@ -294,26 +389,29 @@ export default function EcoModLogo() {
                 "#00e5ff",
               ][i]
             }
-            opacity={0.5 + Math.abs(Math.sin(tick * 2 + i * 0.5)) * 0.5}
+            opacity={0.4 + Math.abs(Math.sin(tick * 2 + i * 0.5)) * 0.5}
+            style={{ transition: "opacity 0.2s ease" }}
           />
         ))}
 
+        {/* Stats */}
         <text
           x="340"
           y="278"
           textAnchor="middle"
           style={{
-            fill: "#333344",
-            fontFamily: "sans-serif",
-            fontSize: 10,
+            fill: "var(--text3)",
+            fontFamily: "var(--font-body)",
+            fontSize: 9,
             letterSpacing: 2,
+            fontWeight: 500,
           }}
         >
-          8 MICROSERVICIOS
+          8 MICROSERVICIOS CONECTADOS
         </text>
       </svg>
 
-      {/* Tooltip */}
+      {/* Tooltip moderno */}
       {hovered && (
         <div
           style={{
@@ -321,19 +419,57 @@ export default function EcoModLogo() {
             bottom: 8,
             left: "50%",
             transform: "translateX(-50%)",
-            background: "rgba(10,10,15,0.9)",
-            border: "1px solid #7cfc6e40",
-            borderRadius: 8,
-            padding: "4px 14px",
+            background: "var(--surface)",
+            border: `1px solid ${allNodes.find((n) => n.id === hovered)?.color || "var(--border)"}40`,
+            borderRadius: "var(--radius)",
+            padding: "6px 16px",
             fontSize: 12,
-            color: "#7cfc6e",
+            color:
+              allNodes.find((n) => n.id === hovered)?.color || "var(--accent)",
             pointerEvents: "none",
             whiteSpace: "nowrap",
-            fontFamily: "sans-serif",
-            letterSpacing: 1,
+            fontFamily: "var(--font-body)",
+            fontWeight: 500,
+            letterSpacing: 0.5,
+            backdropFilter: "blur(8px)",
+            zIndex: 1000,
+            boxShadow: "var(--shadow-sm)",
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
           }}
         >
-          {allNodes.find((n) => n.id === hovered)?.label}
+          <span style={{ fontSize: 14 }}>
+            {allNodes.find((n) => n.id === hovered)?.icon}
+          </span>
+          <span>{allNodes.find((n) => n.id === hovered)?.label}</span>
+          <span
+            style={{
+              fontSize: 10,
+              color: "var(--text3)",
+              fontFamily: "monospace",
+            }}
+          >
+            {hovered === "kong"
+              ? "Gateway"
+              : `:${
+                  hovered === "auth"
+                    ? "8002"
+                    : hovered === "catalog"
+                      ? "8003"
+                      : hovered === "inventory"
+                        ? "8004"
+                        : hovered === "cart"
+                          ? "8005"
+                          : hovered === "orders"
+                            ? "8006"
+                            : hovered === "payments"
+                              ? "8007"
+                              : hovered === "shipping"
+                                ? "8008"
+                                : "8009"
+                }`}
+          </span>
         </div>
       )}
     </div>

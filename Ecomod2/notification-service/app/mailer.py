@@ -2,34 +2,26 @@ import os
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from datetime import datetime
 
-SMTP_HOST = os.getenv("SMTP_HOST", "")
-SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
-SMTP_USER = os.getenv("SMTP_USER", "")
-SMTP_PASS = os.getenv("SMTP_PASS", "")
+SMTP_HOST  = os.getenv("SMTP_HOST", "")
+SMTP_PORT  = int(os.getenv("SMTP_PORT", "587"))
+SMTP_USER  = os.getenv("SMTP_USER", "")
+SMTP_PASS  = os.getenv("SMTP_PASS", "")
 FROM_EMAIL = os.getenv("FROM_EMAIL", "noreply@ecomod.com")
-FROM_NAME = os.getenv("FROM_NAME", "EcoMod")
+FROM_NAME  = os.getenv("FROM_NAME",  "EcoMod")
 
 
 def send_email(to_email: str, subject: str, html_body: str) -> dict:
-    """
-    Envía un email real si hay credenciales SMTP configuradas.
-    Si no hay credenciales, simula el envío (útil para desarrollo).
-    """
     if not SMTP_HOST or not SMTP_USER:
-        # Modo simulación — log del email
         print(f"[EMAIL SIMULADO] Para: {to_email} | Asunto: {subject}")
         return {"success": True, "simulated": True}
 
     try:
         msg = MIMEMultipart("alternative")
         msg["Subject"] = subject
-        msg["From"] = f"{FROM_NAME} <{FROM_EMAIL}>"
-        msg["To"] = to_email
-
-        part = MIMEText(html_body, "html")
-        msg.attach(part)
+        msg["From"]    = f"{FROM_NAME} <{FROM_EMAIL}>"
+        msg["To"]      = to_email
+        msg.attach(MIMEText(html_body, "html"))
 
         with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
             server.starttls()
@@ -49,6 +41,19 @@ def build_order_confirmed_email(order_id: int, total: float, items: int) -> dict
         <p>Orden <strong>#{order_id}</strong> — Total: <strong>${total:,.0f}</strong></p>
         <p>{items} producto(s) reservados en inventario.</p>
         <p>Procede al pago para completar tu compra.</p>
+        """
+    }
+
+
+# FIX: email propio para orden cancelada
+def build_order_cancelled_email(order_id: int, reason: str) -> dict:
+    return {
+        "subject": f"❌ Orden #{order_id} cancelada — EcoMod",
+        "body": f"""
+        <h2>Tu orden fue cancelada</h2>
+        <p>La orden <strong>#{order_id}</strong> fue cancelada.</p>
+        <p>Motivo: {reason}</p>
+        <p>Si crees que esto es un error, contáctanos.</p>
         """
     }
 

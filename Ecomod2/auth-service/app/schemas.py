@@ -1,6 +1,10 @@
 from pydantic import BaseModel, EmailStr, Field, ConfigDict
-from typing import Optional
+from typing import Optional, List  # 👈 Agrega List si no está
 from datetime import datetime
+
+# ============================================================
+# AUTENTICACIÓN Y USUARIOS
+# ============================================================
 
 class UserCreate(BaseModel):
     email: EmailStr
@@ -37,3 +41,23 @@ class RefreshTokenRequest(BaseModel):
 class PasswordChangeRequest(BaseModel):
     current_password: str
     new_password: str = Field(..., min_length=8)
+
+# ============================================================
+# ADMINISTRACIÓN DE USUARIOS (SOLO ADMIN)
+# ============================================================
+
+class RoleUpdate(BaseModel):
+    """Esquema para actualizar el rol de un usuario"""
+    role: str = Field(..., pattern="^(admin|cliente)$", description="Rol del usuario: 'admin' o 'cliente'")
+
+class UserStatusUpdate(BaseModel):
+    """Esquema para activar/desactivar un usuario"""
+    is_active: bool = Field(..., description="True para activar, False para desactivar")
+
+class UserStatsResponse(BaseModel):
+    """Estadísticas de usuarios (solo admin)"""
+    total: int
+    active: int
+    inactive: int
+    admins: int
+    clients: int

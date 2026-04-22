@@ -147,6 +147,24 @@ services:
       retries: 5
     networks:
       - ecomod-network
+
+  rabbitmq:
+    image: rabbitmq:3.12-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    networks:
+      - ecomod-network
+
   # ─────────────────────────────────────────
   # MICROSERVICIOS
   # ─────────────────────────────────────────
@@ -162,7 +180,6 @@ services:
       SECRET_KEY: ${SECRET_KEY:-ecomod_secret_dev}
       REFRESH_SECRET_KEY: ${REFRESH_SECRET_KEY:-ecomod_refresh_secret_dev}
       ALGORITHM: HS256
-      NOTIFICATION_SERVICE_URL: http://notification-service:8007
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/auth/health"]
       interval: 15s
@@ -203,6 +220,7 @@ services:
       DATABASE_URL: postgresql://postgres:${DB_PASSWORD:-password}@inventory-db:5432/inventorydb
       SECRET_KEY: ${SECRET_KEY:-ecomod_secret_dev}
       ALGORITHM: HS256
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8002/inventory/health"]
       interval: 15s
@@ -241,6 +259,7 @@ services:
       DATABASE_URL: postgresql://postgres:${DB_PASSWORD:-password}@order-db:5432/orderdb
       INVENTORY_SERVICE_URL: http://inventory-service:8002
       NOTIFICATION_SERVICE_URL: http://notification-service:8007
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8004/orders/health"]
       interval: 15s
@@ -262,7 +281,13 @@ services:
       ORDER_SERVICE_URL: http://order-service:8004
       INVENTORY_SERVICE_URL: http://inventory-service:8002
       NOTIFICATION_SERVICE_URL: http://notification-service:8007
+      # Stripe (opcional)
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      # PayPal
+      PAYPAL_CLIENT_ID: ${PAYPAL_CLIENT_ID:-}
+      PAYPAL_SECRET_KEY: ${PAYPAL_SECRET_KEY:-}
+      PAYPAL_MODE: ${PAYPAL_MODE:-sandbox}
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8005/payments/health"]
       interval: 15s
@@ -282,6 +307,7 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:${DB_PASSWORD:-password}@shipping-db:5432/shippingdb
       NOTIFICATION_SERVICE_URL: http://notification-service:8007
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8006/shipping/health"]
       interval: 15s
@@ -314,9 +340,9 @@ services:
       start_period: 10s
     networks:
       - ecomod-network
+
   # ─────────────────────────────────────────
   # KONG API GATEWAY — MODO DECLARATIVO (DB-less)
-  # Kong Manager habilitado en :8080
   # ─────────────────────────────────────────
   kong:
     image: kong:3.6

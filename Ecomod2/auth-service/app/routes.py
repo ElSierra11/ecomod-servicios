@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import APIRouter, HTTPException, Depends, status, Body
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
@@ -9,7 +10,8 @@ from app.database import SessionLocal
 from app.models import User
 from app.schemas import (
     UserCreate, UserLogin, RefreshTokenRequest,
-    PasswordChangeRequest, UserResponse, TokenResponse
+    PasswordChangeRequest, UserResponse, TokenResponse,
+    RoleUpdate, UserStatusUpdate, UserStatsResponse  
 )
 from app.security import hash_password, verify_password
 from app.auth import create_access_token, create_refresh_token, verify_token
@@ -235,4 +237,228 @@ def root():
             "/auth/reset-password (POST)", "/auth/logout (POST)",
             "/auth/verify-token (GET)", "/auth/health (GET)"
         ]
+    }
+# ============================================================
+# ADMINISTRACIÓN DE USUARIOS (SOLO ADMIN)
+# ============================================================
+
+@router.get("/users", response_model=List[UserResponse])
+def get_all_users(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Obtiene todos los usuarios del sistema.
+    🔒 Solo accesible para administradores.
+    """
+    # Verificar rol admin
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied. Admin privileges required."
+        )
+    
+    users = db.query(User).order_by(User.id).all()
+    return users
+
+
+@router.get("/users/{user_id}", response_model=UserResponse)
+def get_user_by_id(
+    user_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Obtiene un usuario específico por su ID.
+    🔒 Solo accesible para administradores.
+    """
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied. Admin privileges required."
+        )
+    
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    return user
+
+
+@router.patch("/users/{user_id}/role")
+def update_user_role(
+    user_id: int,
+    body: dict = Body(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Actualiza el rol de un usuario (admin/user).
+    🔒 Solo accesible para administradores.
+    """
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied. Admin privileges required."
+        )
+    
+    new_role = body.get("role")
+    if new_role not in ["admin", "cliente"]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Role must be 'admin' or 'cliente'"
+        )
+    
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    # No permitir cambiar el propio rol si eres el único admin
+    if user.id == current_user.id and new_role != "admin":
+        admin_count = db.query(User).filter(User.role == "admin").count()
+        if admin_count <= 1:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Cannot remove your own admin privileges. There must be at least one admin."
+            )
+    
+    user.role = new_role
+    user.updated_at = datetime.utcnow()
+    db.commit()
+    db.refresh(user)
+    
+    return {
+        "message": f"User {user.email} role updated to {new_role}",
+        "user_id": user.id,
+        "role": user.role
+    }
+
+
+@router.patch("/users/{user_id}/status")
+def update_user_status(
+    user_id: int,
+    body: dict = Body(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Activa o desactiva un usuario.
+    🔒 Solo accesible para administradores.
+    """
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied. Admin privileges required."
+        )
+    
+    is_active = body.get("is_active")
+    if not isinstance(is_active, bool):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="is_active must be a boolean"
+        )
+    
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    # No permitir desactivarse a sí mismo
+    if user.id == current_user.id and not is_active:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="You cannot deactivate your own account"
+        )
+    
+    user.is_active = is_active
+    user.updated_at = datetime.utcnow()
+    db.commit()
+    db.refresh(user)
+    
+    return {
+        "message": f"User {user.email} status updated to {'active' if is_active else 'inactive'}",
+        "user_id": user.id,
+        "is_active": user.is_active
+    }
+
+
+@router.delete("/users/{user_id}")
+def delete_user(
+    user_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Elimina un usuario del sistema.
+    🔒 Solo accesible para administradores.
+    """
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied. Admin privileges required."
+        )
+    
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    # No permitir eliminar tu propia cuenta
+    if user.id == current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="You cannot delete your own account"
+        )
+    
+    # Verificar que no sea el último admin
+    if user.role == "admin":
+        admin_count = db.query(User).filter(User.role == "admin").count()
+        if admin_count <= 1:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Cannot delete the last admin user"
+            )
+    
+    db.delete(user)
+    db.commit()
+    
+    return {"message": f"User {user.email} deleted successfully"}
+
+
+@router.get("/stats/users")
+def get_user_stats(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Obtiene estadísticas de usuarios.
+    🔒 Solo accesible para administradores.
+    """
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied. Admin privileges required."
+        )
+    
+    total_users = db.query(User).count()
+    active_users = db.query(User).filter(User.is_active == True).count()
+    inactive_users = total_users - active_users
+    admin_users = db.query(User).filter(User.role == "admin").count()
+    client_users = db.query(User).filter(User.role == "cliente").count()
+    
+    return {
+        "total": total_users,
+        "active": active_users,
+        "inactive": inactive_users,
+        "admins": admin_users,
+        "clients": client_users
     }

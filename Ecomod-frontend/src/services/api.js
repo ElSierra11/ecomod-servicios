@@ -4,27 +4,101 @@ function getToken() {
   return localStorage.getItem("ecomod_token");
 }
 
+function getRefreshToken() {
+  return localStorage.getItem("ecomod_refresh_token");
+}
+
 async function req(path, options = {}) {
   const token = getToken();
   const headers = { "Content-Type": "application/json", ...options.headers };
   if (token) headers["Authorization"] = `Bearer ${token}`;
   const res = await fetch(`${BASE}${path}`, { ...options, headers });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.detail || `Error ${res.status}`);
+  if (!res.ok)
+    throw new Error(data.detail || data.message || `Error ${res.status}`);
   return data;
 }
 
-// AUTH
+// ============================================================
+// AUTH API
+// ============================================================
 export const authApi = {
   register: (body) =>
     req("/auth/register", { method: "POST", body: JSON.stringify(body) }),
+
   login: (body) =>
     req("/auth/login", { method: "POST", body: JSON.stringify(body) }),
+
   profile: () => req("/auth/profile"),
+
   health: () => req("/auth/health"),
+
+  // Token
+  refreshToken: (refreshToken) =>
+    req("/auth/refresh", {
+      method: "POST",
+      body: JSON.stringify({ refresh_token: refreshToken }),
+    }),
+
+  logout: () => req("/auth/logout", { method: "POST" }),
+
+  // Perfil
+  updateProfile: (profileData) =>
+    req("/auth/profile", {
+      method: "PUT",
+      body: JSON.stringify(profileData),
+    }),
+
+  changePassword: ({ current_password, new_password }) =>
+    req("/auth/change-password", {
+      method: "POST",
+      body: JSON.stringify({ current_password, new_password }),
+    }),
+
+  // Recuperación de contraseña
+  forgotPassword: (email) =>
+    req("/auth/forgot-password", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    }),
+
+  resetPassword: (token, new_password) =>
+    req("/auth/reset-password", {
+      method: "POST",
+      body: JSON.stringify({ token, new_password }),
+    }),
+
+  // Verificación de email
+  verifyEmail: (token) => req(`/auth/verify-email/${token}`, { method: "GET" }),
+
+  resendVerification: (email) =>
+    req("/auth/resend-verification", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    }),
+
+  // ─────────────────────────────────────────
+  // ADMINISTRACIÓN DE USUARIOS (solo admin)
+  // ─────────────────────────────────────────
+  getAllUsers: () => req("/auth/users"),
+  getUserById: (userId) => req(`/auth/users/${userId}`),
+  updateUserRole: (userId, role) =>
+    req(`/auth/users/${userId}/role`, {
+      method: "PATCH",
+      body: JSON.stringify({ role }),
+    }),
+  updateUserStatus: (userId, isActive) =>
+    req(`/auth/users/${userId}/status`, {
+      method: "PATCH",
+      body: JSON.stringify({ is_active: isActive }),
+    }),
+  deleteUser: (userId) => req(`/auth/users/${userId}`, { method: "DELETE" }),
+  getUserStats: () => req("/auth/stats/users"),
 };
 
-// CATALOG
+// ============================================================
+// CATALOG API
+// ============================================================
 export const catalogApi = {
   getProducts: (params = "") => req(`/catalog/products${params}`),
   getProduct: (id) => req(`/catalog/products/${id}`),
@@ -44,7 +118,9 @@ export const catalogApi = {
   health: () => req("/catalog/health"),
 };
 
-// INVENTORY
+// ============================================================
+// INVENTORY API
+// ============================================================
 export const inventoryApi = {
   getAll: () => req("/inventory/"),
   getStock: (pid) => req(`/inventory/${pid}`),
@@ -59,7 +135,9 @@ export const inventoryApi = {
   health: () => req("/inventory/health"),
 };
 
-// CART
+// ============================================================
+// CART API
+// ============================================================
 export const cartApi = {
   create: (body = {}) =>
     req("/cart/", { method: "POST", body: JSON.stringify(body) }),
@@ -84,10 +162,27 @@ export const cartApi = {
   health: () => req("/cart/health"),
 };
 
-// ORDERS
+// ============================================================
+// ORDERS API
+// ============================================================
 export const ordersApi = {
   create: (body) =>
-    req("/orders/", { method: "POST", body: JSON.stringify(body) }),
+    req("/orders/", {
+      method: "POST",
+      body: JSON.stringify({
+        user_id: body.user_id,
+        cart_id: body.cart_id,
+        items: body.items.map((item) => ({
+          product_id: parseInt(item.product_id),
+          product_name: item.product_name,
+          unit_price: parseFloat(item.unit_price),
+          quantity: parseInt(item.quantity),
+        })),
+        notes: body.notes || null,
+        email: body.email || null,
+        total_amount: body.total_amount,
+      }),
+    }),
   getAll: () => req("/orders/"),
   getById: (id) => req(`/orders/${id}`),
   getByUser: (userId) => req(`/orders/user/${userId}`),
@@ -99,23 +194,58 @@ export const ordersApi = {
   health: () => req("/orders/health"),
 };
 
-// PAYMENTS
+// ============================================================
+// PAYMENTS API
+// ============================================================
 export const paymentsApi = {
+  // ── Stripe ──────────────────────────────────────────────────────────────
+  createIntent: (body) =>
+    req("/payments/create-intent", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+
+  confirmIntent: (body) =>
+    req("/payments/confirm", { method: "POST", body: JSON.stringify(body) }),
+
+  // ── Métodos alternativos (Nequi, Daviplata, simulaciones) ────────────────
   process: (body) =>
     req("/payments/", { method: "POST", body: JSON.stringify(body) }),
+
+  // ── PayPal ──────────────────────────────────────────────────────────────
+  createPaypalOrder: (body) =>
+    req("/payments/paypal/create", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+
+  executePaypalOrder: (paymentId, payerId, orderId) =>
+    req(
+      `/payments/paypal/execute?paymentId=${paymentId}&PayerID=${payerId}&order_id=${orderId}`,
+      {
+        method: "GET",
+      },
+    ),
+
+  // ── Consultas ────────────────────────────────────────────────────────────
   getAll: () => req("/payments/"),
   getById: (id) => req(`/payments/${id}`),
   getByOrder: (orderId) => req(`/payments/order/${orderId}`),
   getByUser: (userId) => req(`/payments/user/${userId}`),
+
+  // ── Reembolso ────────────────────────────────────────────────────────────
   refund: (id, body = {}) =>
     req(`/payments/${id}/refund`, {
       method: "POST",
       body: JSON.stringify(body),
     }),
+
   health: () => req("/payments/health"),
 };
 
-// SHIPPING
+// ============================================================
+// SHIPPING API
+// ============================================================
 export const shippingApi = {
   create: (body) =>
     req("/shipping/", { method: "POST", body: JSON.stringify(body) }),
@@ -137,7 +267,9 @@ export const shippingApi = {
   health: () => req("/shipping/health"),
 };
 
-// NOTIFICATIONS
+// ============================================================
+// NOTIFICATIONS API
+// ============================================================
 export const notificationsApi = {
   getAll: () => req("/notifications/"),
   getByUser: (userId) => req(`/notifications/user/${userId}`),
@@ -157,4 +289,19 @@ export const notificationsApi = {
       body: JSON.stringify(body),
     }),
   health: () => req("/notifications/health"),
+};
+
+// ============================================================
+// TOKEN UTILS
+// ============================================================
+export const tokenUtils = {
+  getToken,
+  getRefreshToken,
+  setToken: (token) => localStorage.setItem("ecomod_token", token),
+  setRefreshToken: (refreshToken) =>
+    localStorage.setItem("ecomod_refresh_token", refreshToken),
+  removeTokens: () => {
+    localStorage.removeItem("ecomod_token");
+    localStorage.removeItem("ecomod_refresh_token");
+  },
 };

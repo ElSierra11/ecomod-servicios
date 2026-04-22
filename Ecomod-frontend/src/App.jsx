@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import AuthPage from "./pages/AuthPage";
 import Dashboard from "./pages/Dashboard";
@@ -9,7 +10,10 @@ import OrdersPage from "./pages/OrdersPage";
 import PaymentsPage from "./pages/PaymentsPage";
 import ShippingPage from "./pages/ShippingPage";
 import NotificationsPage from "./pages/NotificationsPage";
+import AdminUsers from "./pages/AdminUsers";
+import AdminStats from "./pages/AdminStats";
 import AppLayout from "./components/AppLayout";
+import PaypalReturn from "./pages/PaypalReturn";
 
 // Guard para rutas que requieren rol admin
 function AdminOnly({ user, children }) {
@@ -82,6 +86,17 @@ function AppContent() {
       {page === "payments" && <PaymentsPage />}
       {page === "shipping" && <ShippingPage />}
       {page === "notifications" && <NotificationsPage />}
+      {/* 👇 NUEVAS PÁGINAS DE ADMIN */}
+      {page === "admin-users" && (
+        <AdminOnly user={user}>
+          <AdminUsers />
+        </AdminOnly>
+      )}
+      {page === "admin-stats" && (
+        <AdminOnly user={user}>
+          <AdminStats />
+        </AdminOnly>
+      )}
     </AppLayout>
   );
 }
@@ -89,7 +104,14 @@ function AppContent() {
 export default function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <BrowserRouter>
+        <Routes>
+          {/* Ruta principal con el layout */}
+          <Route path="/*" element={<AppContent />} />
+          {/* Ruta independiente para retorno de PayPal (sin layout) */}
+          <Route path="/paypal-return" element={<PaypalReturn />} />
+        </Routes>
+      </BrowserRouter>
     </AuthProvider>
   );
 }

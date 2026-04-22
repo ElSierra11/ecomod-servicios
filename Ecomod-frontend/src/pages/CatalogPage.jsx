@@ -1,20 +1,37 @@
 import { useEffect, useState, useCallback } from "react";
 import { catalogApi } from "../services/api";
+import {
+  Plus,
+  Edit2,
+  Trash2,
+  Search,
+  Filter,
+  X,
+  Package,
+  Tag,
+  Image as ImageIcon,
+  Grid3x3,
+  List,
+  ChevronLeft,
+  ChevronRight,
+  Star,
+  Eye,
+} from "lucide-react";
 
 function Modal({ title, onClose, children }) {
   return (
     <div
-      className="modal-overlay"
+      className="modal-modern"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="modal">
-        <div className="modal-header">
-          <span className="modal-title">{title}</span>
-          <button className="modal-close" onClick={onClose}>
-            ✕
+      <div className="modal-modern-content">
+        <div className="modal-modern-header">
+          <h3>{title}</h3>
+          <button className="modal-modern-close" onClick={onClose}>
+            <X size={18} />
           </button>
         </div>
-        {children}
+        <div className="modal-modern-body">{children}</div>
       </div>
     </div>
   );
@@ -30,6 +47,8 @@ export default function CatalogPage() {
   const [editItem, setEditItem] = useState(null);
   const [alert, setAlert] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [layout, setLayout] = useState("grid");
+  const [hoveredProduct, setHoveredProduct] = useState(null);
 
   const [pForm, setPForm] = useState({
     name: "",
@@ -40,54 +59,28 @@ export default function CatalogPage() {
   });
   const [cForm, setCForm] = useState({ name: "", description: "" });
 
-  const loadProducts = useCallback(
-    (cat, src) => {
-      const params = new URLSearchParams();
-      if (src !== undefined ? src : search)
-        params.set("search", src !== undefined ? src : search);
-      if (cat !== undefined ? cat : catFilter)
-        params.set("category_id", cat !== undefined ? cat : catFilter);
-      catalogApi
-        .getProducts(params.toString() ? "?" + params.toString() : "")
-        .then(setProducts)
-        .catch(() => {});
-    },
-    [search, catFilter],
-  );
-
-  const loadData = useCallback(
-    (cat) => {
+  const loadData = useCallback(async () => {
+    try {
       const params = new URLSearchParams();
       if (search) params.set("search", search);
-      const filterVal = cat !== undefined ? cat : catFilter;
-      if (filterVal) params.set("category_id", filterVal);
-      catalogApi
-        .getProducts(params.toString() ? "?" + params.toString() : "")
-        .then(setProducts)
-        .catch(() => {});
-      catalogApi
-        .getCategories()
-        .then(setCategories)
-        .catch(() => {});
-    },
-    [search, catFilter],
-  );
+      if (catFilter) params.set("category_id", catFilter);
+
+      const [productsData, categoriesData] = await Promise.all([
+        catalogApi.getProducts(
+          params.toString() ? "?" + params.toString() : "",
+        ),
+        catalogApi.getCategories(),
+      ]);
+      setProducts(productsData);
+      setCategories(categoriesData);
+    } catch (error) {
+      showAlert("error", "Error al cargar datos");
+    }
+  }, [search, catFilter]);
 
   useEffect(() => {
     loadData();
-  }, []);
-
-  const handleCatFilter = (val) => {
-    setCatFilter(val);
-    // Filtrar inmediatamente con el nuevo valor
-    const params = new URLSearchParams();
-    if (search) params.set("search", search);
-    if (val) params.set("category_id", val);
-    catalogApi
-      .getProducts(params.toString() ? "?" + params.toString() : "")
-      .then(setProducts)
-      .catch(() => {});
-  };
+  }, [loadData]);
 
   const showAlert = (type, text) => {
     setAlert({ type, text });
@@ -196,305 +189,289 @@ export default function CatalogPage() {
   const catMap = Object.fromEntries(categories.map((c) => [c.id, c.name]));
 
   return (
-    <div className="page fade-in">
-      {alert && (
-        <div
-          className={`alert alert-${alert.type === "error" ? "error" : "success"}`}
-        >
-          {alert.text}
-        </div>
-      )}
-
-      <div className="section-header" style={{ marginBottom: 24 }}>
-        <div>
-          <h2
-            style={{
-              fontFamily: "var(--font-head)",
-              fontSize: 26,
-              fontWeight: 800,
-            }}
-          >
+    <div className="catalog-modern">
+      {/* Header */}
+      <div className="catalog-header">
+        <div className="catalog-header-left">
+          <div className="catalog-badge">
+            <Package size={14} />
+            <span>GESTIÓN DE PRODUCTOS</span>
+          </div>
+          <h1 className="catalog-title">
             Catálogo
-          </h2>
-          <p style={{ color: "var(--text2)", fontSize: 14, marginTop: 4 }}>
-            Administra productos y categorías del sistema
-          </p>
+            <span>Administra productos y categorías</span>
+          </h1>
         </div>
-        <div className="flex gap-2">
-          <button className="btn btn-outline btn-sm" onClick={openNewCategory}>
-            + Categoría
+        <div className="catalog-header-right">
+          <button className="catalog-btn-outline" onClick={openNewCategory}>
+            <Tag size={16} />
+            <span>Nueva Categoría</span>
           </button>
-          <button className="btn btn-primary btn-sm" onClick={openNewProduct}>
-            + Producto
+          <button className="catalog-btn-primary" onClick={openNewProduct}>
+            <Plus size={16} />
+            <span>Nuevo Producto</span>
           </button>
         </div>
       </div>
 
-      {/* TABS */}
-      <div
-        style={{
-          display: "flex",
-          gap: 0,
-          marginBottom: 24,
-          borderBottom: "1px solid var(--border)",
-        }}
-      >
-        {["products", "categories"].map((t) => (
-          <button
-            key={t}
-            onClick={() => setView(t)}
-            style={{
-              padding: "10px 20px",
-              background: "none",
-              border: "none",
-              borderBottom: `2px solid ${view === t ? "var(--accent)" : "transparent"}`,
-              color: view === t ? "var(--accent)" : "var(--text2)",
-              fontWeight: 600,
-              cursor: "pointer",
-              fontSize: 14,
-              marginBottom: -1,
-            }}
-          >
-            {t === "products"
-              ? `Productos (${products.length})`
-              : `Categorías (${categories.length})`}
-          </button>
-        ))}
-      </div>
-
-      {/* FILTERS */}
-      {view === "products" && (
-        <div
-          style={{
-            display: "flex",
-            gap: 12,
-            marginBottom: 20,
-            flexWrap: "wrap",
-            alignItems: "center",
-          }}
-        >
-          <input
-            className="form-input"
-            style={{ maxWidth: 260 }}
-            placeholder="Buscar producto..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && loadData()}
-          />
-          <select
-            className="form-select"
-            style={{ maxWidth: 200 }}
-            value={catFilter}
-            onChange={(e) => handleCatFilter(e.target.value)}
-          >
-            <option value="">Todas las categorías</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-          {catFilter && (
-            <button
-              className="btn btn-ghost btn-sm"
-              onClick={() => handleCatFilter("")}
-            >
-              ✕ Limpiar filtro
-            </button>
-          )}
-          <button className="btn btn-outline btn-sm" onClick={() => loadData()}>
-            Filtrar
+      {/* Alert */}
+      {alert && (
+        <div className={`catalog-alert ${alert.type}`}>
+          <span>{alert.text}</span>
+          <button onClick={() => setAlert(null)}>
+            <X size={14} />
           </button>
         </div>
       )}
 
-      {/* PRODUCTS GRID */}
-      {view === "products" &&
-        (products.length === 0 ? (
-          <div className="empty">
-            <div className="empty-icon">🏪</div>
-            <div className="empty-title">Sin productos</div>
-            <p>
-              {catFilter
-                ? `No hay productos en esta categoría`
-                : "Crea el primer producto del catálogo"}
-            </p>
-          </div>
-        ) : (
-          <div className="card-grid">
-            {products.map((p) => (
-              <div key={p.id} className="product-card">
-                {p.image_urls && p.image_urls.length > 0 ? (
-                  <div
-                    style={{
-                      width: "100%",
-                      height: 160,
-                      borderRadius: 10,
-                      overflow: "hidden",
-                      marginBottom: 12,
-                      background: "var(--bg3)",
-                    }}
-                  >
-                    <img
-                      src={p.image_urls[0]}
-                      alt={p.name}
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                      }}
-                      onError={(e) => {
-                        e.target.style.display = "none";
-                      }}
-                    />
-                  </div>
-                ) : (
-                  <div
-                    style={{
-                      width: "100%",
-                      height: 120,
-                      borderRadius: 10,
-                      marginBottom: 12,
-                      background: "var(--bg3)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: 36,
-                      color: "var(--text3)",
-                    }}
-                  >
-                    🏷️
-                  </div>
-                )}
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "flex-start",
-                  }}
-                >
-                  <div className="product-name">{p.name}</div>
-                  <span className="badge badge-cyan">ID {p.id}</span>
-                </div>
-                <div className="product-price">
-                  ${Number(p.price).toLocaleString("es-CO")}
-                </div>
-                <div className="product-desc">
-                  {p.description || "Sin descripción"}
-                </div>
-                <div className="product-meta">
-                  {p.category_id ? (
-                    <span className="badge badge-pink">
-                      {catMap[p.category_id] || `Cat. ${p.category_id}`}
-                    </span>
-                  ) : (
-                    <span className="badge">Sin categoría</span>
-                  )}
-                  <div className="flex gap-2">
-                    <button
-                      className="btn btn-ghost btn-sm btn-icon"
-                      title="Editar"
-                      onClick={() => openEditProduct(p)}
-                    >
-                      ✏️
-                    </button>
-                    <button
-                      className="btn btn-danger btn-sm btn-icon"
-                      title="Eliminar"
-                      onClick={() => deleteProduct(p.id)}
-                    >
-                      🗑
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ))}
+      {/* Tabs */}
+      <div className="catalog-tabs">
+        <button
+          className={`catalog-tab ${view === "products" ? "active" : ""}`}
+          onClick={() => setView("products")}
+        >
+          <Package size={16} />
+          <span>Productos</span>
+          <span className="catalog-tab-count">{products.length}</span>
+        </button>
+        <button
+          className={`catalog-tab ${view === "categories" ? "active" : ""}`}
+          onClick={() => setView("categories")}
+        >
+          <Tag size={16} />
+          <span>Categorías</span>
+          <span className="catalog-tab-count">{categories.length}</span>
+        </button>
+      </div>
 
-      {/* CATEGORIES TABLE */}
-      {view === "categories" &&
-        (categories.length === 0 ? (
-          <div className="empty">
-            <div className="empty-icon">🏷️</div>
-            <div className="empty-title">Sin categorías</div>
-            <p>Crea la primera categoría</p>
-          </div>
-        ) : (
-          <div className="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Nombre</th>
-                  <th>Descripción</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
+      {/* Products View */}
+      {view === "products" && (
+        <>
+          {/* Filters */}
+          <div className="catalog-filters">
+            <div className="catalog-search">
+              <Search size={18} />
+              <input
+                type="text"
+                placeholder="Buscar producto..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && loadData()}
+              />
+              {search && (
+                <button onClick={() => setSearch("")}>
+                  <X size={14} />
+                </button>
+              )}
+            </div>
+            <div className="catalog-filter-select">
+              <Filter size={18} />
+              <select
+                value={catFilter}
+                onChange={(e) => setCatFilter(e.target.value)}
+              >
+                <option value="">Todas las categorías</option>
                 {categories.map((c) => (
-                  <tr key={c.id}>
-                    <td>
-                      <span className="badge badge-cyan">{c.id}</span>
-                    </td>
-                    <td style={{ fontWeight: 600, color: "var(--text)" }}>
-                      {c.name}
-                    </td>
-                    <td>{c.description || "—"}</td>
-                    <td>
-                      <button
-                        className="btn btn-danger btn-sm"
-                        onClick={() => deleteCategory(c.id)}
-                      >
-                        Eliminar
-                      </button>
-                    </td>
-                  </tr>
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
                 ))}
-              </tbody>
-            </table>
+              </select>
+            </div>
+            <div className="catalog-layout-toggle">
+              <button
+                className={`catalog-layout-btn ${layout === "grid" ? "active" : ""}`}
+                onClick={() => setLayout("grid")}
+              >
+                <Grid3x3 size={16} />
+              </button>
+              <button
+                className={`catalog-layout-btn ${layout === "list" ? "active" : ""}`}
+                onClick={() => setLayout("list")}
+              >
+                <List size={16} />
+              </button>
+            </div>
           </div>
-        ))}
 
-      {/* MODAL PRODUCTO */}
+          {/* Products Grid/List */}
+          {products.length === 0 ? (
+            <div className="catalog-empty">
+              <Package size={48} strokeWidth={1} />
+              <h3>No hay productos</h3>
+              <p>
+                {catFilter
+                  ? "No hay productos en esta categoría"
+                  : "Crea el primer producto del catálogo"}
+              </p>
+            </div>
+          ) : layout === "grid" ? (
+            <div className="catalog-grid">
+              {products.map((p, idx) => (
+                <div
+                  key={p.id}
+                  className="catalog-product-card"
+                  onMouseEnter={() => setHoveredProduct(p.id)}
+                  onMouseLeave={() => setHoveredProduct(null)}
+                  style={{ animationDelay: `${idx * 0.05}s` }}
+                >
+                  <div className="catalog-product-image">
+                    {p.image_urls && p.image_urls.length > 0 ? (
+                      <img src={p.image_urls[0]} alt={p.name} />
+                    ) : (
+                      <div className="catalog-product-image-placeholder">
+                        <ImageIcon size={32} />
+                      </div>
+                    )}
+                    <div
+                      className={`catalog-product-actions ${hoveredProduct === p.id ? "visible" : ""}`}
+                    >
+                      <button onClick={() => openEditProduct(p)}>
+                        <Edit2 size={16} />
+                      </button>
+                      <button onClick={() => deleteProduct(p.id)}>
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="catalog-product-info">
+                    <div className="catalog-product-header">
+                      <h3 className="catalog-product-name">{p.name}</h3>
+                      {p.category_id && (
+                        <span className="catalog-product-category">
+                          {catMap[p.category_id]}
+                        </span>
+                      )}
+                    </div>
+                    <p className="catalog-product-description">
+                      {p.description?.slice(0, 80) || "Sin descripción"}
+                      {p.description?.length > 80 && "..."}
+                    </p>
+                    <div className="catalog-product-footer">
+                      <span className="catalog-product-price">
+                        ${Number(p.price).toLocaleString("es-CO")}
+                      </span>
+                      <span className="catalog-product-id">ID {p.id}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="catalog-list">
+              {products.map((p) => (
+                <div key={p.id} className="catalog-list-item">
+                  <div className="catalog-list-image">
+                    {p.image_urls && p.image_urls.length > 0 ? (
+                      <img src={p.image_urls[0]} alt={p.name} />
+                    ) : (
+                      <Package size={24} />
+                    )}
+                  </div>
+                  <div className="catalog-list-info">
+                    <h4>{p.name}</h4>
+                    <p>{p.description?.slice(0, 60) || "Sin descripción"}</p>
+                    <div className="catalog-list-meta">
+                      {p.category_id && (
+                        <span className="catalog-list-category">
+                          {catMap[p.category_id]}
+                        </span>
+                      )}
+                      <span className="catalog-list-id">ID {p.id}</span>
+                    </div>
+                  </div>
+                  <div className="catalog-list-price">
+                    <span>${Number(p.price).toLocaleString("es-CO")}</span>
+                  </div>
+                  <div className="catalog-list-actions">
+                    <button onClick={() => openEditProduct(p)}>
+                      <Edit2 size={16} />
+                    </button>
+                    <button onClick={() => deleteProduct(p.id)}>
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Categories View */}
+      {view === "categories" && (
+        <div className="catalog-categories">
+          {categories.length === 0 ? (
+            <div className="catalog-empty">
+              <Tag size={48} strokeWidth={1} />
+              <h3>No hay categorías</h3>
+              <p>Crea la primera categoría para organizar tus productos</p>
+            </div>
+          ) : (
+            <div className="catalog-categories-grid">
+              {categories.map((c) => (
+                <div key={c.id} className="catalog-category-card">
+                  <div className="catalog-category-icon">
+                    <Tag size={24} />
+                  </div>
+                  <div className="catalog-category-info">
+                    <h3>{c.name}</h3>
+                    <p>{c.description || "Sin descripción"}</p>
+                    <div className="catalog-category-meta">
+                      <span className="catalog-category-id">ID {c.id}</span>
+                      <span className="catalog-category-products">
+                        {products.filter((p) => p.category_id === c.id).length}{" "}
+                        productos
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    className="catalog-category-delete"
+                    onClick={() => deleteCategory(c.id)}
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Product Modal */}
       {modal === "product" && (
         <Modal
           title={editItem ? "Editar producto" : "Nuevo producto"}
           onClose={() => setModal(null)}
         >
-          <form onSubmit={saveProduct}>
-            <div className="form-group">
-              <label className="form-label">Nombre *</label>
+          <form onSubmit={saveProduct} className="catalog-modal-form">
+            <div className="catalog-form-group">
+              <label>Nombre del producto *</label>
               <input
-                className="form-input"
+                type="text"
                 value={pForm.name}
                 onChange={(e) =>
                   setPForm((f) => ({ ...f, name: e.target.value }))
                 }
                 required
+                placeholder="Ej: Camiseta Deportiva"
               />
             </div>
-            <div className="form-group">
-              <label className="form-label">Descripción</label>
+            <div className="catalog-form-group">
+              <label>Descripción</label>
               <textarea
-                className="form-textarea"
+                rows="3"
                 value={pForm.description}
                 onChange={(e) =>
                   setPForm((f) => ({ ...f, description: e.target.value }))
                 }
+                placeholder="Describe el producto..."
               />
             </div>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: 12,
-              }}
-            >
-              <div className="form-group">
-                <label className="form-label">Precio * (COP)</label>
+            <div className="catalog-form-row">
+              <div className="catalog-form-group">
+                <label>Precio * (COP)</label>
                 <input
-                  className="form-input"
                   type="number"
                   step="0.01"
                   min="0.01"
@@ -505,10 +482,9 @@ export default function CatalogPage() {
                   required
                 />
               </div>
-              <div className="form-group">
-                <label className="form-label">Categoría</label>
+              <div className="catalog-form-group">
+                <label>Categoría</label>
                 <select
-                  className="form-select"
                   value={pForm.category_id}
                   onChange={(e) =>
                     setPForm((f) => ({ ...f, category_id: e.target.value }))
@@ -523,58 +499,31 @@ export default function CatalogPage() {
                 </select>
               </div>
             </div>
-            <div className="form-group">
-              <label className="form-label">
-                URLs de imágenes{" "}
-                <span className="text-muted">(separadas por coma)</span>
-              </label>
+            <div className="catalog-form-group">
+              <label>URLs de imágenes</label>
               <input
-                className="form-input"
-                placeholder="https://..., https://..."
+                type="text"
+                placeholder="https://ejemplo.com/imagen.jpg, https://..."
                 value={pForm.image_urls}
                 onChange={(e) =>
                   setPForm((f) => ({ ...f, image_urls: e.target.value }))
                 }
               />
-              {pForm.image_urls && pForm.image_urls.trim() && (
-                <div
-                  style={{
-                    marginTop: 10,
-                    borderRadius: 8,
-                    overflow: "hidden",
-                    height: 100,
-                    background: "var(--bg3)",
-                  }}
-                >
-                  <img
-                    src={pForm.image_urls.split(",")[0].trim()}
-                    alt="preview"
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                    }}
-                    onError={(e) => {
-                      e.target.style.display = "none";
-                    }}
-                  />
-                </div>
-              )}
+              <span className="catalog-form-hint">
+                Separa múltiples URLs con comas
+              </span>
             </div>
-            <div
-              className="flex gap-2"
-              style={{ justifyContent: "flex-end", marginTop: 8 }}
-            >
+            <div className="catalog-modal-actions">
               <button
                 type="button"
-                className="btn btn-ghost"
+                className="catalog-btn-secondary"
                 onClick={() => setModal(null)}
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                className="btn btn-primary"
+                className="catalog-btn-primary"
                 disabled={loading}
               >
                 {loading
@@ -588,45 +537,44 @@ export default function CatalogPage() {
         </Modal>
       )}
 
-      {/* MODAL CATEGORÍA */}
+      {/* Category Modal */}
       {modal === "category" && (
         <Modal title="Nueva categoría" onClose={() => setModal(null)}>
-          <form onSubmit={saveCategory}>
-            <div className="form-group">
-              <label className="form-label">Nombre *</label>
+          <form onSubmit={saveCategory} className="catalog-modal-form">
+            <div className="catalog-form-group">
+              <label>Nombre de la categoría *</label>
               <input
-                className="form-input"
+                type="text"
                 value={cForm.name}
                 onChange={(e) =>
                   setCForm((f) => ({ ...f, name: e.target.value }))
                 }
                 required
+                placeholder="Ej: Electrónica"
               />
             </div>
-            <div className="form-group">
-              <label className="form-label">Descripción</label>
+            <div className="catalog-form-group">
+              <label>Descripción</label>
               <textarea
-                className="form-textarea"
+                rows="3"
                 value={cForm.description}
                 onChange={(e) =>
                   setCForm((f) => ({ ...f, description: e.target.value }))
                 }
+                placeholder="Describe la categoría..."
               />
             </div>
-            <div
-              className="flex gap-2"
-              style={{ justifyContent: "flex-end", marginTop: 8 }}
-            >
+            <div className="catalog-modal-actions">
               <button
                 type="button"
-                className="btn btn-ghost"
+                className="catalog-btn-secondary"
                 onClick={() => setModal(null)}
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                className="btn btn-primary"
+                className="catalog-btn-primary"
                 disabled={loading}
               >
                 {loading ? "Guardando..." : "Crear categoría"}
@@ -635,6 +583,731 @@ export default function CatalogPage() {
           </form>
         </Modal>
       )}
+
+      <style jsx>{`
+        .catalog-modern {
+          animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .catalog-header {
+          background: linear-gradient(
+            135deg,
+            var(--surface) 0%,
+            var(--bg2) 100%
+          );
+          border-radius: var(--radius-lg);
+          padding: 24px 28px;
+          margin-bottom: 28px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 16px;
+        }
+
+        .catalog-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 4px 12px;
+          background: rgba(124, 252, 110, 0.1);
+          border: 1px solid rgba(124, 252, 110, 0.2);
+          border-radius: 20px;
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 2px;
+          color: var(--accent);
+          margin-bottom: 12px;
+        }
+
+        .catalog-title {
+          font-size: 28px;
+          font-weight: 800;
+          margin: 0;
+        }
+
+        .catalog-title span {
+          display: block;
+          font-size: 14px;
+          font-weight: 400;
+          color: var(--text2);
+          margin-top: 4px;
+        }
+
+        .catalog-header-right {
+          display: flex;
+          gap: 12px;
+        }
+
+        .catalog-btn-primary,
+        .catalog-btn-outline {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 10px 20px;
+          border-radius: var(--radius);
+          font-size: 13px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s;
+        }
+
+        .catalog-btn-primary {
+          background: linear-gradient(135deg, var(--accent), var(--accent2));
+          border: none;
+          color: #000;
+        }
+
+        .catalog-btn-primary:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(124, 252, 110, 0.3);
+        }
+
+        .catalog-btn-outline {
+          background: transparent;
+          border: 1px solid var(--border);
+          color: var(--text2);
+        }
+
+        .catalog-btn-outline:hover {
+          border-color: var(--accent);
+          color: var(--accent);
+        }
+
+        .catalog-alert {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 12px 20px;
+          border-radius: var(--radius);
+          margin-bottom: 20px;
+          animation: slideDown 0.3s ease;
+        }
+
+        .catalog-alert.success {
+          background: rgba(124, 252, 110, 0.1);
+          border: 1px solid rgba(124, 252, 110, 0.2);
+          color: var(--accent);
+        }
+
+        .catalog-alert.error {
+          background: rgba(248, 113, 113, 0.1);
+          border: 1px solid rgba(248, 113, 113, 0.2);
+          color: var(--danger);
+        }
+
+        .catalog-alert button {
+          background: none;
+          border: none;
+          cursor: pointer;
+          color: currentColor;
+        }
+
+        .catalog-tabs {
+          display: flex;
+          gap: 8px;
+          margin-bottom: 24px;
+          border-bottom: 1px solid var(--border);
+          padding-bottom: 8px;
+        }
+
+        .catalog-tab {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 10px 20px;
+          background: none;
+          border: none;
+          border-radius: var(--radius);
+          color: var(--text2);
+          font-size: 14px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .catalog-tab.active {
+          background: var(--surface);
+          color: var(--accent);
+        }
+
+        .catalog-tab-count {
+          padding: 2px 8px;
+          background: var(--bg2);
+          border-radius: 20px;
+          font-size: 11px;
+        }
+
+        .catalog-filters {
+          display: flex;
+          gap: 12px;
+          margin-bottom: 24px;
+          flex-wrap: wrap;
+        }
+
+        .catalog-search {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 10px 16px;
+          background: var(--bg2);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
+          transition: all 0.2s;
+        }
+
+        .catalog-search:focus-within {
+          border-color: var(--accent);
+          box-shadow: 0 0 0 3px rgba(124, 252, 110, 0.1);
+        }
+
+        .catalog-search input {
+          flex: 1;
+          background: none;
+          border: none;
+          outline: none;
+          font-size: 14px;
+        }
+
+        .catalog-search button {
+          background: none;
+          border: none;
+          cursor: pointer;
+          color: var(--text3);
+        }
+
+        .catalog-filter-select {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 10px 16px;
+          background: var(--bg2);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
+        }
+
+        .catalog-filter-select select {
+          background: none;
+          border: none;
+          outline: none;
+          color: var(--text);
+          font-size: 14px;
+        }
+
+        .catalog-layout-toggle {
+          display: flex;
+          gap: 4px;
+          padding: 4px;
+          background: var(--bg2);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
+        }
+
+        .catalog-layout-btn {
+          padding: 8px 12px;
+          background: none;
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+          color: var(--text3);
+          transition: all 0.2s;
+        }
+
+        .catalog-layout-btn.active {
+          background: var(--surface);
+          color: var(--accent);
+        }
+
+        .catalog-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+          gap: 20px;
+        }
+
+        .catalog-product-card {
+          background: var(--surface);
+          border-radius: var(--radius-lg);
+          border: 1px solid var(--border);
+          overflow: hidden;
+          transition: all 0.3s;
+          animation: slideUp 0.3s ease-out forwards;
+          opacity: 0;
+          transform: translateY(10px);
+        }
+
+        @keyframes slideUp {
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .catalog-product-card:hover {
+          transform: translateY(-4px);
+          box-shadow: var(--shadow);
+          border-color: var(--accent);
+        }
+
+        .catalog-product-image {
+          position: relative;
+          height: 200px;
+          overflow: hidden;
+          background: var(--bg3);
+        }
+
+        .catalog-product-image img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: transform 0.3s;
+        }
+
+        .catalog-product-card:hover .catalog-product-image img {
+          transform: scale(1.05);
+        }
+
+        .catalog-product-image-placeholder {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--text3);
+        }
+
+        .catalog-product-actions {
+          position: absolute;
+          top: 12px;
+          right: 12px;
+          display: flex;
+          gap: 8px;
+          opacity: 0;
+          transition: opacity 0.3s;
+        }
+
+        .catalog-product-actions.visible {
+          opacity: 1;
+        }
+
+        .catalog-product-actions button {
+          width: 32px;
+          height: 32px;
+          border-radius: 8px;
+          background: rgba(0, 0, 0, 0.7);
+          border: none;
+          cursor: pointer;
+          color: white;
+          transition: all 0.2s;
+        }
+
+        .catalog-product-actions button:hover {
+          background: var(--accent);
+          color: #000;
+        }
+
+        .catalog-product-info {
+          padding: 16px;
+        }
+
+        .catalog-product-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 8px;
+        }
+
+        .catalog-product-name {
+          font-size: 16px;
+          font-weight: 700;
+          margin: 0;
+        }
+
+        .catalog-product-category {
+          font-size: 10px;
+          padding: 2px 8px;
+          background: rgba(124, 252, 110, 0.1);
+          border-radius: 20px;
+          color: var(--accent);
+        }
+
+        .catalog-product-description {
+          font-size: 12px;
+          color: var(--text2);
+          line-height: 1.5;
+          margin-bottom: 12px;
+        }
+
+        .catalog-product-footer {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .catalog-product-price {
+          font-size: 20px;
+          font-weight: 800;
+          color: var(--accent);
+        }
+
+        .catalog-product-id {
+          font-size: 10px;
+          color: var(--text3);
+        }
+
+        .catalog-list {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .catalog-list-item {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          padding: 16px;
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-lg);
+          transition: all 0.3s;
+        }
+
+        .catalog-list-item:hover {
+          border-color: var(--accent);
+          transform: translateX(4px);
+        }
+
+        .catalog-list-image {
+          width: 60px;
+          height: 60px;
+          border-radius: 12px;
+          background: var(--bg3);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+        }
+
+        .catalog-list-image img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .catalog-list-info {
+          flex: 1;
+        }
+
+        .catalog-list-info h4 {
+          font-size: 15px;
+          font-weight: 600;
+          margin-bottom: 4px;
+        }
+
+        .catalog-list-info p {
+          font-size: 12px;
+          color: var(--text2);
+          margin-bottom: 6px;
+        }
+
+        .catalog-list-meta {
+          display: flex;
+          gap: 12px;
+          font-size: 10px;
+        }
+
+        .catalog-list-category {
+          padding: 2px 8px;
+          background: rgba(124, 252, 110, 0.1);
+          border-radius: 20px;
+          color: var(--accent);
+        }
+
+        .catalog-list-id {
+          color: var(--text3);
+        }
+
+        .catalog-list-price {
+          text-align: right;
+          min-width: 100px;
+        }
+
+        .catalog-list-price span {
+          font-size: 18px;
+          font-weight: 700;
+          color: var(--accent);
+        }
+
+        .catalog-list-actions {
+          display: flex;
+          gap: 8px;
+        }
+
+        .catalog-list-actions button {
+          width: 32px;
+          height: 32px;
+          border-radius: 8px;
+          background: var(--bg2);
+          border: 1px solid var(--border);
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .catalog-list-actions button:hover {
+          border-color: var(--accent);
+          color: var(--accent);
+        }
+
+        .catalog-empty {
+          text-align: center;
+          padding: 60px 24px;
+          background: var(--surface);
+          border-radius: var(--radius-lg);
+          border: 1px solid var(--border);
+        }
+
+        .catalog-empty svg {
+          color: var(--text3);
+          margin-bottom: 16px;
+        }
+
+        .catalog-empty h3 {
+          font-size: 18px;
+          margin-bottom: 8px;
+        }
+
+        .catalog-empty p {
+          color: var(--text2);
+        }
+
+        .catalog-categories-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          gap: 16px;
+        }
+
+        .catalog-category-card {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          padding: 20px;
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-lg);
+          transition: all 0.3s;
+          position: relative;
+        }
+
+        .catalog-category-card:hover {
+          border-color: var(--accent);
+          transform: translateY(-2px);
+        }
+
+        .catalog-category-icon {
+          width: 50px;
+          height: 50px;
+          border-radius: 14px;
+          background: rgba(124, 252, 110, 0.1);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--accent);
+        }
+
+        .catalog-category-info {
+          flex: 1;
+        }
+
+        .catalog-category-info h3 {
+          font-size: 16px;
+          font-weight: 600;
+          margin-bottom: 4px;
+        }
+
+        .catalog-category-info p {
+          font-size: 12px;
+          color: var(--text2);
+          margin-bottom: 6px;
+        }
+
+        .catalog-category-meta {
+          display: flex;
+          gap: 12px;
+          font-size: 10px;
+        }
+
+        .catalog-category-id {
+          color: var(--text3);
+        }
+
+        .catalog-category-products {
+          color: var(--accent);
+        }
+
+        .catalog-category-delete {
+          width: 32px;
+          height: 32px;
+          border-radius: 8px;
+          background: rgba(248, 113, 113, 0.1);
+          border: none;
+          cursor: pointer;
+          color: var(--danger);
+          transition: all 0.2s;
+        }
+
+        .catalog-category-delete:hover {
+          background: rgba(248, 113, 113, 0.2);
+        }
+
+        .modal-modern {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.7);
+          backdrop-filter: blur(8px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+          padding: 20px;
+          animation: fadeIn 0.2s ease;
+        }
+
+        .modal-modern-content {
+          background: var(--surface);
+          border-radius: var(--radius-lg);
+          width: 100%;
+          max-width: 500px;
+          max-height: 90vh;
+          overflow-y: auto;
+          animation: slideUp 0.3s ease;
+        }
+
+        .modal-modern-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 20px 24px;
+          border-bottom: 1px solid var(--border);
+        }
+
+        .modal-modern-header h3 {
+          font-size: 18px;
+          font-weight: 700;
+        }
+
+        .modal-modern-close {
+          width: 32px;
+          height: 32px;
+          border-radius: 8px;
+          background: var(--bg2);
+          border: none;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .modal-modern-body {
+          padding: 24px;
+        }
+
+        .catalog-modal-form {
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+        }
+
+        .catalog-form-group {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+
+        .catalog-form-group label {
+          font-size: 13px;
+          font-weight: 500;
+          color: var(--text2);
+        }
+
+        .catalog-form-group input,
+        .catalog-form-group select,
+        .catalog-form-group textarea {
+          padding: 10px 14px;
+          background: var(--bg2);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
+          color: var(--text);
+          font-size: 14px;
+          transition: all 0.2s;
+        }
+
+        .catalog-form-group input:focus,
+        .catalog-form-group select:focus,
+        .catalog-form-group textarea:focus {
+          outline: none;
+          border-color: var(--accent);
+          box-shadow: 0 0 0 3px rgba(124, 252, 110, 0.1);
+        }
+
+        .catalog-form-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+        }
+
+        .catalog-form-hint {
+          font-size: 11px;
+          color: var(--text3);
+          margin-top: 4px;
+        }
+
+        .catalog-modal-actions {
+          display: flex;
+          justify-content: flex-end;
+          gap: 12px;
+          margin-top: 8px;
+        }
+
+        .catalog-btn-secondary {
+          padding: 10px 20px;
+          background: var(--bg2);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
+          color: var(--text2);
+          cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+          .catalog-header {
+            flex-direction: column;
+            align-items: stretch;
+          }
+          .catalog-header-right {
+            justify-content: stretch;
+          }
+          .catalog-header-right button {
+            flex: 1;
+            justify-content: center;
+          }
+          .catalog-grid {
+            grid-template-columns: 1fr;
+          }
+          .catalog-form-row {
+            grid-template-columns: 1fr;
+          }
+        }
+      `}</style>
     </div>
   );
 }
