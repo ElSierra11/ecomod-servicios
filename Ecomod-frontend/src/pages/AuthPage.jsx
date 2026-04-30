@@ -1,35 +1,144 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import { authApi } from "../services/api";
 import { useTheme } from "../hooks/useTheme";
-import EcoModLogo from "../components/EcoModLogo";
+import { useSwal } from "../hooks/useSwal";
+import LogoIcon from "../components/LogoIcon";
 import {
   Mail,
   Lock,
   User,
   ArrowRight,
-  Shield,
-  CheckCircle,
-  AlertCircle,
   Eye,
   EyeOff,
-  Sparkles,
-  Fingerprint,
-  Key,
-  Send,
   ArrowLeft,
-  ShoppingBag,
-  Package,
-  CreditCard,
-  Bell,
+  Moon,
+  Sun,
+  Truck,
+  ShieldCheck,
+  RotateCcw,
+  Zap,
+  Star,
+  AlertCircle,
 } from "lucide-react";
 
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
+
+function useGoogleScript() {
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    if (window.google?.accounts?.id) {
+      setReady(true);
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    script.onload = () => setReady(true);
+    document.head.appendChild(script);
+  }, []);
+  return ready;
+}
+
+function GoogleSignInButton({ onSuccess, onError }) {
+  const googleReady = useGoogleScript();
+  const buttonRef = useRef(null);
+  const initialized = useRef(false);
+
+  useEffect(() => {
+    if (
+      googleReady &&
+      buttonRef.current &&
+      !initialized.current &&
+      window.google?.accounts?.id &&
+      GOOGLE_CLIENT_ID
+    ) {
+      initialized.current = true;
+      window.google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: async (response) => {
+          try {
+            const result = await authApi.googleAuth(response.credential);
+            onSuccess(result);
+          } catch (err) {
+            onError(err.message || "Error al autenticar con Google");
+          }
+        },
+        auto_select: false,
+        cancel_on_tap_outside: true,
+      });
+      window.google.accounts.id.renderButton(buttonRef.current, {
+        type: "standard",
+        theme: "outline",
+        size: "large",
+        text: "continue_with",
+        shape: "rectangular",
+        width: 320,
+      });
+    }
+  }, [googleReady, onSuccess, onError]);
+
+  if (!GOOGLE_CLIENT_ID)
+    return (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          padding: "10px",
+          background: "rgba(232,41,28,0.1)",
+          borderRadius: "8px",
+          color: "#e8291c",
+          fontSize: "12px",
+        }}
+      >
+        <AlertCircle size={14} />
+        <span>Google login no configurado</span>
+      </div>
+    );
+  return (
+    <div
+      ref={buttonRef}
+      style={{ display: "flex", justifyContent: "center", minHeight: "44px" }}
+    />
+  );
+}
+
+const validateEmail = (email) => {
+  if (!email.trim()) return "El correo es obligatorio";
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+    return "Ingresa un correo válido";
+  return null;
+};
+const validatePassword = (password, minLength = 6) => {
+  if (!password.trim()) return "La contraseña es obligatoria";
+  if (password.length < minLength) return `Mínimo ${minLength} caracteres`;
+  return null;
+};
+const validateName = (name, field) => {
+  if (!name.trim()) return `El ${field} es obligatorio`;
+  if (name.trim().length < 2) return `Mínimo 2 caracteres`;
+  return null;
+};
+
+const perks = [
+  { icon: Truck, text: "Envíos a toda Colombia" },
+  { icon: ShieldCheck, text: "Compra 100% segura" },
+  { icon: RotateCcw, text: "30 días de devolución" },
+  { icon: Zap, text: "Despacho en 24 horas" },
+];
+
 export default function AuthPage() {
-  const { login } = useAuth();
+  const { login, loginWithToken } = useAuth();
   const { theme, toggle } = useTheme();
+  const { success, error: swalError, toast } = useSwal(theme === "dark");
   const [tab, setTab] = useState("login");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showPw, setShowPw] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -41,57 +150,102 @@ export default function AuthPage() {
     new_password: "",
     confirm: "",
   });
-  const [msg, setMsg] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [focusedField, setFocusedField] = useState(null);
-  const [passwordStrength, setPasswordStrength] = useState(0);
 
-  const setFormField = (k) => (e) =>
+  const emailRef = useRef(null);
+  const passwordRef = useRef(null);
+  const nombreRef = useRef(null);
+  const apellidoRef = useRef(null);
+
+  const isDark = theme === "dark";
+
+  const set = (k) => (e) => {
     setForm((f) => ({ ...f, [k]: e.target.value }));
-  const setResetField = (k) => (e) =>
+    if (errors[k]) setErrors((err) => ({ ...err, [k]: null }));
+  };
+  const setR = (k) => (e) => {
     setResetForm((f) => ({ ...f, [k]: e.target.value }));
+    if (errors[k]) setErrors((err) => ({ ...err, [k]: null }));
+  };
 
   const switchTab = (t) => {
     setTab(t);
-    setMsg(null);
+    setErrors({});
     setForm({ email: "", password: "", nombre: "", apellido: "" });
+    setResetForm({ token: "", new_password: "", confirm: "" });
   };
 
-  // Calcular fuerza de contraseña
-  useEffect(() => {
-    const password = form.password;
-    let strength = 0;
-    if (password.length >= 8) strength++;
-    if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength++;
-    if (password.match(/[0-9]/)) strength++;
-    if (password.match(/[^a-zA-Z0-9]/)) strength++;
-    setPasswordStrength(strength);
-  }, [form.password]);
+  const validateForm = (fields) => {
+    const newErrors = {};
+    fields.forEach(({ key, validator, ref }) => {
+      const err = validator(form[key] || resetForm[key]);
+      if (err) {
+        newErrors[key] = err;
+        ref?.current?.focus();
+      }
+    });
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setMsg(null);
-    setLoading(true);
+    if (
+      !validateForm([
+        {
+          key: "email",
+          validator: () => validateEmail(form.email),
+          ref: emailRef,
+        },
+        {
+          key: "password",
+          validator: () => validatePassword(form.password, 6),
+          ref: passwordRef,
+        },
+      ])
+    )
+      return;
+    setIsLoading(true);
     try {
       await login(form.email, form.password);
+      toast("success", "¡Bienvenido de vuelta!");
     } catch (err) {
-      setMsg({ type: "error", text: err.message });
+      swalError(
+        "Error de inicio de sesión",
+        err.message || "Credenciales incorrectas",
+      );
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    setMsg(null);
-    if (form.password.length < 8) {
-      setMsg({
-        type: "error",
-        text: "La contraseña debe tener al menos 8 caracteres",
-      });
+    if (
+      !validateForm([
+        {
+          key: "nombre",
+          validator: () => validateName(form.nombre, "nombre"),
+          ref: nombreRef,
+        },
+        {
+          key: "apellido",
+          validator: () => validateName(form.apellido, "apellido"),
+          ref: apellidoRef,
+        },
+        {
+          key: "email",
+          validator: () => validateEmail(form.email),
+          ref: emailRef,
+        },
+        {
+          key: "password",
+          validator: () => validatePassword(form.password, 8),
+          ref: passwordRef,
+        },
+      ])
+    )
       return;
-    }
-    setLoading(true);
+    setIsLoading(true);
     try {
       await authApi.register({
         email: form.email,
@@ -99,1261 +253,1526 @@ export default function AuthPage() {
         nombre: form.nombre,
         apellido: form.apellido,
       });
-      setMsg({
-        type: "success",
-        text: "✓ Cuenta creada exitosamente. Ahora inicia sesión.",
-      });
-      setTimeout(() => switchTab("login"), 1500);
+      success("¡Cuenta creada!", "Ahora inicia sesión con tus credenciales");
+      setTimeout(() => switchTab("login"), 2000);
     } catch (err) {
-      setMsg({ type: "error", text: err.message });
+      swalError(
+        "Error al registrarte",
+        err.message || "No se pudo crear la cuenta",
+      );
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   const handleForgot = async (e) => {
     e.preventDefault();
-    setMsg(null);
-    setLoading(true);
+    if (
+      !validateForm([
+        {
+          key: "email",
+          validator: () => validateEmail(form.email),
+          ref: emailRef,
+        },
+      ])
+    )
+      return;
+    setIsLoading(true);
     try {
       await authApi.forgotPassword(form.email);
-      setMsg({
-        type: "success",
-        text: "📧 Se ha enviado un enlace de recuperación a tu correo.",
-      });
+      success("¡Revisa tu correo!", "Te enviamos un enlace");
       setTimeout(() => switchTab("reset"), 2000);
     } catch (err) {
-      setMsg({ type: "error", text: err.message });
+      swalError("Error al enviar", err.message || "No encontramos esa cuenta");
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   const handleReset = async (e) => {
     e.preventDefault();
-    setMsg(null);
     if (resetForm.new_password !== resetForm.confirm) {
-      setMsg({ type: "error", text: "Las contraseñas no coinciden" });
+      setErrors({ confirm: "Las contraseñas no coinciden" });
       return;
     }
-    if (resetForm.new_password.length < 8) {
-      setMsg({
-        type: "error",
-        text: "La contraseña debe tener al menos 8 caracteres",
-      });
+    if (
+      !validateForm([
+        {
+          key: "token",
+          validator: (v) => (!v?.trim() ? "Pega el token de tu correo" : null),
+        },
+        {
+          key: "new_password",
+          validator: () => validatePassword(resetForm.new_password, 8),
+        },
+      ])
+    )
       return;
-    }
-    setLoading(true);
+    setIsLoading(true);
     try {
       await authApi.resetPassword(resetForm.token, resetForm.new_password);
-      setMsg({
-        type: "success",
-        text: "✓ Contraseña actualizada correctamente. Redirigiendo...",
-      });
+      success(
+        "¡Contraseña actualizada!",
+        "Inicia sesión con tu nueva contraseña",
+      );
       setTimeout(() => switchTab("login"), 2000);
     } catch (err) {
-      setMsg({ type: "error", text: err.message });
+      swalError("Error al restablecer", err.message || "El token es inválido");
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
-  const getPasswordStrengthText = () => {
-    const strengths = ["Muy débil", "Débil", "Media", "Fuerte", "Muy fuerte"];
-    const colors = ["#ff6b6b", "#ffa502", "#ffd32a", "#7cfc6e", "#00ff88"];
-    return {
-      text: strengths[passwordStrength],
-      color: colors[passwordStrength],
-    };
+
+  const handleGoogleSuccess = (data) => {
+    loginWithToken(data);
+    toast("success", "¡Inicio con Google exitoso!");
+  };
+  const handleGoogleError = (err) => {
+    swalError("Error de Google", err || "No se pudo autenticar");
   };
 
-  const features = [
-    { icon: Shield, text: "Auth Service — JWT + bcrypt", color: "#00ff88" },
-    {
-      icon: ShoppingBag,
-      text: "Catalog Service — Productos & categorías",
-      color: "#00d4ff",
-    },
-    {
-      icon: Package,
-      text: "Inventory Service — Stock en tiempo real",
-      color: "#ff6b6b",
-    },
-    {
-      icon: CreditCard,
-      text: "Payment Service — Stripe integrado",
-      color: "#34d399",
-    },
-    {
-      icon: Bell,
-      text: "Notification Service — Emails automáticos",
-      color: "#f472b6",
-    },
-  ];
+  const inputStyle = (error) => ({
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    padding: "0 16px",
+    borderRadius: "12px",
+    border: `2px solid ${error ? "#f87171" : isDark ? "rgba(255,255,255,0.1)" : "#e5e7eb"}`,
+    background: isDark ? "rgba(255,255,255,0.05)" : "#fff",
+    transition: "all 0.2s",
+  });
 
   return (
-    <div className={`auth-modern ${theme === "dark" ? "dark" : "light"}`}>
-      {/* Fondo animado */}
-      <div className="auth-bg">
-        <div className="auth-grid"></div>
-        <div className="auth-gradient"></div>
-        <div className="auth-particles">
-          {[...Array(20)].map((_, i) => (
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        fontFamily: "'Inter', sans-serif",
+      }}
+    >
+      {/* LEFT PANEL */}
+      <div
+        style={{
+          display: "none",
+          width: "55%",
+          position: "relative",
+          overflow: "hidden",
+          background:
+            "linear-gradient(145deg, #e8291c 0%, #c0392b 40%, #922b21 100%)",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "48px",
+        }}
+        className="auth-left-desktop"
+      >
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+            width: "24rem",
+            height: "24rem",
+            background: "rgba(255,255,255,0.05)",
+            borderRadius: "50%",
+            transform: "translateY(-50%) translateX(33%)",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            width: "16rem",
+            height: "16rem",
+            background: "rgba(255,255,255,0.05)",
+            borderRadius: "50%",
+            transform: "translateY(33%) translateX(-25%)",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage:
+              "url('data:image/svg+xml,%3Csvg width=%2220%22 height=%2220%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Ccircle cx=%2210%22 cy=%2210%22 r=%221%22 fill=%22white%22 opacity=%220.05%22/%3E%3C/svg%3E')",
+            opacity: 0.5,
+          }}
+        />
+
+        <div style={{ position: "relative", zIndex: 10, maxWidth: "420px" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+              marginBottom: "40px",
+            }}
+          >
             <div
-              key={i}
-              className="particle"
               style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 5}s`,
-                animationDuration: `${3 + Math.random() * 4}s`,
+                width: "48px",
+                height: "48px",
+                background: "rgba(255,255,255,0.2)",
+                backdropFilter: "blur(4px)",
+                borderRadius: "12px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
-            />
-          ))}
+            >
+              <LogoIcon size={28} />
+            </div>
+            <span
+              style={{
+                fontFamily: "'Barlow Condensed', sans-serif",
+                fontSize: "24px",
+                fontWeight: 700,
+                color: "#fff",
+                letterSpacing: "-0.5px",
+              }}
+            >
+              Eco
+            </span>
+            <span
+              style={{
+                fontFamily: "'Barlow Condensed', sans-serif",
+                fontSize: "24px",
+                fontWeight: 800,
+                color: "rgba(255,255,255,0.7)",
+                letterSpacing: "-0.5px",
+              }}
+            >
+              Mod
+            </span>
+          </div>
+
+          <h1
+            style={{
+              fontFamily: "'Barlow Condensed', sans-serif",
+              fontSize: "56px",
+              fontWeight: 900,
+              color: "#fff",
+              lineHeight: 1.05,
+              marginBottom: "16px",
+              letterSpacing: "-1px",
+            }}
+          >
+            Tu tienda
+            <br />
+            <span style={{ color: "rgba(255,255,255,0.7)" }}>en línea</span>
+            <br />
+            favorita
+          </h1>
+          <p
+            style={{
+              fontSize: "15px",
+              color: "rgba(255,255,255,0.75)",
+              lineHeight: 1.6,
+              marginBottom: "36px",
+            }}
+          >
+            Miles de productos. Los mejores precios. Envío rápido a todo el
+            país.
+          </p>
+
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "12px",
+              marginBottom: "32px",
+            }}
+          >
+            {perks.map(({ icon: Icon, text }) => (
+              <div
+                key={text}
+                style={{ display: "flex", alignItems: "center", gap: "12px" }}
+              >
+                <div
+                  style={{
+                    width: "36px",
+                    height: "36px",
+                    background: "rgba(255,255,255,0.15)",
+                    backdropFilter: "blur(4px)",
+                    borderRadius: "10px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#fff",
+                  }}
+                >
+                  <Icon size={16} />
+                </div>
+                <span
+                  style={{
+                    fontSize: "13px",
+                    color: "rgba(255,255,255,0.85)",
+                    fontWeight: 600,
+                  }}
+                >
+                  {text}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              paddingTop: "24px",
+              borderTop: "1px solid rgba(255,255,255,0.15)",
+            }}
+          >
+            <div style={{ display: "flex", gap: "2px" }}>
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} size={14} fill="#fbbf24" color="#fbbf24" />
+              ))}
+            </div>
+            <span
+              style={{
+                fontSize: "12px",
+                color: "rgba(255,255,255,0.7)",
+                fontWeight: 600,
+              }}
+            >
+              +50,000 clientes satisfechos
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* Theme Toggle */}
-      <button className="auth-theme-toggle" onClick={toggle}>
-        {theme === "dark" ? "☀️" : "🌙"}
-      </button>
+      {/* RIGHT PANEL */}
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "24px",
+          background: isDark ? "#0f0f13" : "#faf8f5",
+          position: "relative",
+        }}
+      >
+        <button
+          onClick={toggle}
+          style={{
+            position: "absolute",
+            top: "20px",
+            right: "20px",
+            width: "40px",
+            height: "40px",
+            borderRadius: "12px",
+            border: `2px solid ${isDark ? "rgba(255,255,255,0.1)" : "#e5e7eb"}`,
+            background: isDark ? "rgba(255,255,255,0.05)" : "#fff",
+            color: isDark ? "rgba(255,255,255,0.5)" : "#6b7280",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+          }}
+        >
+          {isDark ? <Sun size={16} /> : <Moon size={16} />}
+        </button>
 
-      <div className="auth-container">
-        {/* Panel Izquierdo - Hero */}
-        <div className="auth-hero">
-          <div className="auth-hero-content">
-            <div className="auth-logo-wrapper">
-              <EcoModLogo />
-            </div>
-
-            <div className="auth-hero-badge">
-              <Sparkles size={12} />
-              <span>MICROSERVICES ARCHITECTURE</span>
-            </div>
-
-            <h1 className="auth-hero-title">
-              Comercio Moderno
-              <span>Escalable y Distribuido</span>
-            </h1>
-
-            <p className="auth-hero-description">
-              Plataforma de comercio electrónico construida con microservicios,
-              lista para escalar con tu negocio.
-            </p>
-
-            <div className="auth-features">
-              {features.map((feature, idx) => {
-                const Icon = feature.icon;
-                return (
-                  <div key={idx} className="auth-feature">
-                    <div
-                      className="auth-feature-icon"
-                      style={{ color: feature.color }}
-                    >
-                      <Icon size={16} />
-                    </div>
-                    <span>{feature.text}</span>
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="auth-stats">
-              <div className="auth-stat">
-                <div className="auth-stat-value">8</div>
-                <div className="auth-stat-label">Microservicios</div>
-              </div>
-              <div className="auth-stat-divider"></div>
-              <div className="auth-stat">
-                <div className="auth-stat-value">99.9%</div>
-                <div className="auth-stat-label">Uptime</div>
-              </div>
-              <div className="auth-stat-divider"></div>
-              <div className="auth-stat">
-                <div className="auth-stat-value">&lt;50ms</div>
-                <div className="auth-stat-label">Latencia</div>
-              </div>
-            </div>
-          </div>
+        {/* Mobile logo */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            marginBottom: "32px",
+          }}
+        >
+          <LogoIcon size={32} />
+          <span
+            style={{
+              fontSize: "20px",
+              fontWeight: 700,
+              color: isDark ? "#fff" : "#1a1a1a",
+            }}
+          >
+            Eco
+          </span>
+          <span style={{ fontSize: "20px", fontWeight: 800, color: "#e8291c" }}>
+            Mod
+          </span>
         </div>
 
-        {/* Panel Derecho - Forms */}
-        <div className="auth-form-panel">
-          <div className="auth-form-container">
-            {/* Tabs */}
-            {(tab === "login" || tab === "register") && (
-              <div className="auth-tabs-modern">
+        <div style={{ width: "100%", maxWidth: "380px" }}>
+          {/* Tabs */}
+          {(tab === "login" || tab === "register") && (
+            <div
+              style={{
+                display: "flex",
+                borderBottom: `2px solid ${isDark ? "rgba(255,255,255,0.08)" : "#e5e7eb"}`,
+                marginBottom: "28px",
+              }}
+            >
+              {["login", "register"].map((t) => (
                 <button
-                  className={`auth-tab-modern ${tab === "login" ? "active" : ""}`}
-                  onClick={() => switchTab("login")}
+                  key={t}
+                  onClick={() => switchTab(t)}
+                  style={{
+                    flex: 1,
+                    padding: "12px",
+                    background: "none",
+                    border: "none",
+                    borderBottom: `2px solid ${tab === t ? "#e8291c" : "transparent"}`,
+                    fontFamily: "'Inter', sans-serif",
+                    fontSize: "14px",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    marginBottom: "-2px",
+                    color:
+                      tab === t
+                        ? "#e8291c"
+                        : isDark
+                          ? "rgba(255,255,255,0.4)"
+                          : "#9ca3af",
+                    transition: "all 0.2s",
+                  }}
                 >
-                  <Lock size={14} />
-                  <span>Iniciar Sesión</span>
+                  {t === "login" ? "Iniciar sesión" : "Crear cuenta"}
                 </button>
-                <button
-                  className={`auth-tab-modern ${tab === "register" ? "active" : ""}`}
-                  onClick={() => switchTab("register")}
-                >
-                  <User size={14} />
-                  <span>Crear Cuenta</span>
-                </button>
-              </div>
-            )}
+              ))}
+            </div>
+          )}
 
-            {/* Alert Messages */}
-            {msg && (
-              <div className={`auth-alert ${msg.type}`}>
-                {msg.type === "success" ? (
-                  <CheckCircle size={16} />
-                ) : (
-                  <AlertCircle size={16} />
+          {/* LOGIN */}
+          {tab === "login" && (
+            <form
+              onSubmit={handleLogin}
+              style={{ animation: "authFadeUp 0.35s ease" }}
+            >
+              <div style={{ marginBottom: "24px" }}>
+                <h2
+                  style={{
+                    fontSize: "24px",
+                    fontWeight: 800,
+                    marginBottom: "4px",
+                    color: isDark ? "#f0f0f8" : "#1a1a1a",
+                  }}
+                >
+                  ¡Bienvenido!
+                </h2>
+                <p
+                  style={{
+                    fontSize: "13px",
+                    color: isDark ? "rgba(255,255,255,0.4)" : "#888",
+                  }}
+                >
+                  Ingresa a tu cuenta para continuar comprando
+                </p>
+              </div>
+
+              {/* Email */}
+              <div style={{ marginBottom: "16px" }}>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    fontWeight: 700,
+                    color: isDark ? "rgba(255,255,255,0.6)" : "#555",
+                    marginBottom: "6px",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px",
+                  }}
+                >
+                  Correo electrónico
+                </label>
+                <div style={inputStyle(errors.email)}>
+                  <Mail
+                    size={18}
+                    style={{
+                      color: errors.email ? "#f87171" : "#bbb",
+                      flexShrink: 0,
+                    }}
+                  />
+                  <input
+                    ref={emailRef}
+                    type="email"
+                    placeholder="correo@ejemplo.com"
+                    value={form.email}
+                    onChange={set("email")}
+                    style={{
+                      flex: 1,
+                      border: "none",
+                      outline: "none",
+                      background: "transparent",
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: "14px",
+                      padding: "14px 0",
+                      color: isDark ? "#f0f0f8" : "#1a1a1a",
+                    }}
+                  />
+                </div>
+                {errors.email && (
+                  <p
+                    style={{
+                      fontSize: "12px",
+                      color: "#ef4444",
+                      fontWeight: 600,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
+                      marginTop: "4px",
+                    }}
+                  >
+                    <AlertCircle size={12} />
+                    {errors.email}
+                  </p>
                 )}
-                <span>{msg.text}</span>
               </div>
-            )}
 
-            {/* Login Form */}
-            {tab === "login" && (
-              <form onSubmit={handleLogin} className="auth-form">
-                <div className="auth-form-header">
-                  <h2>Bienvenido de vuelta</h2>
-                  <p>Ingresa tus credenciales para continuar</p>
-                </div>
-
-                <div className="auth-input-group">
-                  <div
-                    className={`auth-input-field ${focusedField === "email" ? "focused" : ""}`}
-                  >
-                    <Mail size={18} />
-                    <input
-                      type="email"
-                      placeholder="correo@ejemplo.com"
-                      value={form.email}
-                      onChange={setFormField("email")}
-                      onFocus={() => setFocusedField("email")}
-                      onBlur={() => setFocusedField(null)}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="auth-input-group">
-                  <div
-                    className={`auth-input-field ${focusedField === "password" ? "focused" : ""}`}
-                  >
-                    <Lock size={18} />
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Contraseña"
-                      value={form.password}
-                      onChange={setFormField("password")}
-                      onFocus={() => setFocusedField("password")}
-                      onBlur={() => setFocusedField(null)}
-                      required
-                    />
-                    <button
-                      type="button"
-                      className="auth-password-toggle"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="auth-form-options">
-                  <label className="auth-checkbox">
-                    <input type="checkbox" />
-                    <span>Recordarme</span>
-                  </label>
+              {/* Password */}
+              <div style={{ marginBottom: "16px" }}>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    fontWeight: 700,
+                    color: isDark ? "rgba(255,255,255,0.6)" : "#555",
+                    marginBottom: "6px",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px",
+                  }}
+                >
+                  Contraseña
+                </label>
+                <div style={inputStyle(errors.password)}>
+                  <Lock
+                    size={18}
+                    style={{
+                      color: errors.password ? "#f87171" : "#bbb",
+                      flexShrink: 0,
+                    }}
+                  />
+                  <input
+                    ref={passwordRef}
+                    type={showPw ? "text" : "password"}
+                    placeholder="••••••••"
+                    value={form.password}
+                    onChange={set("password")}
+                    style={{
+                      flex: 1,
+                      border: "none",
+                      outline: "none",
+                      background: "transparent",
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: "14px",
+                      padding: "14px 0",
+                      color: isDark ? "#f0f0f8" : "#1a1a1a",
+                    }}
+                  />
                   <button
                     type="button"
-                    onClick={() => switchTab("forgot")}
-                    className="auth-forgot-link"
+                    onClick={() => setShowPw(!showPw)}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      color: "#bbb",
+                      padding: 0,
+                    }}
                   >
-                    ¿Olvidaste tu contraseña?
+                    {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
-
-                <button
-                  type="submit"
-                  className="auth-submit-btn"
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <div className="auth-spinner"></div>
-                  ) : (
-                    <>
-                      <span>Entrar</span>
-                      <ArrowRight size={16} />
-                    </>
-                  )}
-                </button>
-              </form>
-            )}
-
-            {/* Register Form */}
-            {tab === "register" && (
-              <form onSubmit={handleRegister} className="auth-form">
-                <div className="auth-form-header">
-                  <h2>Crear una cuenta</h2>
-                  <p>Regístrate para acceder a la plataforma</p>
-                </div>
-
-                <div className="auth-name-row">
-                  <div className="auth-input-group">
-                    <div
-                      className={`auth-input-field ${focusedField === "nombre" ? "focused" : ""}`}
-                    >
-                      <User size={18} />
-                      <input
-                        type="text"
-                        placeholder="Nombre"
-                        value={form.nombre}
-                        onChange={setFormField("nombre")}
-                        onFocus={() => setFocusedField("nombre")}
-                        onBlur={() => setFocusedField(null)}
-                      />
-                    </div>
-                  </div>
-                  <div className="auth-input-group">
-                    <div
-                      className={`auth-input-field ${focusedField === "apellido" ? "focused" : ""}`}
-                    >
-                      <User size={18} />
-                      <input
-                        type="text"
-                        placeholder="Apellido"
-                        value={form.apellido}
-                        onChange={setFormField("apellido")}
-                        onFocus={() => setFocusedField("apellido")}
-                        onBlur={() => setFocusedField(null)}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="auth-input-group">
-                  <div
-                    className={`auth-input-field ${focusedField === "email_reg" ? "focused" : ""}`}
+                {errors.password && (
+                  <p
+                    style={{
+                      fontSize: "12px",
+                      color: "#ef4444",
+                      fontWeight: 600,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
+                      marginTop: "4px",
+                    }}
                   >
-                    <Mail size={18} />
-                    <input
-                      type="email"
-                      placeholder="correo@ejemplo.com"
-                      value={form.email}
-                      onChange={setFormField("email")}
-                      onFocus={() => setFocusedField("email_reg")}
-                      onBlur={() => setFocusedField(null)}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="auth-input-group">
-                  <div
-                    className={`auth-input-field ${focusedField === "password_reg" ? "focused" : ""}`}
-                  >
-                    <Lock size={18} />
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Contraseña"
-                      value={form.password}
-                      onChange={setFormField("password")}
-                      onFocus={() => setFocusedField("password_reg")}
-                      onBlur={() => setFocusedField(null)}
-                      required
-                    />
-                    <button
-                      type="button"
-                      className="auth-password-toggle"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </button>
-                  </div>
-                  {form.password && (
-                    <div className="auth-password-strength">
-                      <div className="auth-strength-bar">
-                        <div
-                          className="auth-strength-fill"
-                          style={{
-                            width: `${(passwordStrength / 4) * 100}%`,
-                            background: getPasswordStrengthText().color,
-                          }}
-                        />
-                      </div>
-                      <span style={{ color: getPasswordStrengthText().color }}>
-                        {getPasswordStrengthText().text}
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                <button
-                  type="submit"
-                  className="auth-submit-btn"
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <div className="auth-spinner"></div>
-                  ) : (
-                    <>
-                      <span>Crear cuenta</span>
-                      <ArrowRight size={16} />
-                    </>
-                  )}
-                </button>
-
-                <p className="auth-terms">
-                  Al registrarte, aceptas nuestros{" "}
-                  <a href="#">Términos de servicio</a> y{" "}
-                  <a href="#">Política de privacidad</a>
-                </p>
-              </form>
-            )}
-
-            {/* Forgot Password Form */}
-            {tab === "forgot" && (
-              <form onSubmit={handleForgot} className="auth-form">
-                <button
-                  type="button"
-                  onClick={() => switchTab("login")}
-                  className="auth-back-btn"
-                >
-                  <ArrowLeft size={16} />
-                  <span>Volver al login</span>
-                </button>
-
-                <div className="auth-form-header">
-                  <h2>¿Olvidaste tu contraseña?</h2>
-                  <p>
-                    Ingresa tu email y te enviaremos un enlace para
-                    restablecerla
+                    <AlertCircle size={12} />
+                    {errors.password}
                   </p>
-                </div>
+                )}
+              </div>
 
-                <div className="auth-input-group">
-                  <div
-                    className={`auth-input-field ${focusedField === "email_forgot" ? "focused" : ""}`}
-                  >
-                    <Mail size={18} />
-                    <input
-                      type="email"
-                      placeholder="correo@ejemplo.com"
-                      value={form.email}
-                      onChange={setFormField("email")}
-                      onFocus={() => setFocusedField("email_forgot")}
-                      onBlur={() => setFocusedField(null)}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  className="auth-submit-btn"
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <div className="auth-spinner"></div>
-                  ) : (
-                    <>
-                      <span>Enviar enlace</span>
-                      <Send size={16} />
-                    </>
-                  )}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => switchTab("reset")}
-                  className="auth-reset-link"
-                >
-                  ¿Ya tienes un código? Restablecer contraseña
-                </button>
-              </form>
-            )}
-
-            {/* Reset Password Form */}
-            {tab === "reset" && (
-              <form onSubmit={handleReset} className="auth-form">
+              <div style={{ textAlign: "right", margin: "-4px 0 16px" }}>
                 <button
                   type="button"
                   onClick={() => switchTab("forgot")}
-                  className="auth-back-btn"
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    fontSize: "12px",
+                    fontWeight: 700,
+                    color: "#e8291c",
+                    fontFamily: "'Inter', sans-serif",
+                  }}
                 >
-                  <ArrowLeft size={16} />
-                  <span>Volver</span>
+                  ¿Olvidaste tu contraseña?
                 </button>
+              </div>
 
-                <div className="auth-form-header">
-                  <h2>Nueva contraseña</h2>
-                  <p>Ingresa el token que recibiste y tu nueva contraseña</p>
-                </div>
+              <button
+                type="submit"
+                disabled={isLoading}
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  padding: "14px 24px",
+                  background: "linear-gradient(135deg, #e8291c, #c0392b)",
+                  border: "none",
+                  borderRadius: "12px",
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: "15px",
+                  fontWeight: 800,
+                  color: "#fff",
+                  cursor: "pointer",
+                  transition: "all 0.25s",
+                  marginBottom: "16px",
+                  opacity: isLoading ? 0.7 : 1,
+                }}
+              >
+                {isLoading ? (
+                  <span
+                    style={{
+                      width: "18px",
+                      height: "18px",
+                      border: "2px solid rgba(255,255,255,0.3)",
+                      borderTopColor: "#fff",
+                      borderRadius: "50%",
+                      animation: "authSpin 0.6s linear infinite",
+                      display: "inline-block",
+                    }}
+                  />
+                ) : (
+                  <>
+                    <span>Entrar</span>
+                    <ArrowRight size={16} />
+                  </>
+                )}
+              </button>
 
-                <div className="auth-input-group">
+              <div style={{ position: "relative", margin: "24px 0" }}>
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
                   <div
-                    className={`auth-input-field ${focusedField === "token" ? "focused" : ""}`}
+                    style={{
+                      width: "100%",
+                      borderTop: `1px solid ${isDark ? "rgba(255,255,255,0.1)" : "#e5e7eb"}`,
+                    }}
+                  />
+                </div>
+                <div
+                  style={{
+                    position: "relative",
+                    display: "flex",
+                    justifyContent: "center",
+                  }}
+                >
+                  <span
+                    style={{
+                      padding: "0 12px",
+                      fontSize: "12px",
+                      color: "#9ca3af",
+                      background: isDark ? "#0f0f13" : "#faf8f5",
+                    }}
                   >
-                    <Key size={18} />
+                    o continúa con
+                  </span>
+                </div>
+              </div>
+
+              <GoogleSignInButton
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+              />
+            </form>
+          )}
+
+          {/* REGISTER */}
+          {tab === "register" && (
+            <form
+              onSubmit={handleRegister}
+              style={{ animation: "authFadeUp 0.35s ease" }}
+            >
+              <div style={{ marginBottom: "24px" }}>
+                <h2
+                  style={{
+                    fontSize: "24px",
+                    fontWeight: 800,
+                    marginBottom: "4px",
+                    color: isDark ? "#f0f0f8" : "#1a1a1a",
+                  }}
+                >
+                  Crea tu cuenta
+                </h2>
+                <p
+                  style={{
+                    fontSize: "13px",
+                    color: isDark ? "rgba(255,255,255,0.4)" : "#888",
+                  }}
+                >
+                  Regístrate gratis y empieza a comprar
+                </p>
+              </div>
+
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "12px",
+                  marginBottom: "16px",
+                }}
+              >
+                <div>
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: "12px",
+                      fontWeight: 700,
+                      color: isDark ? "rgba(255,255,255,0.6)" : "#555",
+                      marginBottom: "6px",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                    }}
+                  >
+                    Nombre
+                  </label>
+                  <div style={inputStyle(errors.nombre)}>
+                    <User
+                      size={18}
+                      style={{
+                        color: errors.nombre ? "#f87171" : "#bbb",
+                        flexShrink: 0,
+                      }}
+                    />
                     <input
+                      ref={nombreRef}
                       type="text"
-                      placeholder="Token del email"
-                      value={resetForm.token}
-                      onChange={setResetField("token")}
-                      onFocus={() => setFocusedField("token")}
-                      onBlur={() => setFocusedField(null)}
-                      required
-                      style={{ fontFamily: "monospace" }}
+                      placeholder="Juan"
+                      value={form.nombre}
+                      onChange={set("nombre")}
+                      style={{
+                        flex: 1,
+                        border: "none",
+                        outline: "none",
+                        background: "transparent",
+                        fontFamily: "'Inter', sans-serif",
+                        fontSize: "14px",
+                        padding: "14px 0",
+                        color: isDark ? "#f0f0f8" : "#1a1a1a",
+                      }}
                     />
                   </div>
-                </div>
-
-                <div className="auth-input-group">
-                  <div
-                    className={`auth-input-field ${focusedField === "new_password" ? "focused" : ""}`}
-                  >
-                    <Lock size={18} />
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Nueva contraseña"
-                      value={resetForm.new_password}
-                      onChange={setResetField("new_password")}
-                      onFocus={() => setFocusedField("new_password")}
-                      onBlur={() => setFocusedField(null)}
-                      required
-                    />
-                    <button
-                      type="button"
-                      className="auth-password-toggle"
-                      onClick={() => setShowPassword(!showPassword)}
+                  {errors.nombre && (
+                    <p
+                      style={{
+                        fontSize: "12px",
+                        color: "#ef4444",
+                        fontWeight: 600,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "4px",
+                        marginTop: "4px",
+                      }}
                     >
-                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="auth-input-group">
-                  <div
-                    className={`auth-input-field ${focusedField === "confirm" ? "focused" : ""}`}
-                  >
-                    <Lock size={18} />
-                    <input
-                      type={showConfirmPassword ? "text" : "password"}
-                      placeholder="Confirmar contraseña"
-                      value={resetForm.confirm}
-                      onChange={setResetField("confirm")}
-                      onFocus={() => setFocusedField("confirm")}
-                      onBlur={() => setFocusedField(null)}
-                      required
-                    />
-                    <button
-                      type="button"
-                      className="auth-password-toggle"
-                      onClick={() =>
-                        setShowConfirmPassword(!showConfirmPassword)
-                      }
-                    >
-                      {showConfirmPassword ? (
-                        <EyeOff size={16} />
-                      ) : (
-                        <Eye size={16} />
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  className="auth-submit-btn"
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <div className="auth-spinner"></div>
-                  ) : (
-                    <>
-                      <span>Restablecer contraseña</span>
-                      <Fingerprint size={16} />
-                    </>
+                      <AlertCircle size={12} />
+                      {errors.nombre}
+                    </p>
                   )}
-                </button>
-              </form>
-            )}
-          </div>
+                </div>
+                <div>
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: "12px",
+                      fontWeight: 700,
+                      color: isDark ? "rgba(255,255,255,0.6)" : "#555",
+                      marginBottom: "6px",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                    }}
+                  >
+                    Apellido
+                  </label>
+                  <div style={inputStyle(errors.apellido)}>
+                    <User
+                      size={18}
+                      style={{
+                        color: errors.apellido ? "#f87171" : "#bbb",
+                        flexShrink: 0,
+                      }}
+                    />
+                    <input
+                      ref={apellidoRef}
+                      type="text"
+                      placeholder="Pérez"
+                      value={form.apellido}
+                      onChange={set("apellido")}
+                      style={{
+                        flex: 1,
+                        border: "none",
+                        outline: "none",
+                        background: "transparent",
+                        fontFamily: "'Inter', sans-serif",
+                        fontSize: "14px",
+                        padding: "14px 0",
+                        color: isDark ? "#f0f0f8" : "#1a1a1a",
+                      }}
+                    />
+                  </div>
+                  {errors.apellido && (
+                    <p
+                      style={{
+                        fontSize: "12px",
+                        color: "#ef4444",
+                        fontWeight: 600,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "4px",
+                        marginTop: "4px",
+                      }}
+                    >
+                      <AlertCircle size={12} />
+                      {errors.apellido}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div style={{ marginBottom: "16px" }}>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    fontWeight: 700,
+                    color: isDark ? "rgba(255,255,255,0.6)" : "#555",
+                    marginBottom: "6px",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px",
+                  }}
+                >
+                  Correo electrónico
+                </label>
+                <div style={inputStyle(errors.email)}>
+                  <Mail
+                    size={18}
+                    style={{
+                      color: errors.email ? "#f87171" : "#bbb",
+                      flexShrink: 0,
+                    }}
+                  />
+                  <input
+                    ref={emailRef}
+                    type="email"
+                    placeholder="correo@ejemplo.com"
+                    value={form.email}
+                    onChange={set("email")}
+                    style={{
+                      flex: 1,
+                      border: "none",
+                      outline: "none",
+                      background: "transparent",
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: "14px",
+                      padding: "14px 0",
+                      color: isDark ? "#f0f0f8" : "#1a1a1a",
+                    }}
+                  />
+                </div>
+                {errors.email && (
+                  <p
+                    style={{
+                      fontSize: "12px",
+                      color: "#ef4444",
+                      fontWeight: 600,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
+                      marginTop: "4px",
+                    }}
+                  >
+                    <AlertCircle size={12} />
+                    {errors.email}
+                  </p>
+                )}
+              </div>
+
+              <div style={{ marginBottom: "16px" }}>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    fontWeight: 700,
+                    color: isDark ? "rgba(255,255,255,0.6)" : "#555",
+                    marginBottom: "6px",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px",
+                  }}
+                >
+                  Contraseña
+                </label>
+                <div style={inputStyle(errors.password)}>
+                  <Lock
+                    size={18}
+                    style={{
+                      color: errors.password ? "#f87171" : "#bbb",
+                      flexShrink: 0,
+                    }}
+                  />
+                  <input
+                    ref={passwordRef}
+                    type={showPw ? "text" : "password"}
+                    placeholder="••••••••"
+                    value={form.password}
+                    onChange={set("password")}
+                    style={{
+                      flex: 1,
+                      border: "none",
+                      outline: "none",
+                      background: "transparent",
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: "14px",
+                      padding: "14px 0",
+                      color: isDark ? "#f0f0f8" : "#1a1a1a",
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPw(!showPw)}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      color: "#bbb",
+                      padding: 0,
+                    }}
+                  >
+                    {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+                {errors.password && (
+                  <p
+                    style={{
+                      fontSize: "12px",
+                      color: "#ef4444",
+                      fontWeight: 600,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
+                      marginTop: "4px",
+                    }}
+                  >
+                    <AlertCircle size={12} />
+                    {errors.password}
+                  </p>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  padding: "14px 24px",
+                  background: "linear-gradient(135deg, #e8291c, #c0392b)",
+                  border: "none",
+                  borderRadius: "12px",
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: "15px",
+                  fontWeight: 800,
+                  color: "#fff",
+                  cursor: "pointer",
+                  transition: "all 0.25s",
+                  marginBottom: "16px",
+                  opacity: isLoading ? 0.7 : 1,
+                }}
+              >
+                {isLoading ? (
+                  <span
+                    style={{
+                      width: "18px",
+                      height: "18px",
+                      border: "2px solid rgba(255,255,255,0.3)",
+                      borderTopColor: "#fff",
+                      borderRadius: "50%",
+                      animation: "authSpin 0.6s linear infinite",
+                      display: "inline-block",
+                    }}
+                  />
+                ) : (
+                  <>
+                    <span>Crear cuenta</span>
+                    <ArrowRight size={16} />
+                  </>
+                )}
+              </button>
+
+              <div style={{ position: "relative", margin: "24px 0" }}>
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "100%",
+                      borderTop: `1px solid ${isDark ? "rgba(255,255,255,0.1)" : "#e5e7eb"}`,
+                    }}
+                  />
+                </div>
+                <div
+                  style={{
+                    position: "relative",
+                    display: "flex",
+                    justifyContent: "center",
+                  }}
+                >
+                  <span
+                    style={{
+                      padding: "0 12px",
+                      fontSize: "12px",
+                      color: "#9ca3af",
+                      background: isDark ? "#0f0f13" : "#faf8f5",
+                    }}
+                  >
+                    o continúa con
+                  </span>
+                </div>
+              </div>
+
+              <GoogleSignInButton
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+              />
+
+              <p
+                style={{
+                  fontSize: "11px",
+                  textAlign: "center",
+                  marginTop: "12px",
+                  color: isDark ? "rgba(255,255,255,0.3)" : "#9ca3af",
+                }}
+              >
+                Al registrarte aceptas nuestros{" "}
+                <a
+                  href="#"
+                  style={{
+                    color: "#e8291c",
+                    textDecoration: "none",
+                    fontWeight: 700,
+                  }}
+                >
+                  Términos
+                </a>{" "}
+                y{" "}
+                <a
+                  href="#"
+                  style={{
+                    color: "#e8291c",
+                    textDecoration: "none",
+                    fontWeight: 700,
+                  }}
+                >
+                  Política de privacidad
+                </a>
+              </p>
+            </form>
+          )}
+
+          {/* FORGOT */}
+          {tab === "forgot" && (
+            <form
+              onSubmit={handleForgot}
+              style={{ animation: "authFadeUp 0.35s ease" }}
+            >
+              <button
+                type="button"
+                onClick={() => switchTab("login")}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: "12px",
+                  fontWeight: 700,
+                  marginBottom: "16px",
+                  color: isDark ? "rgba(255,255,255,0.4)" : "#888",
+                }}
+              >
+                <ArrowLeft size={15} /> Volver al login
+              </button>
+
+              <div style={{ marginBottom: "24px" }}>
+                <h2
+                  style={{
+                    fontSize: "24px",
+                    fontWeight: 800,
+                    marginBottom: "4px",
+                    color: isDark ? "#f0f0f8" : "#1a1a1a",
+                  }}
+                >
+                  Recuperar contraseña
+                </h2>
+                <p
+                  style={{
+                    fontSize: "13px",
+                    color: isDark ? "rgba(255,255,255,0.4)" : "#888",
+                  }}
+                >
+                  Te enviaremos un enlace a tu correo
+                </p>
+              </div>
+
+              <div style={{ marginBottom: "16px" }}>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    fontWeight: 700,
+                    color: isDark ? "rgba(255,255,255,0.6)" : "#555",
+                    marginBottom: "6px",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px",
+                  }}
+                >
+                  Correo electrónico
+                </label>
+                <div style={inputStyle(errors.email)}>
+                  <Mail
+                    size={18}
+                    style={{
+                      color: errors.email ? "#f87171" : "#bbb",
+                      flexShrink: 0,
+                    }}
+                  />
+                  <input
+                    ref={emailRef}
+                    type="email"
+                    placeholder="correo@ejemplo.com"
+                    value={form.email}
+                    onChange={set("email")}
+                    style={{
+                      flex: 1,
+                      border: "none",
+                      outline: "none",
+                      background: "transparent",
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: "14px",
+                      padding: "14px 0",
+                      color: isDark ? "#f0f0f8" : "#1a1a1a",
+                    }}
+                  />
+                </div>
+                {errors.email && (
+                  <p
+                    style={{
+                      fontSize: "12px",
+                      color: "#ef4444",
+                      fontWeight: 600,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
+                      marginTop: "4px",
+                    }}
+                  >
+                    <AlertCircle size={12} />
+                    {errors.email}
+                  </p>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  padding: "14px 24px",
+                  background: "linear-gradient(135deg, #e8291c, #c0392b)",
+                  border: "none",
+                  borderRadius: "12px",
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: "15px",
+                  fontWeight: 800,
+                  color: "#fff",
+                  cursor: "pointer",
+                  transition: "all 0.25s",
+                  marginBottom: "16px",
+                  opacity: isLoading ? 0.7 : 1,
+                }}
+              >
+                {isLoading ? (
+                  <span
+                    style={{
+                      width: "18px",
+                      height: "18px",
+                      border: "2px solid rgba(255,255,255,0.3)",
+                      borderTopColor: "#fff",
+                      borderRadius: "50%",
+                      animation: "authSpin 0.6s linear infinite",
+                      display: "inline-block",
+                    }}
+                  />
+                ) : (
+                  <>
+                    <span>Enviar enlace</span>
+                    <ArrowRight size={16} />
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => switchTab("reset")}
+                style={{
+                  width: "100%",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: "12px",
+                  fontWeight: 700,
+                  color: "#e8291c",
+                  textAlign: "center",
+                  marginTop: "8px",
+                }}
+              >
+                ¿Ya tienes el código? Restablecer
+              </button>
+            </form>
+          )}
+
+          {/* RESET */}
+          {tab === "reset" && (
+            <form
+              onSubmit={handleReset}
+              style={{ animation: "authFadeUp 0.35s ease" }}
+            >
+              <button
+                type="button"
+                onClick={() => switchTab("forgot")}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: "12px",
+                  fontWeight: 700,
+                  marginBottom: "16px",
+                  color: isDark ? "rgba(255,255,255,0.4)" : "#888",
+                }}
+              >
+                <ArrowLeft size={15} /> Volver
+              </button>
+
+              <div style={{ marginBottom: "24px" }}>
+                <h2
+                  style={{
+                    fontSize: "24px",
+                    fontWeight: 800,
+                    marginBottom: "4px",
+                    color: isDark ? "#f0f0f8" : "#1a1a1a",
+                  }}
+                >
+                  Nueva contraseña
+                </h2>
+                <p
+                  style={{
+                    fontSize: "13px",
+                    color: isDark ? "rgba(255,255,255,0.4)" : "#888",
+                  }}
+                >
+                  Ingresa el token de tu correo y tu nueva contraseña
+                </p>
+              </div>
+
+              <div style={{ marginBottom: "16px" }}>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    fontWeight: 700,
+                    color: isDark ? "rgba(255,255,255,0.6)" : "#555",
+                    marginBottom: "6px",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px",
+                  }}
+                >
+                  Token del correo
+                </label>
+                <div style={inputStyle(errors.token)}>
+                  <Lock
+                    size={18}
+                    style={{
+                      color: errors.token ? "#f87171" : "#bbb",
+                      flexShrink: 0,
+                    }}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Pega el token aquí"
+                    value={resetForm.token}
+                    onChange={setR("token")}
+                    style={{
+                      flex: 1,
+                      border: "none",
+                      outline: "none",
+                      background: "transparent",
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: "14px",
+                      padding: "14px 0",
+                      color: isDark ? "#f0f0f8" : "#1a1a1a",
+                      fontFamily: "monospace",
+                      fontSize: "12px",
+                    }}
+                  />
+                </div>
+                {errors.token && (
+                  <p
+                    style={{
+                      fontSize: "12px",
+                      color: "#ef4444",
+                      fontWeight: 600,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
+                      marginTop: "4px",
+                    }}
+                  >
+                    <AlertCircle size={12} />
+                    {errors.token}
+                  </p>
+                )}
+              </div>
+
+              <div style={{ marginBottom: "16px" }}>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    fontWeight: 700,
+                    color: isDark ? "rgba(255,255,255,0.6)" : "#555",
+                    marginBottom: "6px",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px",
+                  }}
+                >
+                  Nueva contraseña
+                </label>
+                <div style={inputStyle(errors.new_password)}>
+                  <Lock
+                    size={18}
+                    style={{
+                      color: errors.new_password ? "#f87171" : "#bbb",
+                      flexShrink: 0,
+                    }}
+                  />
+                  <input
+                    type={showPw ? "text" : "password"}
+                    placeholder="••••••••"
+                    value={resetForm.new_password}
+                    onChange={setR("new_password")}
+                    style={{
+                      flex: 1,
+                      border: "none",
+                      outline: "none",
+                      background: "transparent",
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: "14px",
+                      padding: "14px 0",
+                      color: isDark ? "#f0f0f8" : "#1a1a1a",
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPw(!showPw)}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      color: "#bbb",
+                      padding: 0,
+                    }}
+                  >
+                    {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+                {errors.new_password && (
+                  <p
+                    style={{
+                      fontSize: "12px",
+                      color: "#ef4444",
+                      fontWeight: 600,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
+                      marginTop: "4px",
+                    }}
+                  >
+                    <AlertCircle size={12} />
+                    {errors.new_password}
+                  </p>
+                )}
+              </div>
+
+              <div style={{ marginBottom: "16px" }}>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "12px",
+                    fontWeight: 700,
+                    color: isDark ? "rgba(255,255,255,0.6)" : "#555",
+                    marginBottom: "6px",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px",
+                  }}
+                >
+                  Confirmar contraseña
+                </label>
+                <div style={inputStyle(errors.confirm)}>
+                  <Lock
+                    size={18}
+                    style={{
+                      color: errors.confirm ? "#f87171" : "#bbb",
+                      flexShrink: 0,
+                    }}
+                  />
+                  <input
+                    type={showConfirm ? "text" : "password"}
+                    placeholder="••••••••"
+                    value={resetForm.confirm}
+                    onChange={setR("confirm")}
+                    style={{
+                      flex: 1,
+                      border: "none",
+                      outline: "none",
+                      background: "transparent",
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: "14px",
+                      padding: "14px 0",
+                      color: isDark ? "#f0f0f8" : "#1a1a1a",
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirm(!showConfirm)}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      color: "#bbb",
+                      padding: 0,
+                    }}
+                  >
+                    {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+                {errors.confirm && (
+                  <p
+                    style={{
+                      fontSize: "12px",
+                      color: "#ef4444",
+                      fontWeight: 600,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
+                      marginTop: "4px",
+                    }}
+                  >
+                    <AlertCircle size={12} />
+                    {errors.confirm}
+                  </p>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  padding: "14px 24px",
+                  background: "linear-gradient(135deg, #e8291c, #c0392b)",
+                  border: "none",
+                  borderRadius: "12px",
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: "15px",
+                  fontWeight: 800,
+                  color: "#fff",
+                  cursor: "pointer",
+                  transition: "all 0.25s",
+                  marginBottom: "16px",
+                  opacity: isLoading ? 0.7 : 1,
+                }}
+              >
+                {isLoading ? (
+                  <span
+                    style={{
+                      width: "18px",
+                      height: "18px",
+                      border: "2px solid rgba(255,255,255,0.3)",
+                      borderTopColor: "#fff",
+                      borderRadius: "50%",
+                      animation: "authSpin 0.6s linear infinite",
+                      display: "inline-block",
+                    }}
+                  />
+                ) : (
+                  <>
+                    <span>Restablecer contraseña</span>
+                    <ArrowRight size={16} />
+                  </>
+                )}
+              </button>
+            </form>
+          )}
         </div>
       </div>
 
-      <style jsx>{`
-        .auth-modern {
-          min-height: 100vh;
-          position: relative;
-          overflow: hidden;
-        }
-
-        /* FONDOS */
-        .auth-bg {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          z-index: 0;
-        }
-
-        .auth-modern.dark .auth-bg {
-          background: linear-gradient(135deg, #0a0a0f 0%, #0f0f1a 100%);
-        }
-
-        .auth-modern.light .auth-bg {
-          background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
-        }
-
-        .auth-grid {
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background-image:
-            linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0, 255, 136, 0.03) 1px, transparent 1px);
-          background-size: 50px 50px;
-          animation: gridMove 20s linear infinite;
-        }
-
-        @keyframes gridMove {
-          0% {
-            transform: translate(0, 0);
-          }
-          100% {
-            transform: translate(50px, 50px);
-          }
-        }
-
-        .auth-gradient {
-          position: absolute;
-          top: -50%;
-          left: -50%;
-          width: 200%;
-          height: 200%;
-          background: radial-gradient(
-            circle at 50% 50%,
-            rgba(0, 255, 136, 0.08),
-            transparent 50%
-          );
-          animation: gradientRotate 30s ease infinite;
-        }
-
-        @keyframes gradientRotate {
-          0% {
-            transform: rotate(0deg);
-          }
-          100% {
-            transform: rotate(360deg);
-          }
-        }
-
-        .auth-particles {
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          overflow: hidden;
-        }
-
-        .particle {
-          position: absolute;
-          width: 2px;
-          height: 2px;
-          background: rgba(0, 255, 136, 0.3);
-          border-radius: 50%;
-          animation: floatParticle linear infinite;
-        }
-
-        @keyframes floatParticle {
-          0% {
-            transform: translateY(0) translateX(0);
-            opacity: 0;
-          }
-          50% {
-            opacity: 0.5;
-          }
-          100% {
-            transform: translateY(-100px) translateX(20px);
-            opacity: 0;
-          }
-        }
-
-        .auth-theme-toggle {
-          position: fixed;
-          top: 24px;
-          right: 24px;
-          width: 44px;
-          height: 44px;
-          border-radius: 22px;
-          background: rgba(0, 255, 136, 0.1);
-          border: 1px solid rgba(0, 255, 136, 0.3);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          font-size: 20px;
-          transition: all 0.3s;
-          z-index: 100;
-          backdrop-filter: blur(10px);
-        }
-
-        .auth-theme-toggle:hover {
-          transform: scale(1.05);
-          background: rgba(0, 255, 136, 0.2);
-        }
-
-        .auth-container {
-          position: relative;
-          z-index: 1;
-          display: flex;
-          min-height: 100vh;
-        }
-
-        .auth-hero {
-          flex: 1;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 48px;
-        }
-
-        .auth-hero-content {
-          max-width: 500px;
-        }
-
-        .auth-logo-wrapper {
-          margin-bottom: 32px;
-        }
-
-        .auth-hero-badge {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          padding: 6px 14px;
-          background: rgba(0, 255, 136, 0.1);
-          border: 1px solid rgba(0, 255, 136, 0.2);
-          border-radius: 40px;
-          font-size: 10px;
-          font-weight: 700;
-          letter-spacing: 2px;
-          color: #00ff88;
-          margin-bottom: 24px;
-        }
-
-        .auth-hero-title {
-          font-size: 42px;
-          font-weight: 800;
-          line-height: 1.2;
-          margin-bottom: 16px;
-        }
-
-        .auth-modern.dark .auth-hero-title {
-          background: linear-gradient(135deg, #fff, #00ff88);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-        }
-
-        .auth-modern.light .auth-hero-title {
-          background: linear-gradient(135deg, #1a1a2e, #00b894);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-        }
-
-        .auth-hero-title span {
-          display: block;
-          font-size: 24px;
-          opacity: 0.7;
-          -webkit-text-fill-color: unset;
-          background: none;
-        }
-
-        .auth-hero-description {
-          color: rgba(255, 255, 255, 0.6);
-          font-size: 15px;
-          line-height: 1.6;
-          margin-bottom: 32px;
-        }
-
-        .auth-modern.light .auth-hero-description {
-          color: #6c757d;
-        }
-
-        .auth-features {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-          margin-bottom: 40px;
-        }
-
-        .auth-feature {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          font-size: 13px;
-        }
-
-        .auth-modern.dark .auth-feature {
-          color: rgba(255, 255, 255, 0.7);
-        }
-
-        .auth-modern.light .auth-feature {
-          color: #495057;
-        }
-
-        .auth-feature-icon {
-          width: 28px;
-          height: 28px;
-          border-radius: 8px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: rgba(0, 255, 136, 0.1);
-        }
-
-        .auth-stats {
-          display: flex;
-          align-items: center;
-          gap: 24px;
-          padding-top: 24px;
-          border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .auth-modern.light .auth-stats {
-          border-top-color: rgba(0, 0, 0, 0.1);
-        }
-
-        .auth-stat {
-          text-align: center;
-        }
-
-        .auth-stat-value {
-          font-size: 24px;
-          font-weight: 800;
-          color: #00ff88;
-        }
-
-        .auth-modern.light .auth-stat-value {
-          color: #00b894;
-        }
-
-        .auth-stat-label {
-          font-size: 11px;
-          color: rgba(255, 255, 255, 0.5);
-          text-transform: uppercase;
-          letter-spacing: 1px;
-        }
-
-        .auth-modern.light .auth-stat-label {
-          color: #6c757d;
-        }
-
-        .auth-stat-divider {
-          width: 1px;
-          height: 30px;
-          background: rgba(255, 255, 255, 0.1);
-        }
-
-        .auth-modern.light .auth-stat-divider {
-          background: rgba(0, 0, 0, 0.1);
-        }
-
-        .auth-form-panel {
-          width: 520px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 48px;
-        }
-
-        .auth-modern.dark .auth-form-panel {
-          background: rgba(18, 18, 28, 0.8);
-          backdrop-filter: blur(20px);
-          border-left: 1px solid rgba(0, 255, 136, 0.15);
-        }
-
-        .auth-modern.light .auth-form-panel {
-          background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(20px);
-          border-left: 1px solid rgba(0, 184, 148, 0.15);
-        }
-
-        .auth-form-container {
-          width: 100%;
-          max-width: 380px;
-        }
-
-        .auth-tabs-modern {
-          display: flex;
-          gap: 8px;
-          background: rgba(0, 0, 0, 0.3);
-          padding: 4px;
-          border-radius: 60px;
-          margin-bottom: 32px;
-        }
-
-        .auth-modern.light .auth-tabs-modern {
-          background: #f8f9fa;
-        }
-
-        .auth-tab-modern {
-          flex: 1;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-          padding: 10px 20px;
-          background: transparent;
-          border: none;
-          border-radius: 40px;
-          font-size: 13px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.3s;
-          color: rgba(255, 255, 255, 0.6);
-        }
-
-        .auth-modern.light .auth-tab-modern {
-          color: #6c757d;
-        }
-
-        .auth-tab-modern.active {
-          background: rgba(0, 255, 136, 0.15);
-          color: #00ff88;
-        }
-
-        .auth-modern.light .auth-tab-modern.active {
-          background: rgba(0, 184, 148, 0.1);
-          color: #00b894;
-        }
-
-        .auth-alert {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          padding: 12px 16px;
-          border-radius: 12px;
-          font-size: 13px;
-          margin-bottom: 24px;
-          animation: slideDown 0.3s ease;
-        }
-
-        @keyframes slideDown {
-          from {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        .auth-alert.success {
-          background: rgba(0, 255, 136, 0.1);
-          border: 1px solid rgba(0, 255, 136, 0.2);
-          color: #00ff88;
-        }
-
-        .auth-alert.error {
-          background: rgba(255, 107, 107, 0.1);
-          border: 1px solid rgba(255, 107, 107, 0.2);
-          color: #ff6b6b;
-        }
-
-        .auth-modern.light .auth-alert.success {
-          background: rgba(0, 184, 148, 0.1);
-          color: #00b894;
-        }
-
-        .auth-form {
-          animation: fadeIn 0.4s ease;
-        }
-
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        .auth-form-header {
-          margin-bottom: 28px;
-        }
-
-        .auth-form-header h2 {
-          font-size: 24px;
-          font-weight: 700;
-          margin-bottom: 6px;
-        }
-
-        .auth-form-header p {
-          font-size: 13px;
-          color: rgba(255, 255, 255, 0.5);
-        }
-
-        .auth-modern.light .auth-form-header p {
-          color: #6c757d;
-        }
-
-        .auth-input-group {
-          margin-bottom: 20px;
-        }
-
-        .auth-input-field {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 12px 16px;
-          background: rgba(0, 0, 0, 0.3);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 12px;
-          transition: all 0.3s;
-        }
-
-        .auth-modern.light .auth-input-field {
-          background: #f8f9fa;
-          border-color: #e9ecef;
-        }
-
-        .auth-input-field.focused {
-          border-color: #00ff88;
-          box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.1);
-        }
-
-        .auth-modern.light .auth-input-field.focused {
-          border-color: #00b894;
-          box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.1);
-        }
-
-        .auth-input-field svg {
-          color: rgba(255, 255, 255, 0.4);
-        }
-
-        .auth-modern.light .auth-input-field svg {
-          color: #adb5bd;
-        }
-
-        .auth-input-field input {
-          flex: 1;
-          background: transparent;
-          border: none;
-          outline: none;
-          font-size: 14px;
-          color: inherit;
-        }
-
-        .auth-input-field input::placeholder {
-          color: rgba(255, 255, 255, 0.3);
-        }
-
-        .auth-modern.light .auth-input-field input::placeholder {
-          color: #adb5bd;
-        }
-
-        .auth-password-toggle {
-          background: none;
-          border: none;
-          cursor: pointer;
-          color: rgba(255, 255, 255, 0.4);
-          display: flex;
-          align-items: center;
-          padding: 0;
-        }
-
-        .auth-name-row {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 12px;
-        }
-
-        .auth-password-strength {
-          margin-top: 8px;
-          display: flex;
-          align-items: center;
-          gap: 12px;
-        }
-
-        .auth-strength-bar {
-          flex: 1;
-          height: 3px;
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 2px;
-          overflow: hidden;
-        }
-
-        .auth-strength-fill {
-          height: 100%;
-          border-radius: 2px;
-          transition: width 0.3s;
-        }
-
-        .auth-form-options {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 24px;
-        }
-
-        .auth-checkbox {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-size: 12px;
-          cursor: pointer;
-        }
-
-        .auth-checkbox input {
-          width: 16px;
-          height: 16px;
-          cursor: pointer;
-          accent-color: #00ff88;
-        }
-
-        .auth-forgot-link {
-          background: none;
-          border: none;
-          font-size: 12px;
-          color: #00ff88;
-          cursor: pointer;
-          transition: opacity 0.3s;
-        }
-
-        .auth-modern.light .auth-forgot-link {
-          color: #00b894;
-        }
-
-        .auth-forgot-link:hover {
-          opacity: 0.7;
-        }
-
-        .auth-submit-btn {
-          width: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-          padding: 14px 24px;
-          background: linear-gradient(135deg, #00ff88, #00d4ff);
-          border: none;
-          border-radius: 40px;
-          font-size: 14px;
-          font-weight: 600;
-          color: #000;
-          cursor: pointer;
-          transition: all 0.3s;
-          margin-bottom: 20px;
-        }
-
-        .auth-modern.light .auth-submit-btn {
-          background: linear-gradient(135deg, #00b894, #0984e3);
-          color: #fff;
-        }
-
-        .auth-submit-btn:hover:not(:disabled) {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 25px rgba(0, 255, 136, 0.3);
-        }
-
-        .auth-submit-btn:disabled {
-          opacity: 0.7;
-          cursor: not-allowed;
-        }
-
-        .auth-spinner {
-          width: 18px;
-          height: 18px;
-          border: 2px solid rgba(0, 0, 0, 0.3);
-          border-top-color: #000;
-          border-radius: 50%;
-          animation: spin 0.6s linear infinite;
-        }
-
-        @keyframes spin {
-          to {
-            transform: rotate(360deg);
-          }
-        }
-
-        .auth-terms {
-          text-align: center;
-          font-size: 11px;
-          color: rgba(255, 255, 255, 0.4);
-          margin-top: 20px;
-        }
-
-        .auth-modern.light .auth-terms {
-          color: #6c757d;
-        }
-
-        .auth-terms a {
-          color: #00ff88;
-          text-decoration: none;
-        }
-
-        .auth-modern.light .auth-terms a {
-          color: #00b894;
-        }
-
-        .auth-back-btn {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          background: none;
-          border: none;
-          color: rgba(255, 255, 255, 0.5);
-          font-size: 12px;
-          cursor: pointer;
-          margin-bottom: 20px;
-          transition: color 0.3s;
-        }
-
-        .auth-back-btn:hover {
-          color: #00ff88;
-        }
-
-        .auth-reset-link {
-          width: 100%;
-          background: none;
-          border: none;
-          font-size: 12px;
-          color: #00ff88;
-          cursor: pointer;
-          text-align: center;
-          margin-top: 16px;
-          transition: opacity 0.3s;
-        }
-
-        .auth-reset-link:hover {
-          opacity: 0.7;
-        }
-
-        @media (max-width: 968px) {
-          .auth-hero {
-            display: none;
-          }
-          .auth-form-panel {
-            width: 100%;
-          }
-        }
-
-        @media (max-width: 480px) {
-          .auth-form-panel {
-            padding: 24px;
-          }
-          .auth-name-row {
-            grid-template-columns: 1fr;
-          }
+      <style>{`
+        @keyframes authFadeUp {
+          from { opacity: 0; transform: translateY(12px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes authSpin {
+          to { transform: rotate(360deg); }
+        }
+        @media (min-width: 1024px) {
+          .auth-left-desktop { display: flex !important; }
         }
       `}</style>
     </div>

@@ -1,4 +1,4 @@
-const BASE = "";
+const BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 function getToken() {
   return localStorage.getItem("ecomod_token");
@@ -25,6 +25,14 @@ export const authApi = {
     req("/auth/register", { method: "POST", body: JSON.stringify(body) }),
   login: (body) =>
     req("/auth/login", { method: "POST", body: JSON.stringify(body) }),
+
+  // ✅ NUEVO: Google OAuth
+  googleAuth: (credential) =>
+    req("/auth/google", {
+      method: "POST",
+      body: JSON.stringify({ credential }),
+    }),
+
   profile: () => req("/auth/profile"),
   health: () => req("/auth/health"),
   refreshToken: (refreshToken) =>
@@ -164,45 +172,35 @@ export const ordersApi = {
 
 // PAYMENTS API
 export const paymentsApi = {
-  // ── Stripe (rutas actualizadas)
   createIntent: (body) =>
     req("/payments/stripe/create-intent", {
       method: "POST",
       body: JSON.stringify(body),
     }),
-
   confirmIntent: (body) =>
     req("/payments/stripe/confirm", {
       method: "POST",
       body: JSON.stringify(body),
     }),
-
-  // ── PayPal
   createPaypalOrder: (body) =>
     req("/payments/paypal/create", {
       method: "POST",
       body: JSON.stringify(body),
     }),
-
   executePaypalOrder: (paymentId, payerId, orderId) =>
     req(
       `/payments/paypal/execute?paymentId=${paymentId}&PayerID=${payerId}&order_id=${orderId}`,
       { method: "GET" },
     ),
-
-  // ── Consultas
   getAll: () => req("/payments/"),
   getById: (id) => req(`/payments/${id}`),
   getByOrder: (orderId) => req(`/payments/order/${orderId}`),
   getByUser: (userId) => req(`/payments/user/${userId}`),
-
-  // ── Reembolso
   refund: (id, body = {}) =>
     req(`/payments/${id}/refund`, {
       method: "POST",
       body: JSON.stringify(body),
     }),
-
   health: () => req("/payments/health"),
 };
 

@@ -17,6 +17,14 @@ services:
           - PUT
           - DELETE
           - OPTIONS
+
+      - name: auth-google-route
+        paths:
+          - /auth/google
+        strip_path: false
+        methods:
+          - POST
+          - OPTIONS
       # RUTAS PARA ADMIN
       - name: auth-users-route
         paths:

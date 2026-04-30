@@ -1,12 +1,11 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../hooks/useTheme";
-import EcoModLogo from "./EcoModLogo";
+import { useCart } from "../App";
+import { useToast } from "../App";
 import {
-  LayoutDashboard,
-  Store,
-  Package,
   ShoppingCart,
+  Package,
   ClipboardList,
   CreditCard,
   Truck,
@@ -14,250 +13,1020 @@ import {
   LogOut,
   Sun,
   Moon,
-  ChevronRight,
-  Activity,
-  Server,
+  Search,
+  ChevronDown,
   Users,
   BarChart3,
+  Menu,
+  X,
+  Zap,
+  Shield,
+  RotateCcw,
+  Server,
+  MapPin,
+  Phone,
+  Heart,
+  User,
+  ShoppingBag,
 } from "lucide-react";
 
 export default function AppLayout({ children, page, setPage }) {
   const { user, logout } = useAuth();
   const { theme, toggle } = useTheme();
-  const [hoveredService, setHoveredService] = useState(null);
+  const { cartCount } = useCart();
+  const { addToast } = useToast();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [searchFocused, setSearchFocused] = useState(false);
+  const userMenuRef = useRef(null);
+  const isDark = theme === "dark";
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target))
+        setUserMenuOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   const navItems = [
-    { id: "dashboard", icon: LayoutDashboard, label: "Dashboard" },
-    { id: "catalog", icon: Store, label: "Catálogo" },
-    { id: "inventory", icon: Package, label: "Inventario" },
+    { id: "dashboard", icon: ShoppingBag, label: "Inicio" },
+    { id: "catalog", icon: Package, label: "Catálogo" },
     { id: "cart", icon: ShoppingCart, label: "Carrito" },
-    { id: "orders", icon: ClipboardList, label: "Órdenes" },
+    { id: "orders", icon: ClipboardList, label: "Pedidos" },
     { id: "payments", icon: CreditCard, label: "Pagos" },
     { id: "shipping", icon: Truck, label: "Envíos" },
-    { id: "notifications", icon: Bell, label: "Notificaciones" },
-    //ITEMS SOLO PARA ADMIN
-    { id: "admin-users", icon: Users, label: "Usuarios", adminOnly: true },
-    {
-      id: "admin-stats",
-      icon: BarChart3,
-      label: "Estadísticas",
-      adminOnly: true,
-    },
+    { id: "inventory", icon: Package, label: "Inventario" },
+    { id: "notifications", icon: Bell, label: "Alertas" },
   ];
 
-  const microservices = [
-    { name: "Auth", port: "8002", color: "var(--accent)", status: "active" },
-    { name: "Catalog", port: "8003", color: "var(--cyan)", status: "active" },
-    { name: "Inventory", port: "8004", color: "var(--pink)", status: "active" },
-    { name: "Cart", port: "8005", color: "#a78bfa", status: "active" },
-    { name: "Orders", port: "8006", color: "#fb923c", status: "active" },
-    { name: "Payments", port: "8007", color: "#34d399", status: "active" },
-    { name: "Shipping", port: "8008", color: "#60a5fa", status: "active" },
-    { name: "Notifications", port: "8009", color: "#f472b6", status: "active" },
-    {
-      name: "Kong Gateway",
-      port: "8000",
-      color: "var(--warning)",
-      status: "active",
-    },
+  const adminItems = [
+    { id: "admin-users", icon: Users, label: "Usuarios" },
+    { id: "admin-stats", icon: BarChart3, label: "Estadísticas" },
   ];
 
-  const titles = {
-    dashboard: "Dashboard",
-    catalog: "Catálogo de Productos",
-    inventory: "Gestión de Inventario",
-    cart: "Carrito de Compras",
-    orders: "Órdenes",
-    payments: "Pagos",
-    shipping: "Envíos",
-    notifications: "Notificaciones",
-    "admin-users": "Gestión de Usuarios",
-    "admin-stats": "Estadísticas",
-  };
+  const visibleNav = [
+    ...navItems,
+    ...(user?.role === "admin" ? adminItems : []),
+  ];
 
   const initials = user
     ? (user.nombre || user.email || "U")[0].toUpperCase()
     : "U";
+  const fullName = user?.nombre
+    ? `${user.nombre} ${user.apellido || ""}`.trim()
+    : user?.email?.split("@")[0];
 
-  // Filtrar items según rol del usuario
-  const visibleNavItems = navItems.filter(
-    (item) => !item.adminOnly || user?.role === "admin",
-  );
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      addToast("info", "Buscando...", `Resultados para "${searchQuery}"`);
+      setPage("catalog");
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") handleSearch();
+  };
 
   return (
-    <div className="layout">
-      <aside className="sidebar">
-        <div className="sidebar-logo" style={{ padding: "20px 16px 16px" }}>
-          <EcoModLogo />
+    <div className={`ec-root ${isDark ? "dark" : "light"}`}>
+      {/* ══ TOP STRIP ══ */}
+      <div className="ec-strip">
+        <div className="ec-strip-inner">
+          <div className="ec-strip-left">
+            <MapPin size={11} strokeWidth={2.5} />
+            <span>Envíos a toda Colombia</span>
+            <span className="ec-strip-sep">|</span>
+            <Phone size={11} strokeWidth={2.5} />
+            <span>01 8000 EcoMod</span>
+          </div>
+          <div className="ec-strip-right">
+            <Zap size={11} strokeWidth={2.5} />
+            <span>Despacho en 24h en ciudades principales</span>
+            <span className="ec-strip-sep">|</span>
+            <Shield size={11} strokeWidth={2.5} />
+            <span>Compra 100% segura</span>
+            <span className="ec-strip-sep">|</span>
+            <RotateCcw size={11} strokeWidth={2.5} />
+            <span>30 días de devolución</span>
+          </div>
         </div>
+      </div>
 
-        <nav className="sidebar-nav">
-          <div className="nav-section-label">General</div>
-          {visibleNavItems.map((item) => {
+      {/* ══ MAIN HEADER ══ */}
+      <header className="ec-header">
+        <div className="ec-header-inner">
+          {/* Logo */}
+          <button className="ec-logo" onClick={() => setPage("dashboard")}>
+            <div className="ec-logo-icon">
+              <Zap size={20} strokeWidth={2.5} />
+            </div>
+            <div className="ec-logo-text">
+              <span className="ec-logo-eco">Eco</span>
+              <span className="ec-logo-mod">Mod</span>
+            </div>
+          </button>
+
+          {/* Search Bar */}
+          <div className={`ec-search ${searchFocused ? "focused" : ""}`}>
+            <select className="ec-search-cat">
+              <option>Todas</option>
+              <option>Tecnología</option>
+              <option>Electro</option>
+              <option>Hogar</option>
+              <option>Ropa</option>
+              <option>Deportes</option>
+            </select>
+            <input
+              className="ec-search-input"
+              type="text"
+              placeholder="¿Qué estás buscando hoy?"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => setSearchFocused(true)}
+              onBlur={() => setSearchFocused(false)}
+              onKeyDown={handleKeyDown}
+            />
+            <button className="ec-search-btn" onClick={handleSearch}>
+              <Search size={18} strokeWidth={2.5} />
+            </button>
+          </div>
+
+          {/* Header Actions */}
+          <div className="ec-header-actions">
+            {/* Wishlist */}
+            <button className="ec-action-btn hide-mobile">
+              <div className="ec-action-icon">
+                <Heart size={20} strokeWidth={2} />
+              </div>
+              <span className="ec-action-label">Favoritos</span>
+            </button>
+
+            {/* Cart with REAL counter */}
+            <button className="ec-action-btn" onClick={() => setPage("cart")}>
+              <div className="ec-action-icon">
+                <ShoppingCart size={20} strokeWidth={2} />
+                {cartCount > 0 && (
+                  <span className="ec-badge ec-badge-pulse">{cartCount}</span>
+                )}
+              </div>
+              <span className="ec-action-label">Carrito</span>
+            </button>
+
+            {/* Notifications */}
+            <button
+              className="ec-action-btn hide-mobile"
+              onClick={() => setPage("notifications")}
+            >
+              <div className="ec-action-icon">
+                <Bell size={20} strokeWidth={2} />
+                <span className="ec-badge ec-badge-dot" />
+              </div>
+              <span className="ec-action-label">Alertas</span>
+            </button>
+
+            {/* User Menu */}
+            <div className="ec-user-menu" ref={userMenuRef}>
+              <button
+                className="ec-user-trigger"
+                onClick={() => setUserMenuOpen(!userMenuOpen)}
+              >
+                <div className="ec-user-avatar">{initials}</div>
+                <div className="ec-user-info hide-mobile">
+                  <span className="ec-user-greeting">Hola,</span>
+                  <span className="ec-user-name">
+                    {fullName?.split(" ")[0] || "Usuario"}
+                  </span>
+                </div>
+                <ChevronDown
+                  size={14}
+                  strokeWidth={2.5}
+                  className={`ec-chevron ${userMenuOpen ? "open" : ""}`}
+                />
+              </button>
+
+              {userMenuOpen && (
+                <div className="ec-user-dropdown">
+                  <div className="ec-dropdown-header">
+                    <div className="ec-dropdown-avatar">{initials}</div>
+                    <div>
+                      <div className="ec-dropdown-name">{fullName}</div>
+                      <div className="ec-dropdown-email">{user?.email}</div>
+                      <div className="ec-dropdown-role">
+                        {user?.role === "admin" ? "Administrador" : "Cliente"}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="ec-dropdown-divider" />
+                  {[
+                    { id: "orders", icon: ClipboardList, label: "Mis pedidos" },
+                    { id: "payments", icon: CreditCard, label: "Mis pagos" },
+                    { id: "shipping", icon: Truck, label: "Mis envíos" },
+                  ].map(({ id, icon: Icon, label }) => (
+                    <button
+                      key={id}
+                      className="ec-dropdown-item"
+                      onClick={() => {
+                        setPage(id);
+                        setUserMenuOpen(false);
+                      }}
+                    >
+                      <Icon size={15} strokeWidth={2} />
+                      {label}
+                    </button>
+                  ))}
+                  <div className="ec-dropdown-divider" />
+                  <button className="ec-dropdown-item theme" onClick={toggle}>
+                    {isDark ? (
+                      <Sun size={15} strokeWidth={2} />
+                    ) : (
+                      <Moon size={15} strokeWidth={2} />
+                    )}
+                    {isDark ? "Modo claro" : "Modo oscuro"}
+                  </button>
+                  <button
+                    className="ec-dropdown-item danger"
+                    onClick={() => {
+                      logout();
+                      addToast("success", "Sesión cerrada", "Hasta pronto 👋");
+                    }}
+                  >
+                    <LogOut size={15} strokeWidth={2} />
+                    Cerrar sesión
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Mobile toggle */}
+            <button
+              className="ec-mobile-toggle"
+              onClick={() => setMobileOpen(!mobileOpen)}
+            >
+              {mobileOpen ? (
+                <X size={22} strokeWidth={2.5} />
+              ) : (
+                <Menu size={22} strokeWidth={2.5} />
+              )}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* ══ CATEGORY NAV ══ */}
+      <nav className="ec-nav">
+        <div className="ec-nav-inner">
+          {visibleNav.map((item) => {
             const Icon = item.icon;
-            const isActive = page === item.id;
+            const active = page === item.id;
             return (
               <button
                 key={item.id}
-                className={`nav-link ${isActive ? "active" : ""}`}
-                onClick={() => setPage(item.id)}
+                className={`ec-nav-item ${active ? "active" : ""}`}
+                onClick={() => {
+                  setPage(item.id);
+                  setMobileOpen(false);
+                }}
               >
-                <Icon size={18} className="icon" strokeWidth={1.5} />
+                <Icon size={15} strokeWidth={2.5} />
                 <span>{item.label}</span>
-                {isActive && (
-                  <ChevronRight size={14} style={{ marginLeft: "auto" }} />
+                {item.id === "cart" && cartCount > 0 && (
+                  <span className="ec-nav-badge">{cartCount}</span>
                 )}
               </button>
             );
           })}
 
-          <div className="nav-section-label" style={{ marginTop: 24 }}>
-            <Server size={10} style={{ display: "inline", marginRight: 6 }} />
-            Microservicios
-          </div>
-          {microservices.map((service) => (
-            <div
-              key={service.name}
-              className="service-item"
-              onMouseEnter={() => setHoveredService(service.name)}
-              onMouseLeave={() => setHoveredService(null)}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                padding: "6px 12px",
-                fontSize: 12,
-                color: "var(--text3)",
-                transition: "all 0.2s ease",
-                borderRadius: "var(--radius)",
-                cursor: "pointer",
-                background:
-                  hoveredService === service.name
-                    ? "var(--surface)"
-                    : "transparent",
-              }}
-            >
-              <div
-                style={{
-                  width: 6,
-                  height: 6,
-                  borderRadius: "50%",
-                  background: service.color,
-                  flexShrink: 0,
-                  boxShadow:
-                    hoveredService === service.name
-                      ? `0 0 8px ${service.color}`
-                      : "none",
-                  transition: "box-shadow 0.2s ease",
-                }}
-              />
-              <span style={{ flex: 1 }}>{service.name}</span>
-              <span
-                style={{
-                  fontSize: 10,
-                  fontFamily: "monospace",
-                  color: "var(--text3)",
-                  opacity: hoveredService === service.name ? 1 : 0.6,
-                }}
-              >
-                :{service.port}
-              </span>
-            </div>
-          ))}
-        </nav>
+          <div className="ec-nav-spacer" />
 
-        <div className="sidebar-user">
-          <div className="user-chip">
-            <div className="user-avatar">{initials}</div>
-            <div style={{ overflow: "hidden", flex: 1 }}>
-              <div
-                className="user-name"
-                style={{
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {user?.nombre
-                  ? `${user.nombre} ${user.apellido || ""}`.trim()
-                  : user?.email}
-              </div>
-              <div className="user-role">{user?.role || "cliente"}</div>
-            </div>
+          {/* Gateway status */}
+          <div className="ec-gateway">
+            <Server size={11} strokeWidth={2.5} />
+            <span>API Gateway</span>
+            <div className="ec-gateway-dot" />
+            <span className="ec-gateway-port">:8000</span>
           </div>
-          <button className="btn-logout" onClick={logout}>
-            <LogOut size={14} />
-            Cerrar sesión
-          </button>
         </div>
-      </aside>
+      </nav>
 
-      <div className="main">
-        <div className="topbar">
-          <div>
-            <span className="topbar-title">{titles[page]}</span>
-            <div
-              style={{
-                fontSize: 12,
-                color: "var(--text3)",
-                marginTop: 4,
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-              }}
-            >
-              <Activity size={12} />
-              <span>
-                Panel de control •{" "}
-                {new Date().toLocaleDateString("es-ES", {
-                  weekday: "long",
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </span>
+      {/* ══ MOBILE DRAWER ══ */}
+      {mobileOpen && (
+        <>
+          <div
+            className="ec-mobile-overlay"
+            onClick={() => setMobileOpen(false)}
+          />
+          <div className="ec-mobile-drawer">
+            <div className="ec-mobile-drawer-header">
+              <div className="ec-logo-icon sm">
+                <Zap size={14} strokeWidth={2.5} />
+              </div>
+              <span className="ec-mobile-drawer-title">Menú</span>
+              <button
+                className="ec-mobile-close"
+                onClick={() => setMobileOpen(false)}
+              >
+                <X size={20} strokeWidth={2.5} />
+              </button>
             </div>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                padding: "4px 12px",
-                background: "var(--surface)",
-                borderRadius: "var(--radius)",
-                border: "1px solid var(--border)",
-              }}
-            >
-              <div
-                style={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: "50%",
-                  background: "var(--accent)",
-                  boxShadow: "0 0 8px var(--accent)",
-                  animation: "pulse 2s infinite",
-                }}
-              />
-              <span style={{ fontSize: 12, color: "var(--text2)" }}>
-                Kong Gateway · localhost:8000
-              </span>
-            </div>
+            {visibleNav.map((item) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.id}
+                  className={`ec-mobile-item ${page === item.id ? "active" : ""}`}
+                  onClick={() => {
+                    setPage(item.id);
+                    setMobileOpen(false);
+                  }}
+                >
+                  <Icon size={18} strokeWidth={2} />
+                  {item.label}
+                  {item.id === "cart" && cartCount > 0 && (
+                    <span className="ec-mobile-badge">{cartCount}</span>
+                  )}
+                </button>
+              );
+            })}
+            <div className="ec-mobile-divider" />
+            <button className="ec-mobile-item theme" onClick={toggle}>
+              {isDark ? (
+                <Sun size={18} strokeWidth={2} />
+              ) : (
+                <Moon size={18} strokeWidth={2} />
+              )}
+              {isDark ? "Modo claro" : "Modo oscuro"}
+            </button>
             <button
-              className="theme-toggle"
-              onClick={toggle}
-              title="Cambiar tema"
+              className="ec-mobile-item danger"
+              onClick={() => {
+                logout();
+                setMobileOpen(false);
+              }}
             >
-              {theme === "dark" ? <Sun size={14} /> : <Moon size={14} />}
-              <span>{theme === "dark" ? "Claro" : "Oscuro"}</span>
+              <LogOut size={18} strokeWidth={2} />
+              Cerrar sesión
             </button>
           </div>
+        </>
+      )}
+
+      {/* ══ PAGE CONTENT ══ */}
+      <main className="ec-main">{children}</main>
+
+      {/* ══ FOOTER ══ */}
+      <footer className="ec-footer">
+        <div className="ec-footer-inner">
+          <div className="ec-footer-top">
+            <div className="ec-footer-brand">
+              <div className="ec-logo-icon sm">
+                <Zap size={13} strokeWidth={2.5} />
+              </div>
+              <span>
+                <b>Eco</b>Mod
+              </span>
+            </div>
+            <div className="ec-footer-desc">
+              Tu marketplace de confianza. Productos de calidad, envíos rápidos
+              y la mejor experiencia de compra en Colombia.
+            </div>
+          </div>
+          <div className="ec-footer-links">
+            <div className="ec-footer-col">
+              <h4>Comprar</h4>
+              {["Catálogo", "Ofertas", "Nuevos", "Más vendidos"].map((l) => (
+                <span key={l}>{l}</span>
+              ))}
+            </div>
+            <div className="ec-footer-col">
+              <h4>Mi cuenta</h4>
+              {["Pedidos", "Pagos", "Envíos", "Favoritos"].map((l) => (
+                <span key={l}>{l}</span>
+              ))}
+            </div>
+            <div className="ec-footer-col">
+              <h4>Ayuda</h4>
+              {["Centro de ayuda", "Devoluciones", "Contacto", "Términos"].map(
+                (l) => (
+                  <span key={l}>{l}</span>
+                ),
+              )}
+            </div>
+          </div>
+          <div className="ec-footer-bottom">
+            <div className="ec-footer-copy">
+              © {new Date().getFullYear()} EcoMod · Todos los derechos
+              reservados
+            </div>
+            <div className="ec-footer-payments">
+              <span>💳 Visa</span>
+              <span>💳 Mastercard</span>
+              <span>💳 Amex</span>
+              <span>💳 PayPal</span>
+            </div>
+          </div>
         </div>
-        <div className="page" style={{ animation: "fadeIn 0.3s ease" }}>
-          {children}
-        </div>
-      </div>
+      </footer>
+
+      {/* ══ STYLES ══ */}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Barlow+Condensed:wght@400;600;700;800&display=swap');
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        .ec-root {
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+          font-family: 'Inter', sans-serif;
+        }
+
+        /* ── VARIABLES ── */
+        .ec-root.light {
+          --bg:       #f5f5f5;
+          --surface:  #ffffff;
+          --border:   #e5e7eb;
+          --border2:  #d1d5db;
+          --text:     #1a1a1a;
+          --text2:    #4b5563;
+          --text3:    #9ca3af;
+          --primary:  #e8291c;
+          --primary2: #c2200f;
+          --orange:   #f97316;
+          --strip-bg: #1a1a1a;
+          --header-bg:#ffffff;
+          --nav-bg:   #e8291c;
+          --nav-text: #ffffff;
+          --card-bg:  #ffffff;
+          --hover-bg: #fff5f5;
+          --shadow:   0 4px 12px rgba(0,0,0,.08);
+          --shadow-lg:0 12px 40px rgba(0,0,0,.12);
+        }
+        .ec-root.dark {
+          --bg:       #0f0f13;
+          --surface:  #1c1c24;
+          --border:   rgba(255,255,255,.08);
+          --border2:  rgba(255,255,255,.14);
+          --text:     #f0f0f5;
+          --text2:    #a0a0b0;
+          --text3:    #6b6b80;
+          --primary:  #f43f5e;
+          --primary2: #e11d48;
+          --orange:   #fb923c;
+          --strip-bg: #0a0a0d;
+          --header-bg:#18181f;
+          --nav-bg:   #1f1f28;
+          --nav-text: #f0f0f5;
+          --card-bg:  #1c1c24;
+          --hover-bg: rgba(244,63,94,.06);
+          --shadow:   0 4px 16px rgba(0,0,0,.4);
+          --shadow-lg:0 12px 40px rgba(0,0,0,.5);
+        }
+
+        /* ── TOP STRIP ── */
+        .ec-strip {
+          background: var(--strip-bg);
+          color: #fff;
+          font-size: 11px;
+          font-weight: 500;
+          padding: 7px 0;
+          letter-spacing: 0.02em;
+        }
+        .ec-strip-inner {
+          max-width: 1400px;
+          margin: 0 auto;
+          padding: 0 24px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+        .ec-strip-left, .ec-strip-right {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          opacity: .85;
+        }
+        .ec-strip-sep { opacity: .35; font-weight: 300; }
+
+        /* ── HEADER ── */
+        .ec-header {
+          background: var(--header-bg);
+          border-bottom: 1px solid var(--border);
+          position: sticky;
+          top: 0;
+          z-index: 200;
+          box-shadow: 0 1px 8px rgba(0,0,0,.06);
+        }
+        .ec-root.dark .ec-header { box-shadow: 0 2px 16px rgba(0,0,0,.4); }
+        .ec-header-inner {
+          max-width: 1400px;
+          margin: 0 auto;
+          padding: 14px 24px;
+          display: flex;
+          align-items: center;
+          gap: 24px;
+        }
+
+        /* Logo */
+        .ec-logo {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          background: none;
+          border: none;
+          cursor: pointer;
+          flex-shrink: 0;
+          text-decoration: none;
+          transition: transform 0.2s;
+        }
+        .ec-logo:hover { transform: scale(1.02); }
+        .ec-logo-icon {
+          width: 40px; height: 40px;
+          background: linear-gradient(135deg, var(--primary), var(--orange));
+          border-radius: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #fff;
+          box-shadow: 0 4px 12px rgba(232,41,28,.3);
+        }
+        .ec-logo-icon.sm { width: 28px; height: 28px; border-radius: 7px; }
+        .ec-logo-text { font-family: 'Barlow Condensed', sans-serif; font-size: 28px; font-weight: 800; line-height: 1; letter-spacing: -0.5px; }
+        .ec-logo-eco { color: var(--text); }
+        .ec-logo-mod { color: var(--primary); }
+
+        /* Search */
+        .ec-search {
+          flex: 1;
+          display: flex;
+          height: 46px;
+          border: 2px solid var(--border);
+          border-radius: 10px;
+          overflow: hidden;
+          transition: all .25s;
+          max-width: 720px;
+          background: var(--surface);
+        }
+        .ec-search.focused { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(232,41,28,.1); }
+        .ec-search-cat {
+          padding: 0 14px;
+          background: var(--bg);
+          border: none;
+          border-right: 1px solid var(--border);
+          font-family: 'Inter', sans-serif;
+          font-size: 12px;
+          font-weight: 600;
+          color: var(--text2);
+          cursor: pointer;
+          outline: none;
+          white-space: nowrap;
+        }
+        .ec-search-input {
+          flex: 1;
+          padding: 0 18px;
+          background: transparent;
+          border: none;
+          outline: none;
+          font-family: 'Inter', sans-serif;
+          font-size: 14px;
+          color: var(--text);
+        }
+        .ec-search-input::placeholder { color: var(--text3); }
+        .ec-search-btn {
+          padding: 0 20px;
+          background: var(--primary);
+          border: none;
+          color: #fff;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          transition: background .2s;
+        }
+        .ec-search-btn:hover { background: var(--primary2); }
+
+        /* Actions */
+        .ec-header-actions {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          flex-shrink: 0;
+        }
+        .ec-action-btn {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 3px;
+          padding: 6px 12px;
+          background: none;
+          border: none;
+          cursor: pointer;
+          border-radius: 10px;
+          transition: all .15s;
+          color: var(--text);
+          position: relative;
+        }
+        .ec-action-btn:hover { background: var(--hover-bg); color: var(--primary); }
+        .ec-action-icon { position: relative; }
+        .ec-badge {
+          position: absolute;
+          top: -6px; right: -8px;
+          min-width: 18px; height: 18px;
+          background: var(--primary);
+          color: #fff;
+          font-size: 10px;
+          font-weight: 900;
+          border-radius: 9px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0 4px;
+          border: 2px solid var(--header-bg);
+        }
+        .ec-badge-pulse { animation: pulse 2s infinite; }
+        .ec-badge-dot {
+          width: 8px; height: 8px;
+          min-width: 8px;
+          padding: 0;
+          top: -2px; right: -2px;
+        }
+        .ec-action-label { font-size: 10px; font-weight: 600; color: var(--text2); margin-top: 1px; }
+        .ec-action-btn:hover .ec-action-label { color: var(--primary); }
+
+        /* User menu */
+        .ec-user-menu { position: relative; }
+        .ec-user-trigger {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 6px 12px;
+          background: none;
+          border: none;
+          cursor: pointer;
+          border-radius: 10px;
+          color: var(--text);
+          transition: background .15s;
+        }
+        .ec-user-trigger:hover { background: var(--hover-bg); }
+        .ec-user-avatar {
+          width: 36px; height: 36px;
+          background: linear-gradient(135deg, var(--primary), var(--orange));
+          border-radius: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 800;
+          font-size: 14px;
+          color: #fff;
+          flex-shrink: 0;
+        }
+        .ec-user-info { display: flex; flex-direction: column; text-align: left; }
+        .ec-user-greeting { font-size: 10px; color: var(--text3); line-height: 1; font-weight: 500; }
+        .ec-user-name { font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.3; }
+        .ec-chevron { color: var(--text3); transition: transform .2s; }
+        .ec-chevron.open { transform: rotate(180deg); }
+
+        /* Dropdown */
+        .ec-user-dropdown {
+          position: absolute;
+          top: calc(100% + 10px);
+          right: 0;
+          width: 260px;
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 16px;
+          box-shadow: var(--shadow-lg);
+          overflow: hidden;
+          animation: dropIn .2s ease;
+          z-index: 300;
+        }
+        @keyframes dropIn { from{opacity:0;transform:translateY(-10px) scale(.97)} to{opacity:1;transform:translateY(0) scale(1)} }
+        .ec-dropdown-header {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 18px;
+          background: linear-gradient(135deg, rgba(232,41,28,.06), rgba(249,115,22,.04));
+        }
+        .ec-dropdown-avatar {
+          width: 44px; height: 44px;
+          background: linear-gradient(135deg, var(--primary), var(--orange));
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 800;
+          font-size: 18px;
+          color: #fff;
+          flex-shrink: 0;
+        }
+        .ec-dropdown-name { font-size: 14px; font-weight: 700; color: var(--text); }
+        .ec-dropdown-email { font-size: 11px; color: var(--text3); margin-top: 2px; }
+        .ec-dropdown-role {
+          display: inline-block;
+          font-size: 9px;
+          font-weight: 800;
+          letter-spacing: .08em;
+          padding: 2px 8px;
+          background: rgba(232,41,28,.1);
+          color: var(--primary);
+          border-radius: 20px;
+          margin-top: 5px;
+          text-transform: uppercase;
+        }
+        .ec-dropdown-divider { height: 1px; background: var(--border); margin: 4px 0; }
+        .ec-dropdown-item {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          width: 100%;
+          padding: 11px 18px;
+          background: none;
+          border: none;
+          font-family: 'Inter', sans-serif;
+          font-size: 13px;
+          font-weight: 600;
+          color: var(--text2);
+          cursor: pointer;
+          transition: all .15s;
+          text-align: left;
+        }
+        .ec-dropdown-item:hover { background: var(--hover-bg); color: var(--primary); }
+        .ec-dropdown-item.theme:hover { color: var(--orange); }
+        .ec-dropdown-item.danger { color: #ef4444; }
+        .ec-dropdown-item.danger:hover { background: rgba(239,68,68,.06); }
+
+        /* ── NAV BAR ── */
+        .ec-nav {
+          background: var(--nav-bg);
+          position: sticky;
+          top: 74px;
+          z-index: 190;
+        }
+        .ec-nav-inner {
+          max-width: 1400px;
+          margin: 0 auto;
+          padding: 0 24px;
+          display: flex;
+          align-items: center;
+          overflow-x: auto;
+          scrollbar-width: none;
+          gap: 2px;
+        }
+        .ec-nav-inner::-webkit-scrollbar { display: none; }
+        .ec-nav-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 12px 16px;
+          background: none;
+          border: none;
+          font-family: 'Inter', sans-serif;
+          font-size: 13px;
+          font-weight: 700;
+          color: var(--nav-text);
+          cursor: pointer;
+          border-bottom: 3px solid transparent;
+          transition: all .2s;
+          white-space: nowrap;
+          opacity: .88;
+          position: relative;
+        }
+        .ec-nav-item:hover { opacity: 1; background: rgba(255,255,255,.1); }
+        .ec-nav-item.active { opacity: 1; border-bottom-color: #fff; background: rgba(255,255,255,.15); }
+        .ec-root.dark .ec-nav-item.active { border-bottom-color: var(--primary); background: rgba(244,63,94,.1); color: var(--primary); }
+        
+        .ec-nav-badge {
+          background: #fff;
+          color: var(--primary);
+          font-size: 9px;
+          font-weight: 900;
+          padding: 1px 5px;
+          border-radius: 10px;
+          margin-left: 2px;
+        }
+        
+        .ec-nav-spacer { flex: 1; }
+        .ec-gateway {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 10px;
+          font-weight: 700;
+          color: var(--nav-text);
+          opacity: .5;
+          padding: 0 8px;
+          white-space: nowrap;
+        }
+        .ec-gateway-dot {
+          width: 6px; height: 6px;
+          background: #4ade80;
+          border-radius: 50%;
+          animation: pulse 2s infinite;
+        }
+        .ec-gateway-port { opacity: .7; }
+
+        /* ── MOBILE ── */
+        .ec-mobile-toggle {
+          display: none;
+          background: none;
+          border: none;
+          color: var(--text);
+          cursor: pointer;
+          padding: 6px;
+          border-radius: 8px;
+          transition: background .15s;
+        }
+        .ec-mobile-toggle:hover { background: var(--hover-bg); }
+        .ec-mobile-overlay {
+          display: none;
+          position: fixed;
+          inset: 0;
+          background: var(--overlay);
+          z-index: 400;
+          backdrop-filter: blur(4px);
+        }
+        .ec-mobile-drawer {
+          display: none;
+          position: fixed;
+          top: 0; right: 0; bottom: 0;
+          width: 300px;
+          background: var(--surface);
+          z-index: 500;
+          flex-direction: column;
+          overflow-y: auto;
+          box-shadow: var(--shadow-lg);
+          animation: slideInRight .25s ease;
+        }
+        @keyframes slideInRight { from{transform:translateX(100%)} to{transform:translateX(0)} }
+        .ec-mobile-drawer-header {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 20px 24px;
+          border-bottom: 1px solid var(--border);
+        }
+        .ec-mobile-drawer-title { font-size: 18px; font-weight: 800; color: var(--text); flex: 1; }
+        .ec-mobile-close {
+          background: none;
+          border: none;
+          color: var(--text3);
+          cursor: pointer;
+          padding: 4px;
+          border-radius: 8px;
+          transition: all .15s;
+        }
+        .ec-mobile-close:hover { background: var(--hover-bg); color: var(--primary); }
+        .ec-mobile-item {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          padding: 14px 24px;
+          background: none;
+          border: none;
+          font-family: 'Inter', sans-serif;
+          font-size: 15px;
+          font-weight: 600;
+          color: var(--text);
+          cursor: pointer;
+          border-bottom: 1px solid var(--border);
+          transition: all .15s;
+          text-align: left;
+          position: relative;
+        }
+        .ec-mobile-item:hover, .ec-mobile-item.active { color: var(--primary); background: var(--hover-bg); }
+        .ec-mobile-item.danger { color: #ef4444; }
+        .ec-mobile-badge {
+          margin-left: auto;
+          background: var(--primary);
+          color: #fff;
+          font-size: 10px;
+          font-weight: 900;
+          padding: 2px 7px;
+          border-radius: 10px;
+        }
+        .ec-mobile-divider { height: 8px; background: var(--bg); border-bottom: 1px solid var(--border); }
+
+        /* ── MAIN ── */
+        .ec-main {
+          flex: 1;
+          background: var(--bg);
+          max-width: 1400px;
+          width: 100%;
+          margin: 0 auto;
+          padding: 24px;
+          animation: fadeUp .35s ease;
+        }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+        /* ── FOOTER ── */
+        .ec-footer {
+          background: var(--surface);
+          border-top: 1px solid var(--border);
+          padding: 40px 0 20px;
+          margin-top: auto;
+        }
+        .ec-footer-inner {
+          max-width: 1400px;
+          margin: 0 auto;
+          padding: 0 24px;
+        }
+        .ec-footer-top {
+          display: flex;
+          gap: 48px;
+          margin-bottom: 32px;
+          flex-wrap: wrap;
+        }
+        .ec-footer-brand {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-family: 'Barlow Condensed', sans-serif;
+          font-size: 22px;
+          font-weight: 800;
+          color: var(--text);
+          margin-bottom: 8px;
+        }
+        .ec-footer-desc {
+          font-size: 13px;
+          color: var(--text3);
+          max-width: 300px;
+          line-height: 1.6;
+        }
+        .ec-footer-links {
+          display: flex;
+          gap: 48px;
+          flex: 1;
+          flex-wrap: wrap;
+        }
+        .ec-footer-col {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+        .ec-footer-col h4 {
+          font-size: 13px;
+          font-weight: 800;
+          color: var(--text);
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          margin-bottom: 4px;
+        }
+        .ec-footer-col span {
+          font-size: 13px;
+          color: var(--text3);
+          cursor: pointer;
+          transition: color .15s;
+        }
+        .ec-footer-col span:hover { color: var(--primary); }
+        .ec-footer-bottom {
+          border-top: 1px solid var(--border);
+          padding-top: 20px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 12px;
+        }
+        .ec-footer-copy { font-size: 12px; color: var(--text3); }
+        .ec-footer-payments {
+          display: flex;
+          gap: 16px;
+          font-size: 12px;
+          color: var(--text3);
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 1024px) {
+          .ec-search { max-width: 500px; }
+        }
+        @media (max-width: 900px) {
+          .hide-mobile { display: none !important; }
+          .ec-search { display: none; }
+          .ec-nav { display: none; }
+          .ec-mobile-toggle { display: flex; }
+          .ec-mobile-overlay { display: block; }
+          .ec-mobile-drawer { display: flex; }
+          .ec-strip-right { display: none; }
+          .ec-main { padding: 16px; }
+          .ec-footer-top { flex-direction: column; gap: 24px; }
+          .ec-footer-links { gap: 32px; }
+        }
+        @media (max-width: 600px) {
+          .ec-header-inner { padding: 10px 16px; gap: 12px; }
+          .ec-logo-text { font-size: 22px; }
+          .ec-logo-icon { width: 34px; height: 34px; }
+          .ec-action-btn { padding: 4px 8px; }
+          .ec-action-label { display: none; }
+          .ec-user-info { display: none; }
+          .ec-chevron { display: none; }
+          .ec-strip-inner { justify-content: center; }
+          .ec-footer-bottom { flex-direction: column; text-align: center; }
+        }
+      `}</style>
     </div>
   );
 }

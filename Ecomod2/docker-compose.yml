@@ -180,6 +180,9 @@ services:
       SECRET_KEY: ${SECRET_KEY:-ecomod_secret_dev}
       REFRESH_SECRET_KEY: ${REFRESH_SECRET_KEY:-ecomod_refresh_secret_dev}
       ALGORITHM: HS256
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      NOTIFICATION_SERVICE_URL: http://notification-service:8007
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/auth/health"]
       interval: 15s
