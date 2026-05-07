@@ -21,7 +21,17 @@ export default function CartPage({ setPage, onCheckout }) {
   const [removingId, setRemovingId] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [checkingOut, setCheckingOut] = useState(false);
+
+  const updateGlobalCount = (c) => {
+    updateCartCount(c?.items?.reduce((s, i) => s + (parseInt(i.quantity) || 1), 0) || 0);
   };
+
+  const calcTotal = (c) => c?.items?.reduce((s, i) => s + (parseFloat(i.unit_price) || 0) * (parseInt(i.quantity) || 1), 0) || 0;
+
+  useEffect(() => {
+    loadCart();
+    loadProducts();
+  }, []);
 
   const loadCart = async () => {
     try {

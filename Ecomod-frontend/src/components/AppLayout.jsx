@@ -1,4 +1,4 @@
-﻿import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../hooks/useTheme";
 import { useCart } from "../App";
@@ -204,63 +204,6 @@ export default function AppLayout({ children, page, setPage }) {
                 {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </button>
 
-            </div>
-          </div>
-        </>
-      )}
-
-      {/* â•â• PAGE CONTENT â•â• */}
-      <main className="ec-main">{children}</main>
-
-      {/* â•â• FOOTER â•â• */}
-      <footer className="ec-footer">
-        <div className="ec-footer-inner">
-          <div className="ec-footer-top">
-            <div className="ec-footer-brand">
-              <div className="ec-logo-icon sm">
-                <Zap size={13} strokeWidth={2.5} />
-              </div>
-              <span>
-                <b>Eco</b>Mod
-              </span>
-            </div>
-            <div className="ec-footer-desc">
-              Tu marketplace de confianza. Productos de calidad, envÃ­os rÃ¡pidos
-              y la mejor experiencia de compra en Colombia.
-            </div>
-          </div>
-          <div className="ec-footer-links">
-            <div className="ec-footer-col">
-              <h4>Comprar</h4>
-              {["CatÃ¡logo", "Ofertas", "Nuevos", "MÃ¡s vendidos"].map((l) => (
-                <span key={l}>{l}</span>
-              ))}
-            </div>
-            <div className="ec-footer-col">
-              <h4>Mi cuenta</h4>
-              {["Pedidos", "Pagos", "EnvÃ­os", "Favoritos"].map((l) => (
-                <span key={l}>{l}</span>
-              ))}
-            </div>
-            <div className="ec-footer-col">
-              <h4>Ayuda</h4>
-              {["Centro de ayuda", "Devoluciones", "Contacto", "TÃ©rminos"].map(
-                (l) => (
-                  <span key={l}>{l}</span>
-                ),
-              )}
-            </div>
-          </div>
-          <div className="ec-footer-bottom">
-            <div className="ec-footer-copy">
-              Â© {new Date().getFullYear()} EcoMod Â· Todos los derechos
-              reservados
-            </div>
-            <div className="ec-footer-payments">
-              <span>ðŸ’³ Visa</span>
-              <span>ðŸ’³ Mastercard</span>
-              <span>ðŸ’³ Amex</span>
-              <span>ðŸ’³ PayPal</span>
             </div>
           </div>
         </div>

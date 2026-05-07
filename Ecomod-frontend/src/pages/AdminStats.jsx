@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../hooks/useTheme";
 import { authApi } from "../services/api";
@@ -15,8 +15,6 @@ import {
   Sparkles,
 } from "lucide-react";
 import SystemHealth from "../components/SystemHealth";
-
-const formatNumber = (n) => new Intl.NumberFormat("es-CO").format(n || 0);
 
 const formatNumber = (n) => new Intl.NumberFormat("es-CO").format(n || 0);
 
