@@ -1,4 +1,4 @@
-# EcoMod Infrastructure Blueprint (V19 - FULL CREDENTIALS INTEGRATION)
+# EcoMod Infrastructure Blueprint (V20 - SECURE MODE)
 
 databases:
   - name: ecomod-db
@@ -35,7 +35,7 @@ services:
       - key: SMTP_USER
         value: "alejosierra656@gmail.com"
       - key: SMTP_PASS
-        value: "nnhgckeajoswzzen"
+        sync: false # Esto le dice a Render que lo pidas en el dashboard
       - key: FROM_EMAIL
         value: "alejosierra656@gmail.com"
       - key: PORT
@@ -137,11 +137,11 @@ services:
       - key: SECRET_KEY
         value: "ecomod_secret_dev"
       - key: STRIPE_SECRET_KEY
-        value: "sk_test_51TDZt1E9kBxCJwntNTW4JlVKkCAqSuVPY0uQJVxXmVduAxmHw6UBZftKCj8Jq0QnNoqMF5t8remLt9su0jITvnua00gdot3rBz"
+        sync: false
       - key: PAYPAL_CLIENT_ID
-        value: "Aec_LbKFjevLfn0FfM9VLyNo61Jpo1UofRwf4zRJgTYmQczawE3iXlQHKV6AEoeCUMt2qFM_g_SaZ5rq"
+        sync: false
       - key: PAYPAL_SECRET_KEY
-        value: "EDiJDxCJ20gQOUKREVmZHO9i3PjsliGfaaqIV9WN9Y2-GTWDotlmvYvFqjaocJDMVIBnbRc8X6KZDvWp"
+        sync: false
       - key: PAYPAL_MODE
         value: "sandbox"
       - key: PORT
@@ -189,7 +189,7 @@ services:
       - key: SMTP_USER
         value: "alejosierra656@gmail.com"
       - key: SMTP_PASS
-        value: "nnhgckeajoswzzen"
+        sync: false
       - key: FROM_EMAIL
         value: "alejosierra656@gmail.com"
       - key: PORT
