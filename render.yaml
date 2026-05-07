@@ -1,4 +1,4 @@
-# EcoMod Infrastructure Blueprint (V16 - DIRECT ACCESS MODE)
+# EcoMod Infrastructure Blueprint (V17 - KONG GATEWAY MODE)
 
 databases:
   - name: ecomod-db
@@ -24,6 +24,8 @@ services:
           property: connectionString
       - key: SECRET_KEY
         value: "ecomod_secret_key_123"
+      - key: PORT
+        value: "8000"
 
   # Catalog Service
   - type: web
@@ -37,6 +39,8 @@ services:
         fromDatabase:
           name: ecomod-db
           property: connectionString
+      - key: PORT
+        value: "8001"
 
   # Inventory Service
   - type: web
@@ -50,6 +54,8 @@ services:
         fromDatabase:
           name: ecomod-db
           property: connectionString
+      - key: PORT
+        value: "8002"
 
   # Cart Service
   - type: web
@@ -68,6 +74,8 @@ services:
           type: keyvalue
           name: ecomod-redis
           property: connectionString
+      - key: PORT
+        value: "8003"
 
   # Order Service
   - type: web
@@ -81,6 +89,8 @@ services:
         fromDatabase:
           name: ecomod-db
           property: connectionString
+      - key: PORT
+        value: "8004"
 
   # Payment Service
   - type: web
@@ -94,6 +104,8 @@ services:
         fromDatabase:
           name: ecomod-db
           property: connectionString
+      - key: PORT
+        value: "8005"
 
   # Shipping Service
   - type: web
@@ -107,6 +119,8 @@ services:
         fromDatabase:
           name: ecomod-db
           property: connectionString
+      - key: PORT
+        value: "8006"
 
   # Notification Service
   - type: web
@@ -120,3 +134,22 @@ services:
         fromDatabase:
           name: ecomod-db
           property: connectionString
+      - key: PORT
+        value: "8007"
+
+  # API Gateway (Kong)
+  - type: web
+    name: api-gateway
+    plan: free
+    env: docker
+    dockerContext: .
+    dockerfilePath: Ecomod2/kong.Dockerfile
+    envVars:
+      - key: KONG_DATABASE
+        value: "off"
+      - key: KONG_DECLARATIVE_CONFIG
+        value: /usr/local/kong/declarative/kong.yml
+      - key: KONG_PROXY_LISTEN
+        value: 0.0.0.0:10000
+      - key: KONG_LOG_LEVEL
+        value: debug
