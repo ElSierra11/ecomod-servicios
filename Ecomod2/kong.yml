@@ -2,7 +2,7 @@ _format_version: "3.0"
 
 services:
   - name: auth-service
-    url: http://auth-service:8000
+    url: https://auth-service-4dni.onrender.com
     connect_timeout: 5000
     read_timeout: 10000
     write_timeout: 10000
@@ -60,7 +60,7 @@ services:
           fault_tolerant: true
 
   - name: catalog-service
-    url: http://catalog-service:8001
+    url: https://catalog-service-qyir.onrender.com
     routes:
       - name: catalog-route
         paths: [/catalog]
@@ -72,42 +72,42 @@ services:
           policy: local
 
   - name: inventory-service
-    url: http://inventory-service:8002
+    url: https://inventory-service-tjva.onrender.com
     routes:
       - name: inventory-route
         paths: [/inventory]
         strip_path: false
 
   - name: cart-service
-    url: http://cart-service:8003
+    url: https://cart-service-m1xf.onrender.com
     routes:
       - name: cart-route
         paths: [/cart]
         strip_path: false
 
   - name: order-service
-    url: http://order-service:8004
+    url: https://order-service-jsti.onrender.com
     routes:
       - name: order-route
         paths: [/orders]
         strip_path: false
 
   - name: payment-service
-    url: http://payment-service:8005
+    url: https://payment-service-lhx2.onrender.com
     routes:
       - name: payment-route
         paths: [/payments]
         strip_path: false
 
   - name: shipping-service
-    url: http://shipping-service:8006
+    url: https://shipping-service-pwvg.onrender.com
     routes:
       - name: shipping-route
         paths: [/shipping]
         strip_path: false
 
   - name: notification-service
-    url: http://notification-service:8007
+    url: https://notification-service-1bpn.onrender.com
     routes:
       - name: notification-route
         paths: [/notifications]
@@ -132,4 +132,3 @@ plugins:
     config:
       remove:
         headers: [x-api-key] # Eliminar cabeceras sensibles que no deben llegar al backend
-

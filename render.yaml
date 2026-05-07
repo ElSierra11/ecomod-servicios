@@ -26,6 +26,8 @@ services:
         value: "ecomod_secret_key_123"
       - key: PORT
         value: "8000"
+      - key: NOTIFICATION_SERVICE_URL
+        value: "https://notification-service-1bpn.onrender.com"
 
   # Catalog Service
   - type: web
@@ -91,6 +93,12 @@ services:
           property: connectionString
       - key: PORT
         value: "8004"
+      - key: INVENTORY_SERVICE_URL
+        value: "https://inventory-service-tjva.onrender.com"
+      - key: CART_SERVICE_URL
+        value: "https://cart-service-m1xf.onrender.com"
+      - key: NOTIFICATION_SERVICE_URL
+        value: "https://notification-service-1bpn.onrender.com"
 
   # Payment Service
   - type: web
@@ -106,6 +114,8 @@ services:
           property: connectionString
       - key: PORT
         value: "8005"
+      - key: ORDER_SERVICE_URL
+        value: "https://order-service-jsti.onrender.com"
 
   # Shipping Service
   - type: web
@@ -121,6 +131,8 @@ services:
           property: connectionString
       - key: PORT
         value: "8006"
+      - key: NOTIFICATION_SERVICE_URL
+        value: "https://notification-service-1bpn.onrender.com"
 
   # Notification Service
   - type: web
