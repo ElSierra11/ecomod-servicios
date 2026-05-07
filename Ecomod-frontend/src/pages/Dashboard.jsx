@@ -140,16 +140,7 @@ export default function Dashboard({ setPage }) {
             <button key={i} onClick={() => setHeroBanner(i)} className={cn("w-2 h-2 rounded-full transition-all", i === heroBanner ? "w-6 bg-white" : "bg-white/50")} />
           ))}
         </div>
-        <div className="db-banner-dots">
-          {banners.map((_, i) => (
-            <button
-              key={i}
-              className={`db-dot ${i === heroBanner ? "active" : ""}`}
-              onClick={() => setHeroBanner(i)}
-            />
-          ))}
-        </div>
-      </section>
+      </div>
 
       {/* STATS */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
