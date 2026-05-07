@@ -42,7 +42,7 @@ services:
           name: ecomod-db
           property: connectionString
       - key: SECRET_KEY
-        value: "ecomod_secret_key_123"
+        value: "https://catalog-service-qyir.onrender.com"
       - key: PORT
         value: "8001"
 
@@ -59,7 +59,7 @@ services:
           name: ecomod-db
           property: connectionString
       - key: SECRET_KEY
-        value: "ecomod_secret_key_123"
+        value: "https://inventory-service-tjva.onrender.com"
       - key: PORT
         value: "8002"
 
@@ -76,7 +76,7 @@ services:
           name: ecomod-db
           property: connectionString
       - key: SECRET_KEY
-        value: "ecomod_secret_key_123"
+        value: "https://cart-service-m1xf.onrender.com"
       - key: REDIS_URL
         fromService:
           type: keyvalue
@@ -98,7 +98,7 @@ services:
           name: ecomod-db
           property: connectionString
       - key: SECRET_KEY
-        value: "ecomod_secret_key_123"
+        value: "https://order-service-jsti.onrender.com"
       - key: PORT
         value: "8004"
       - key: INVENTORY_SERVICE_URL
@@ -121,7 +121,7 @@ services:
           name: ecomod-db
           property: connectionString
       - key: SECRET_KEY
-        value: "ecomod_secret_key_123"
+        value: "https://payment-service-lhx2.onrender.com"
       - key: PORT
         value: "8005"
       - key: ORDER_SERVICE_URL
@@ -140,7 +140,7 @@ services:
           name: ecomod-db
           property: connectionString
       - key: SECRET_KEY
-        value: "ecomod_secret_key_123"
+        value: "https://shipping-service-pwvg.onrender.com"
       - key: PORT
         value: "8006"
       - key: NOTIFICATION_SERVICE_URL
@@ -159,7 +159,7 @@ services:
           name: ecomod-db
           property: connectionString
       - key: SECRET_KEY
-        value: "ecomod_secret_key_123"
+        value: "https://notification-service-1bpn.onrender.com"
       - key: PORT
         value: "8007"
 
