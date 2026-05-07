@@ -1,4 +1,4 @@
-# EcoMod Infrastructure Blueprint (V17 - KONG GATEWAY MODE)
+# EcoMod Infrastructure Blueprint (V19 - FULL CREDENTIALS INTEGRATION)
 
 databases:
   - name: ecomod-db
@@ -23,7 +23,21 @@ services:
           name: ecomod-db
           property: connectionString
       - key: SECRET_KEY
-        value: "ecomod_secret_key_123"
+        value: "ecomod_secret_dev"
+      - key: REFRESH_SECRET_KEY
+        value: "ecomod_refresh_secret_dev"
+      - key: GOOGLE_CLIENT_ID
+        value: "585325731605-5h19gko7sk42le3lc00brv3spr0uj2g4.apps.googleusercontent.com"
+      - key: SMTP_HOST
+        value: "smtp.gmail.com"
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        value: "alejosierra656@gmail.com"
+      - key: SMTP_PASS
+        value: "nnhgckeajoswzzen"
+      - key: FROM_EMAIL
+        value: "alejosierra656@gmail.com"
       - key: PORT
         value: "8000"
       - key: NOTIFICATION_SERVICE_URL
@@ -42,7 +56,7 @@ services:
           name: ecomod-db
           property: connectionString
       - key: SECRET_KEY
-        value: "https://catalog-service-qyir.onrender.com"
+        value: "ecomod_secret_dev"
       - key: PORT
         value: "8001"
 
@@ -59,7 +73,7 @@ services:
           name: ecomod-db
           property: connectionString
       - key: SECRET_KEY
-        value: "https://inventory-service-tjva.onrender.com"
+        value: "ecomod_secret_dev"
       - key: PORT
         value: "8002"
 
@@ -76,7 +90,7 @@ services:
           name: ecomod-db
           property: connectionString
       - key: SECRET_KEY
-        value: "https://cart-service-m1xf.onrender.com"
+        value: "ecomod_secret_dev"
       - key: REDIS_URL
         fromService:
           type: keyvalue
@@ -98,7 +112,7 @@ services:
           name: ecomod-db
           property: connectionString
       - key: SECRET_KEY
-        value: "https://order-service-jsti.onrender.com"
+        value: "ecomod_secret_dev"
       - key: PORT
         value: "8004"
       - key: INVENTORY_SERVICE_URL
@@ -121,7 +135,15 @@ services:
           name: ecomod-db
           property: connectionString
       - key: SECRET_KEY
-        value: "https://payment-service-lhx2.onrender.com"
+        value: "ecomod_secret_dev"
+      - key: STRIPE_SECRET_KEY
+        value: "sk_test_51TDZt1E9kBxCJwntNTW4JlVKkCAqSuVPY0uQJVxXmVduAxmHw6UBZftKCj8Jq0QnNoqMF5t8remLt9su0jITvnua00gdot3rBz"
+      - key: PAYPAL_CLIENT_ID
+        value: "Aec_LbKFjevLfn0FfM9VLyNo61Jpo1UofRwf4zRJgTYmQczawE3iXlQHKV6AEoeCUMt2qFM_g_SaZ5rq"
+      - key: PAYPAL_SECRET_KEY
+        value: "EDiJDxCJ20gQOUKREVmZHO9i3PjsliGfaaqIV9WN9Y2-GTWDotlmvYvFqjaocJDMVIBnbRc8X6KZDvWp"
+      - key: PAYPAL_MODE
+        value: "sandbox"
       - key: PORT
         value: "8005"
       - key: ORDER_SERVICE_URL
@@ -140,7 +162,7 @@ services:
           name: ecomod-db
           property: connectionString
       - key: SECRET_KEY
-        value: "https://shipping-service-pwvg.onrender.com"
+        value: "ecomod_secret_dev"
       - key: PORT
         value: "8006"
       - key: NOTIFICATION_SERVICE_URL
@@ -159,7 +181,17 @@ services:
           name: ecomod-db
           property: connectionString
       - key: SECRET_KEY
-        value: "https://notification-service-1bpn.onrender.com"
+        value: "ecomod_secret_dev"
+      - key: SMTP_HOST
+        value: "smtp.gmail.com"
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        value: "alejosierra656@gmail.com"
+      - key: SMTP_PASS
+        value: "nnhgckeajoswzzen"
+      - key: FROM_EMAIL
+        value: "alejosierra656@gmail.com"
       - key: PORT
         value: "8007"
 
