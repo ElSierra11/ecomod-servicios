@@ -1,18 +1,17 @@
-# EcoMod Infrastructure Blueprint (V4 - El Definitivo)
+# EcoMod Infrastructure Blueprint (V5 - Especificación Oficial Validada)
 
-# 1. SECCIÓN DE BASES DE DATOS
+# 1. BASES DE DATOS (Sección de primer nivel)
 databases:
   - name: ecomod-db
     databaseName: ecomod
     user: ecomod_user
     plan: free
 
-# 2. SECCIÓN DE SERVICIOS
+# 2. SERVICIOS (Microservicios, Redis y RabbitMQ)
 services:
-  # Redis
-  - type: redis
+  # Redis (Instancia de Key Value)
+  - type: keyvalue
     name: ecomod-redis
-    ipAllowList: [] 
     plan: free
 
   # RabbitMQ (Private Service)
@@ -81,7 +80,7 @@ services:
           property: connectionString
       - key: REDIS_URL
         fromService:
-          type: redis
+          type: keyvalue
           name: ecomod-redis
           property: connectionString
 
