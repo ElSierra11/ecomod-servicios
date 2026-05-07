@@ -1,4 +1,4 @@
-# EcoMod Infrastructure Blueprint (V11 - Final Free Tier)
+# EcoMod Infrastructure Blueprint (V12 - Gateway Fix)
 
 databases:
   - name: ecomod-db
@@ -23,7 +23,7 @@ services:
           name: ecomod-db
           property: connectionString
       - key: RABBITMQ_URL
-        value: "amqp://guest:guest@localhost" # Temporal para que no crashee
+        value: "amqp://guest:guest@localhost"
 
   # Catalog Service
   - type: web
@@ -127,7 +127,7 @@ services:
       - key: RABBITMQ_URL
         value: "amqp://guest:guest@localhost"
 
-  # API GATEWAY
+  # API GATEWAY (Kong - FIX)
   - type: web
     name: ecomod-gateway
     plan: free
@@ -139,3 +139,5 @@ services:
         value: "off"
       - key: KONG_DECLARATIVE_CONFIG
         value: /usr/local/kong/declarative/kong.yml
+      - key: KONG_PROXY_LISTEN # ¡ESTO FALTABA!
+        value: 0.0.0.0:10000
