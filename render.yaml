@@ -1,4 +1,4 @@
-# EcoMod Infrastructure Blueprint (V15 - Final Fix)
+# EcoMod Infrastructure Blueprint (V16 - DIRECT ACCESS MODE)
 
 databases:
   - name: ecomod-db
@@ -10,7 +10,7 @@ services:
     plan: free
     ipAllowList: []
 
-  # Auth Service (Ajuste de Memoria)
+  # Auth Service
   - type: web
     name: auth-service
     plan: free
@@ -23,9 +23,7 @@ services:
           name: ecomod-db
           property: connectionString
       - key: SECRET_KEY
-        value: "ecomod_secret_key_123_change_me"
-      - key: WEB_CONCURRENCY # Limitamos a 1 proceso para ahorrar RAM
-        value: "1"
+        value: "ecomod_secret_key_123"
 
   # Catalog Service
   - type: web
@@ -122,12 +120,3 @@ services:
         fromDatabase:
           name: ecomod-db
           property: connectionString
-
-  # API GATEWAY (Nginx Dinámico)
-  - type: web
-    name: ecomod-gateway
-    plan: free
-    env: docker
-    dockerContext: .
-    dockerfilePath: Ecomod2/nginx.Dockerfile
-    healthCheckPath: /health
