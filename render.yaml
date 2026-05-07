@@ -1,17 +1,16 @@
-# EcoMod Infrastructure Blueprint (TOTALMENTE GRATIS)
+# EcoMod Infrastructure Blueprint (V10 - FREE Tier Fix)
 
 databases:
   - name: ecomod-db
     plan: free
 
 services:
-  # Redis (Caché gratuita)
   - type: keyvalue
     name: ecomod-redis
     plan: free
     ipAllowList: []
 
-  # Auth Service
+  # Auth
   - type: web
     name: auth-service
     plan: free
@@ -23,7 +22,7 @@ services:
           name: ecomod-db
           property: connectionString
 
-  # Catalog Service
+  # Catalog
   - type: web
     name: catalog-service
     plan: free
@@ -35,7 +34,7 @@ services:
           name: ecomod-db
           property: connectionString
 
-  # Inventory Service
+  # Inventory
   - type: web
     name: inventory-service
     plan: free
@@ -47,7 +46,7 @@ services:
           name: ecomod-db
           property: connectionString
 
-  # Cart Service
+  # Cart
   - type: web
     name: cart-service
     plan: free
@@ -64,7 +63,7 @@ services:
           name: ecomod-redis
           property: connectionString
 
-  # Order Service
+  # Order
   - type: web
     name: order-service
     plan: free
@@ -76,7 +75,7 @@ services:
           name: ecomod-db
           property: connectionString
 
-  # Payment Service
+  # Payment
   - type: web
     name: payment-service
     plan: free
@@ -88,7 +87,7 @@ services:
           name: ecomod-db
           property: connectionString
 
-  # Shipping Service
+  # Shipping
   - type: web
     name: shipping-service
     plan: free
@@ -100,7 +99,7 @@ services:
           name: ecomod-db
           property: connectionString
 
-  # Notification Service
+  # Notification
   - type: web
     name: notification-service
     plan: free
