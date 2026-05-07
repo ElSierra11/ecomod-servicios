@@ -21,15 +21,6 @@ import {
   BarChart3,
   Menu,
   X,
-=======
-  Zap,
-  Shield,
-  RotateCcw,
-  Server,
-  MapPin,
-  Phone,
-  Heart,
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
   User,
   ShoppingBag,
 } from "lucide-react";

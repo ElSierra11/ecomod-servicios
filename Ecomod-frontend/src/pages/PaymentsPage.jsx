@@ -365,10 +365,6 @@ export default function PaymentsPage({ checkoutOrderId, onCheckoutHandled }) {
   const [selectedOrder, setSelectedOrder] = useState("");
   const [method, setMethod] = useState("stripe");
   const [receipt, setReceipt] = useState(null);
-=======
-  const [selectOpen, setSelectOpen] = useState(false);
-  const [filterStatus, setFilterStatus] = useState("all");
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
 
   useEffect(() => { loadData(); }, []);
   useEffect(() => { if (checkoutOrderId && orders.length) { setSelectedOrder(String(checkoutOrderId)); if(onCheckoutHandled) onCheckoutHandled(); } }, [checkoutOrderId, orders]);

@@ -13,10 +13,6 @@ import {
   Activity,
   Crown,
   Sparkles,
-=======
-  ArrowUpRight,
-  ArrowDownRight,
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
 } from "lucide-react";
 import SystemHealth from "../components/SystemHealth";
 

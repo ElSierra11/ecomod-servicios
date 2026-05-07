@@ -51,9 +51,6 @@ export default function PaypalReturn() {
   const [status, setStatus] = useState("loading");
   const [message, setMessage] = useState("");
   const [countdown, setCountdown] = useState(5);
-=======
-  const [showDetails, setShowDetails] = useState(false);
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
   const [txnId, setTxnId] = useState("");
   const [orderAmount, setOrderAmount] = useState(null);
   const orderId = searchParams.get("order_id");

@@ -32,9 +32,6 @@ export default function NotificationsPage() {
   const [filter, setFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [readIds, setReadIds] = useState(new Set());
-=======
-  const [deletingId, setDeletingId] = useState(null);
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
 
   useEffect(() => { loadData(); }, []);
 
