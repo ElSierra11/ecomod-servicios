@@ -1,5 +1,7 @@
 FROM nginx:alpine
-# Copiamos nuestra configuración optimizada
-COPY Ecomod2/nginx.conf /etc/nginx/nginx.conf
-EXPOSE 10000
-CMD ["nginx", "-g", "daemon off;"]
+
+# Copiamos la config como una plantilla
+COPY Ecomod2/nginx.conf /etc/nginx/nginx.conf.template
+
+# Al arrancar, inyectamos el puerto real en la configuración
+CMD /bin/sh -c "envsubst '\$PORT' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
