@@ -1,4 +1,4 @@
-# EcoMod Infrastructure Blueprint (V10 - FREE Tier Fix)
+# EcoMod Infrastructure Blueprint (V11 - Final Free Tier)
 
 databases:
   - name: ecomod-db
@@ -10,48 +10,56 @@ services:
     plan: free
     ipAllowList: []
 
-  # Auth
+  # Auth Service
   - type: web
     name: auth-service
     plan: free
     env: docker
-    dockerContext: ./Ecomod2/auth-service
+    dockerContext: .
+    dockerfilePath: Ecomod2/auth-service/Dockerfile
     envVars:
       - key: DATABASE_URL
         fromDatabase:
           name: ecomod-db
           property: connectionString
+      - key: RABBITMQ_URL
+        value: "amqp://guest:guest@localhost" # Temporal para que no crashee
 
-  # Catalog
+  # Catalog Service
   - type: web
     name: catalog-service
     plan: free
     env: docker
-    dockerContext: ./Ecomod2/catalog-service
+    dockerContext: .
+    dockerfilePath: Ecomod2/catalog-service/Dockerfile
     envVars:
       - key: DATABASE_URL
         fromDatabase:
           name: ecomod-db
           property: connectionString
 
-  # Inventory
+  # Inventory Service
   - type: web
     name: inventory-service
     plan: free
     env: docker
-    dockerContext: ./Ecomod2/inventory-service
+    dockerContext: .
+    dockerfilePath: Ecomod2/inventory-service/Dockerfile
     envVars:
       - key: DATABASE_URL
         fromDatabase:
           name: ecomod-db
           property: connectionString
+      - key: RABBITMQ_URL
+        value: "amqp://guest:guest@localhost"
 
-  # Cart
+  # Cart Service
   - type: web
     name: cart-service
     plan: free
     env: docker
-    dockerContext: ./Ecomod2/cart-service
+    dockerContext: .
+    dockerfilePath: Ecomod2/cart-service/Dockerfile
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -63,62 +71,69 @@ services:
           name: ecomod-redis
           property: connectionString
 
-  # Order
+  # Order Service
   - type: web
     name: order-service
     plan: free
     env: docker
-    dockerContext: ./Ecomod2/order-service
+    dockerContext: .
+    dockerfilePath: Ecomod2/order-service/Dockerfile
     envVars:
       - key: DATABASE_URL
         fromDatabase:
           name: ecomod-db
           property: connectionString
+      - key: RABBITMQ_URL
+        value: "amqp://guest:guest@localhost"
 
-  # Payment
+  # Payment Service
   - type: web
     name: payment-service
     plan: free
     env: docker
-    dockerContext: ./Ecomod2/payment-service
+    dockerContext: .
+    dockerfilePath: Ecomod2/payment-service/Dockerfile
     envVars:
       - key: DATABASE_URL
         fromDatabase:
           name: ecomod-db
           property: connectionString
 
-  # Shipping
+  # Shipping Service
   - type: web
     name: shipping-service
     plan: free
     env: docker
-    dockerContext: ./Ecomod2/shipping-service
+    dockerContext: .
+    dockerfilePath: Ecomod2/shipping-service/Dockerfile
     envVars:
       - key: DATABASE_URL
         fromDatabase:
           name: ecomod-db
           property: connectionString
 
-  # Notification
+  # Notification Service
   - type: web
     name: notification-service
     plan: free
     env: docker
-    dockerContext: ./Ecomod2/notification-service
+    dockerContext: .
+    dockerfilePath: Ecomod2/notification-service/Dockerfile
     envVars:
       - key: DATABASE_URL
         fromDatabase:
           name: ecomod-db
           property: connectionString
+      - key: RABBITMQ_URL
+        value: "amqp://guest:guest@localhost"
 
-  # API GATEWAY (Kong)
+  # API GATEWAY
   - type: web
     name: ecomod-gateway
     plan: free
     env: docker
-    dockerContext: ./Ecomod2
-    dockerfilePath: ./Ecomod2/kong.Dockerfile
-    healthCheckPath: /auth/health
+    dockerContext: .
+    dockerfilePath: Ecomod2/kong.Dockerfile
     envVars:
       - key: KONG_DATABASE
         value: "off"
