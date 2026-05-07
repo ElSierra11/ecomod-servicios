@@ -84,6 +84,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   const clearNotifications = useCallback(() => setNotifications([]), []);
+<<<<<<< HEAD
 
   const handleCartMerge = useCallback(async (userId) => {
     const anonToken = localStorage.getItem("ecomod_anon_token");
@@ -100,6 +101,8 @@ export function AuthProvider({ children }) {
       console.error("Error fusionando carrito:", error);
     }
   }, []);
+=======
+>>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
 
   const fetchProfile = useCallback(async () => {
     try {
@@ -167,10 +170,13 @@ export function AuthProvider({ children }) {
         setSessionExpiresAt(decoded?.exp || null);
         setUser(data.user);
         setPermissions(data.user?.permissions || []);
+<<<<<<< HEAD
         
         // Fusión de carrito
         await handleCartMerge(data.user.id);
 
+=======
+>>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
         addNotification({
           type: AUTH_EVENTS.LOGIN_SUCCESS,
           message: `Bienvenido, ${data.user?.nombre || data.user?.email || "Usuario"}!`,
@@ -192,7 +198,11 @@ export function AuthProvider({ children }) {
     [addNotification],
   );
 
+<<<<<<< HEAD
   // NUEVO: Login con Google — recibe la respuesta del backend y guarda tokens
+=======
+  // ✅ NUEVO: Login con Google — recibe la respuesta del backend y guarda tokens
+>>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
   const loginWithToken = useCallback(
     (data) => {
       localStorage.setItem("ecomod_token", data.access_token);
@@ -202,10 +212,13 @@ export function AuthProvider({ children }) {
       setSessionExpiresAt(decoded?.exp || null);
       setUser(data.user);
       setPermissions(data.user?.permissions || []);
+<<<<<<< HEAD
 
       // Fusión de carrito
       handleCartMerge(data.user.id);
 
+=======
+>>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
       addNotification({
         type: AUTH_EVENTS.LOGIN_SUCCESS,
         message: `Bienvenido, ${data.user?.nombre || data.user?.email || "Usuario"}!`,

@@ -35,7 +35,11 @@ export const authApi = {
   login: (body) =>
     req("/auth/login", { method: "POST", body: JSON.stringify(body) }),
 
+<<<<<<< HEAD
   // NUEVO: Google OAuth
+=======
+  // ✅ NUEVO: Google OAuth
+>>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
   googleAuth: (credential) =>
     req("/auth/google", {
       method: "POST",

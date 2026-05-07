@@ -343,6 +343,7 @@ export default function CatalogPage() {
         setStock(map);
       } catch {}
 
+<<<<<<< HEAD
       // Carrito del usuario o anónimo
       try {
         let c;
@@ -357,6 +358,12 @@ export default function CatalogPage() {
           const count = c.items?.reduce((s, i) => s + (parseInt(i.quantity) || 1), 0) || 0;
           updateCartCount(count);
         }
+=======
+      // Carrito del usuario
+      try {
+        const c = await cartApi.getByUser(user.id);
+        setCart(c);
+>>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
       } catch {}
     } catch (err) {
       addToast("error", "Error", "No se pudieron cargar los productos");
@@ -406,6 +413,7 @@ export default function CatalogPage() {
   const handleAddToCart = async (product, qty) => {
     try {
       let c = cart;
+<<<<<<< HEAD
       
       // Si no hay carrito cargado en el estado local
       if (!c) {
@@ -433,6 +441,12 @@ export default function CatalogPage() {
         setCart(c);
       }
 
+=======
+      if (!c) {
+        c = await cartApi.create({ user_id: user.id });
+        setCart(c);
+      }
+>>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
       await cartApi.addItem(c.id, {
         product_id: product.id,
         quantity: qty,
@@ -441,6 +455,7 @@ export default function CatalogPage() {
       });
 
       // Actualizar contador global
+<<<<<<< HEAD
       let updated;
       if (user) {
         updated = await cartApi.getByUser(user.id);
@@ -448,6 +463,9 @@ export default function CatalogPage() {
         updated = await cartApi.getByToken(localStorage.getItem("ecomod_anon_token"));
       }
       
+=======
+      const updated = await cartApi.getByUser(user.id);
+>>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
       const count =
         updated.items?.reduce((s, i) => s + (parseInt(i.quantity) || 1), 0) ||
         0;

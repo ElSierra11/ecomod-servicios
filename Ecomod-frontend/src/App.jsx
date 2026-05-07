@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 import { useState, useEffect, createContext, useContext, useCallback } from "react";
 import { CheckCircle, XCircle, AlertTriangle, Info, X, ShieldOff } from "lucide-react";
+=======
+import { useState, createContext, useContext, useCallback } from "react";
+>>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import AuthPage from "./pages/AuthPage";
@@ -18,10 +22,14 @@ import PaypalReturn from "./pages/PaypalReturn";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import LogoIcon from "./components/LogoIcon";
+<<<<<<< HEAD
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
 
+=======
+
+>>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
 /* ════════════════════════════════════════
    TOAST CONTEXT - Notificaciones globales
    ════════════════════════════════════════ */
@@ -50,10 +58,17 @@ export function ToastProvider({ children }) {
         {toasts.map((toast) => (
           <div key={toast.id} className={`toast toast-${toast.type}`}>
             <div className="toast-icon">
+<<<<<<< HEAD
               {toast.type === "success" && <CheckCircle size={18} />}
               {toast.type === "error" && <XCircle size={18} />}
               {toast.type === "warning" && <AlertTriangle size={18} />}
               {toast.type === "info" && <Info size={18} />}
+=======
+              {toast.type === "success" && "✓"}
+              {toast.type === "error" && "✕"}
+              {toast.type === "warning" && "!"}
+              {toast.type === "info" && "ℹ"}
+>>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
             </div>
             <div className="toast-content">
               <div className="toast-title">{toast.title}</div>
@@ -63,7 +78,11 @@ export function ToastProvider({ children }) {
               className="toast-close"
               onClick={() => removeToast(toast.id)}
             >
+<<<<<<< HEAD
               <X size={14} />
+=======
+              ✕
+>>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
             </button>
           </div>
         ))}
@@ -113,9 +132,13 @@ function AdminOnly({ user, children }) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center p-8">
+<<<<<<< HEAD
           <div style={{ display: "flex", justifyContent: "center", marginBottom: "16px" }}>
             <ShieldOff size={48} strokeWidth={1.5} style={{ color: "#e8291c" }} />
           </div>
+=======
+          <div className="text-5xl mb-4">🔒</div>
+>>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
           <h2
             className="text-xl font-bold mb-2"
             style={{ color: "var(--text)" }}
@@ -188,6 +211,7 @@ function LoadingScreen() {
    ════════════════════════════════════════ */
 function AppContent() {
   const { user, loading } = useAuth();
+<<<<<<< HEAD
   const [page, setPage] = useState(null);
   const [checkoutOrderId, setCheckoutOrderId] = useState(null);
 
@@ -197,6 +221,9 @@ function AppContent() {
       setPage(user.role === "admin" ? "admin-stats" : "dashboard");
     }
   }, [user, page]);
+=======
+  const [page, setPage] = useState("dashboard");
+>>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
 
   if (loading) {
     return <LoadingScreen />;
@@ -250,6 +277,7 @@ function AppContent() {
    ════════════════════════════════════════ */
 export default function App() {
   return (
+<<<<<<< HEAD
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <AuthProvider>
         <ToastProvider>
@@ -266,5 +294,21 @@ export default function App() {
         </ToastProvider>
       </AuthProvider>
     </GoogleOAuthProvider>
+=======
+    <AuthProvider>
+      <ToastProvider>
+        <CartProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/*" element={<AppContent />} />
+              <Route path="/paypal-return" element={<PaypalReturn />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+            </Routes>
+          </BrowserRouter>
+        </CartProvider>
+      </ToastProvider>
+    </AuthProvider>
+>>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
   );
 }

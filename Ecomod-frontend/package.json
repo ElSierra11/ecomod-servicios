@@ -18,7 +18,11 @@
     "clsx": "^2.1.1",
     "framer-motion": "^12.38.0",
     "jspdf": "^4.2.1",
+<<<<<<< HEAD
     "lucide-react": "^1.14.0",
+=======
+    "lucide-react": "^1.11.0",
+>>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.22.0",
