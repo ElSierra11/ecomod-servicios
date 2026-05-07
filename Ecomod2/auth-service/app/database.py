@@ -8,6 +8,10 @@ DATABASE_URL = os.getenv(
     "postgresql://postgres:password@auth-db:5432/authdb"
 )
 
+# Parche para compatibilidad de Render/SQLAlchemy
+if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
 engine = create_engine(DATABASE_URL)
 
 SessionLocal = sessionmaker(

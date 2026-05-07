@@ -104,15 +104,11 @@ async def google_auth(body: dict = Body(...), db: Session = Depends(get_db)):
     # ── Verificar el token con Google ────────────────────────────────────────
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
-<<<<<<< HEAD
             # The frontend is sending an access_token, not an id_token
             response = await client.get(
                 "https://www.googleapis.com/oauth2/v3/userinfo",
                 headers={"Authorization": f"Bearer {credential}"}
-=======
-            response = await client.get(
-                f"https://oauth2.googleapis.com/tokeninfo?id_token={credential}"
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
+            )
             )
             if response.status_code != 200:
                 raise HTTPException(status_code=401, detail="Token de Google inválido")
@@ -121,13 +117,9 @@ async def google_auth(body: dict = Body(...), db: Session = Depends(get_db)):
     except httpx.RequestError:
         raise HTTPException(status_code=502, detail="No se pudo contactar con Google para verificar el token")
 
-<<<<<<< HEAD
-=======
     # ── Validar que el token es para nuestra app ──────────────────────────────
     if google_data.get("aud") != GOOGLE_CLIENT_ID:
         raise HTTPException(status_code=401, detail="Token no corresponde a esta aplicación")
-
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
     if google_data.get("error"):
         raise HTTPException(status_code=401, detail=f"Token de Google rechazado: {google_data.get('error_description', '')}")
 
@@ -136,14 +128,9 @@ async def google_auth(body: dict = Body(...), db: Session = Depends(get_db)):
     google_name   = google_data.get("given_name", "")
     google_last   = google_data.get("family_name", "")
     google_sub    = google_data.get("sub", "")   # ID único de Google
-<<<<<<< HEAD
-    
     # userinfo returns boolean for email_verified, id_token returns string or boolean
     email_verified_raw = google_data.get("email_verified", False)
     email_verified = email_verified_raw is True or str(email_verified_raw).lower() == "true"
-=======
-    email_verified = google_data.get("email_verified", "false") == "true"
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
 
     if not google_email:
         raise HTTPException(status_code=400, detail="No se pudo obtener el email de Google")
