@@ -110,7 +110,6 @@ async def google_auth(body: dict = Body(...), db: Session = Depends(get_db)):
                 "https://www.googleapis.com/oauth2/v3/userinfo",
                 headers={"Authorization": f"Bearer {credential}"}
             )
-            )
             if response.status_code != 200:
                 raise HTTPException(status_code=401, detail="Token de Google inválido")
 
