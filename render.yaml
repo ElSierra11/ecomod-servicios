@@ -1,4 +1,4 @@
-# EcoMod Infrastructure Blueprint (V12 - Gateway Fix)
+# EcoMod Infrastructure Blueprint (V13 - Survival Mode)
 
 databases:
   - name: ecomod-db
@@ -10,7 +10,7 @@ services:
     plan: free
     ipAllowList: []
 
-  # Auth Service
+  # Auth Service (Ajustado)
   - type: web
     name: auth-service
     plan: free
@@ -22,6 +22,8 @@ services:
         fromDatabase:
           name: ecomod-db
           property: connectionString
+      - key: SECRET_KEY
+        value: "ecomod_secret_key_123_change_me" # A veces crashea si esto falta
       - key: RABBITMQ_URL
         value: "amqp://guest:guest@localhost"
 
@@ -127,7 +129,7 @@ services:
       - key: RABBITMQ_URL
         value: "amqp://guest:guest@localhost"
 
-  # API GATEWAY (Kong - FIX)
+  # API GATEWAY (Kong - Simplificado para plan Free)
   - type: web
     name: ecomod-gateway
     plan: free
@@ -139,5 +141,4 @@ services:
         value: "off"
       - key: KONG_DECLARATIVE_CONFIG
         value: /usr/local/kong/declarative/kong.yml
-      - key: KONG_PROXY_LISTEN # ¡ESTO FALTABA!
-        value: 0.0.0.0:10000
+      # Quitamos el KONG_PROXY_LISTEN dinámico y dejamos que Render use el suyo
