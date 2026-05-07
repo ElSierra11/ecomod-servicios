@@ -1,4 +1,4 @@
-﻿import {
+import {
   createContext,
   useContext,
   useState,
@@ -95,11 +95,62 @@ export function AuthProvider({ children }) {
         anonymous_token: anonToken
       });
       localStorage.removeItem("ecomod_anon_token");
-      console.log("Carrito anÃ³nimo fusionado correctamente");
+      console.log("Carrito anónimo fusionado correctamente");
     } catch (error) {
       console.error("Error fusionando carrito:", error);
     }
   }, []);
+
+  const fetchProfile = useCallback(async () => {
+    const res = await authApi.profile();
+    return res;
+  }, []);
+
+  const refreshToken = useCallback(async () => {
+    if (isRefreshing) return null;
+    setIsRefreshing(true);
+    try {
+      const refreshTk = localStorage.getItem("ecomod_refresh_token");
+      if (!refreshTk) return null;
+      const data = await authApi.refreshToken(refreshTk);
+      if (data?.access_token) {
+        localStorage.setItem("ecomod_token", data.access_token);
+        if (data.refresh_token)
+          localStorage.setItem("ecomod_refresh_token", data.refresh_token);
+        const decoded = decodeToken(data.access_token);
+        setSessionExpiresAt(decoded?.exp || null);
+        addNotification({
+          type: AUTH_EVENTS.TOKEN_REFRESHED,
+          message: "Sesión renovada",
+          severity: "info",
+        });
+        return data.access_token;
+      }
+      return null;
+    } catch {
+      return null;
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [isRefreshing, addNotification]);
+
+  const login = useCallback(
+    async (credentials) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await authApi.login(credentials);
+        localStorage.setItem("ecomod_token", data.access_token);
+        if (data.refresh_token)
+          localStorage.setItem("ecomod_refresh_token", data.refresh_token);
+        const decoded = decodeToken(data.access_token);
+        setSessionExpiresAt(decoded?.exp || null);
+        setUser(data.user);
+        setPermissions(data.user?.permissions || []);
+
+        // Fusión de carrito
+        handleCartMerge(data.user.id);
+
         addNotification({
           type: AUTH_EVENTS.LOGIN_SUCCESS,
           message: `Bienvenido, ${data.user?.nombre || data.user?.email || "Usuario"}!`,
@@ -110,7 +161,7 @@ export function AuthProvider({ children }) {
         setError(err.message);
         addNotification({
           type: AUTH_EVENTS.LOGIN_ERROR,
-          message: err.message || "Error al iniciar sesiÃ³n",
+          message: err.message || "Error al iniciar sesión",
           severity: "error",
         });
         throw err;
@@ -118,10 +169,10 @@ export function AuthProvider({ children }) {
         setLoading(false);
       }
     },
-    [addNotification],
+    [addNotification, handleCartMerge],
   );
 
-  // NUEVO: Login con Google â€” recibe la respuesta del backend y guarda tokens
+  // NUEVO: Login con Google — recibe la respuesta del backend y guarda tokens
   const loginWithToken = useCallback(
     (data) => {
       localStorage.setItem("ecomod_token", data.access_token);
