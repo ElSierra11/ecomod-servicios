@@ -1,45 +1,34 @@
-# EcoMod Infrastructure Blueprint (V9 - Remove Ports from Pserv)
+# EcoMod Infrastructure Blueprint (TOTALMENTE GRATIS)
 
 databases:
   - name: ecomod-db
     plan: free
 
 services:
-  # Redis
+  # Redis (Caché gratuita)
   - type: keyvalue
     name: ecomod-redis
     plan: free
     ipAllowList: []
 
-  # RabbitMQ
-  - type: pserv
-    name: rabbitmq
-    env: docker
-    dockerContext: .
-    dockerfilePath: ./Ecomod2/rabbitmq.Dockerfile
-    plan: starter
-    # Nota: Los pserv no llevan campo 'ports' en el YAML de Render
-
   # Auth Service
-  - type: pserv
+  - type: web
     name: auth-service
+    plan: free
     env: docker
     dockerContext: ./Ecomod2/auth-service
-    plan: starter
     envVars:
       - key: DATABASE_URL
         fromDatabase:
           name: ecomod-db
           property: connectionString
-      - key: RABBITMQ_URL
-        value: amqp://guest:guest@rabbitmq:5672
 
   # Catalog Service
-  - type: pserv
+  - type: web
     name: catalog-service
+    plan: free
     env: docker
     dockerContext: ./Ecomod2/catalog-service
-    plan: starter
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -47,25 +36,23 @@ services:
           property: connectionString
 
   # Inventory Service
-  - type: pserv
+  - type: web
     name: inventory-service
+    plan: free
     env: docker
     dockerContext: ./Ecomod2/inventory-service
-    plan: starter
     envVars:
       - key: DATABASE_URL
         fromDatabase:
           name: ecomod-db
           property: connectionString
-      - key: RABBITMQ_URL
-        value: amqp://guest:guest@rabbitmq:5672
 
   # Cart Service
-  - type: pserv
+  - type: web
     name: cart-service
+    plan: free
     env: docker
     dockerContext: ./Ecomod2/cart-service
-    plan: starter
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -78,68 +65,60 @@ services:
           property: connectionString
 
   # Order Service
-  - type: pserv
+  - type: web
     name: order-service
+    plan: free
     env: docker
     dockerContext: ./Ecomod2/order-service
-    plan: starter
     envVars:
       - key: DATABASE_URL
         fromDatabase:
           name: ecomod-db
           property: connectionString
-      - key: RABBITMQ_URL
-        value: amqp://guest:guest@rabbitmq:5672
 
   # Payment Service
-  - type: pserv
+  - type: web
     name: payment-service
+    plan: free
     env: docker
     dockerContext: ./Ecomod2/payment-service
-    plan: starter
     envVars:
       - key: DATABASE_URL
         fromDatabase:
           name: ecomod-db
           property: connectionString
-      - key: RABBITMQ_URL
-        value: amqp://guest:guest@rabbitmq:5672
 
   # Shipping Service
-  - type: pserv
+  - type: web
     name: shipping-service
+    plan: free
     env: docker
     dockerContext: ./Ecomod2/shipping-service
-    plan: starter
     envVars:
       - key: DATABASE_URL
         fromDatabase:
           name: ecomod-db
           property: connectionString
-      - key: RABBITMQ_URL
-        value: amqp://guest:guest@rabbitmq:5672
 
   # Notification Service
-  - type: pserv
+  - type: web
     name: notification-service
+    plan: free
     env: docker
     dockerContext: ./Ecomod2/notification-service
-    plan: starter
     envVars:
       - key: DATABASE_URL
         fromDatabase:
           name: ecomod-db
           property: connectionString
-      - key: RABBITMQ_URL
-        value: amqp://guest:guest@rabbitmq:5672
 
-  # API GATEWAY
+  # API GATEWAY (Kong)
   - type: web
     name: ecomod-gateway
+    plan: free
     env: docker
     dockerContext: ./Ecomod2
     dockerfilePath: ./Ecomod2/kong.Dockerfile
-    plan: starter
     healthCheckPath: /auth/health
     envVars:
       - key: KONG_DATABASE
