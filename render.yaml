@@ -1,26 +1,26 @@
-services:
-  # ────────────────────────────────────────────────────────────────
-  # 1. BASES DE DATOS Y CACHÉ
-  # ────────────────────────────────────────────────────────────────
-  - type: redis
-    name: ecomod-redis
-    ipAllowList: [] # Solo accesible internamente
-    plan: free
+# EcoMod Infrastructure Blueprint (Corregido)
 
-  - type: database
-    name: ecomod-db
+# 1. SECCIÓN DE BASES DE DATOS (PostgreSQL)
+databases:
+  - name: ecomod-db
     databaseName: ecomod
     user: ecomod_user
     plan: free
 
-  # ────────────────────────────────────────────────────────────────
-  # 2. BUS DE MENSAJES (RabbitMQ)
-  # ────────────────────────────────────────────────────────────────
+# 2. SECCIÓN DE SERVICIOS (Microservicios, Redis y RabbitMQ)
+services:
+  # Redis
+  - type: redis
+    name: ecomod-redis
+    ipAllowList: [] 
+    plan: free
+
+  # RabbitMQ (Private Service)
   - type: pvt
     name: rabbitmq
     env: docker
     dockerContext: .
-    dockerfilePath: ./Ecomod2/rabbitmq.Dockerfile # Necesitarás crear este archivo simple
+    dockerfilePath: ./Ecomod2/rabbitmq.Dockerfile
     plan: starter
     ports:
       - port: 5672
@@ -28,9 +28,7 @@ services:
       - port: 15672
         protocol: TCP
 
-  # ────────────────────────────────────────────────────────────────
-  # 3. MICROSERVICIOS (Red Privada)
-  # ────────────────────────────────────────────────────────────────
+  # Auth Service
   - type: pvt
     name: auth-service
     env: docker
@@ -44,6 +42,7 @@ services:
       - key: RABBITMQ_URL
         value: amqp://guest:guest@rabbitmq:5672
 
+  # Catalog Service
   - type: pvt
     name: catalog-service
     env: docker
@@ -55,6 +54,7 @@ services:
           name: ecomod-db
           property: connectionString
 
+  # Inventory Service
   - type: pvt
     name: inventory-service
     env: docker
@@ -68,6 +68,7 @@ services:
       - key: RABBITMQ_URL
         value: amqp://guest:guest@rabbitmq:5672
 
+  # Cart Service
   - type: pvt
     name: cart-service
     env: docker
@@ -84,6 +85,7 @@ services:
           name: ecomod-redis
           property: connectionString
 
+  # Order Service
   - type: pvt
     name: order-service
     env: docker
@@ -97,6 +99,7 @@ services:
       - key: RABBITMQ_URL
         value: amqp://guest:guest@rabbitmq:5672
 
+  # Payment Service
   - type: pvt
     name: payment-service
     env: docker
@@ -110,6 +113,7 @@ services:
       - key: RABBITMQ_URL
         value: amqp://guest:guest@rabbitmq:5672
 
+  # Shipping Service
   - type: pvt
     name: shipping-service
     env: docker
@@ -123,6 +127,7 @@ services:
       - key: RABBITMQ_URL
         value: amqp://guest:guest@rabbitmq:5672
 
+  # Notification Service
   - type: pvt
     name: notification-service
     env: docker
@@ -136,14 +141,12 @@ services:
       - key: RABBITMQ_URL
         value: amqp://guest:guest@rabbitmq:5672
 
-  # ────────────────────────────────────────────────────────────────
-  # 4. API GATEWAY (Público)
-  # ────────────────────────────────────────────────────────────────
+  # API GATEWAY (Público)
   - type: web
     name: ecomod-gateway
     env: docker
     dockerContext: ./Ecomod2
-    dockerfilePath: ./Ecomod2/kong.Dockerfile # Kong con tu config
+    dockerfilePath: ./Ecomod2/kong.Dockerfile
     plan: starter
     healthCheckPath: /auth/health
     envVars:
