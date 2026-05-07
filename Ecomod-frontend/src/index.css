@@ -4,7 +4,6 @@
 @tailwind components;
 @tailwind utilities;
 
-<<<<<<< HEAD
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -88,113 +87,7 @@
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
-=======
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Barlow+Condensed:wght@400;600;700;800&display=swap");
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
 }
-
-/* ════════════════════════════════════════
-   VARIABLES DE ECOMMERCE
-   ════════════════════════════════════════ */
-:root {
-  --primary: #e8291c;
-  --primary-dark: #c2200f;
-  --primary-light: #ff4d3d;
-  --secondary: #f97316;
-  --accent: #4f46e5;
-  --success: #16a34a;
-  --warning: #f59e0b;
-  --danger: #dc2626;
-  --info: #3b82f6;
-  --font-head: "Barlow Condensed", sans-serif;
-  --font-body: "Inter", sans-serif;
-  --radius: 10px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08);
-  --shadow-hover:
-    0 20px 50px rgba(0, 0, 0, 0.15), 0 8px 20px rgba(0, 0, 0, 0.1);
-  --shadow-primary: 0 4px 20px rgba(232, 41, 28, 0.25);
-  --shadow-primary-lg: 0 8px 30px rgba(232, 41, 28, 0.35);
-  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-[data-theme="light"],
-:root {
-  --bg: #f5f5f5;
-  --bg2: #fafafa;
-  --bg3: #f0f0f0;
-  --surface: #ffffff;
-  --surface-hover: #fafafa;
-  --border: #e5e7eb;
-  --border2: #d1d5db;
-  --text: #1a1a1a;
-  --text2: #4b5563;
-  --text3: #9ca3af;
-  --text-muted: #6b7280;
-  --header-bg: #ffffff;
-  --nav-bg: #e8291c;
-  --nav-text: #ffffff;
-  --card-bg: #ffffff;
-  --hover-bg: #fff5f5;
-  --overlay: rgba(0, 0, 0, 0.5);
-  --toast-bg: #1f2937;
-  --toast-text: #ffffff;
-}
-
-[data-theme="dark"] {
-  --bg: #0f0f13;
-  --bg2: #16161d;
-  --bg3: #1e1e28;
-  --surface: #1c1c24;
-  --surface-hover: #252530;
-  --border: rgba(255, 255, 255, 0.08);
-  --border2: rgba(255, 255, 255, 0.12);
-  --text: #f0f0f5;
-  --text2: #a0a0b0;
-  --text3: #6b6b80;
-  --text-muted: #8888a0;
-  --header-bg: #18181f;
-  --nav-bg: #1f1f28;
-  --nav-text: #f0f0f5;
-  --card-bg: #1c1c24;
-  --hover-bg: rgba(244, 63, 94, 0.06);
-  --overlay: rgba(0, 0, 0, 0.7);
-  --toast-bg: #1f2937;
-  --toast-text: #ffffff;
-}
-
-html {
-  scroll-behavior: smooth;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-body {
-  font-family: var(--font-body);
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  overflow-x: hidden;
-  transition:
-    background var(--transition),
-    color var(--transition);
-}
-
-/* Scrollbar moderno */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
 }
 ::-webkit-scrollbar-track {
   background: transparent;
@@ -203,7 +96,6 @@ body {
   @apply bg-muted-foreground/30 rounded-full;
 }
 ::-webkit-scrollbar-thumb:hover {
-<<<<<<< HEAD
   @apply bg-muted-foreground/50;
 }
 
@@ -218,8 +110,6 @@ body {
 /* Custom Utilities */
 .text-gradient {
   @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-indigo-500;
-=======
-  background: var(--primary);
 }
 
 /* ════════════════════════════════════════
