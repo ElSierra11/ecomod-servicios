@@ -76,7 +76,6 @@ export default function AuthPage() {
     setTab(t);
     setErrors({});
     setForm({ email: "", password: "", nombre: "", apellido: "" });
-    setResetForm({ token: "", new_password: "", confirm: "" });
   };
 
   const handleLogin = async (e) => {
@@ -86,7 +85,7 @@ export default function AuthPage() {
     
     setIsLoading(true);
     try {
-      await login(form.email, form.password);
+      await login({ email: form.email, password: form.password });
       toast("success", "¡Bienvenido de vuelta!");
     } catch (err) {
       swalError("Error", err.message || "Credenciales incorrectas");

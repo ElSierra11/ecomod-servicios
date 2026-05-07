@@ -13,7 +13,7 @@ async function req(path, options = {}) {
   const headers = { "Content-Type": "application/json", ...options.headers };
   if (token) headers["Authorization"] = `Bearer ${token}`;
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 10000);
+  const timeout = setTimeout(() => controller.abort(), 60000);
   try {
     const res = await fetch(`${BASE}${path}`, { ...options, headers, signal: controller.signal });
     clearTimeout(timeout);
