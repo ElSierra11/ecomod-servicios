@@ -15,10 +15,12 @@ resource = Resource.create(attributes={
     SERVICE_NAME: "inventory-service"
 })
 provider = TracerProvider(resource=resource)
-# Omitir telemetría en producción
-# processor = BatchSpanProcessor(OTLPSpanExporter(endpoint="http://jaeger:4317", insecure=True))
-# provider.add_span_processor(processor)
-# trace.set_tracer_provider(provider)
+try:
+    processor = BatchSpanProcessor(OTLPSpanExporter(endpoint="http://jaeger:4317", insecure=True))
+    provider.add_span_processor(processor)
+    trace.set_tracer_provider(provider)
+except Exception as e:
+    print(f"Telemetría no disponible: {e}")
 
 try:
     from app.database import engine
