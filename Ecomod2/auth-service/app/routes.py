@@ -1,3 +1,4 @@
+# EcoMod - Versión Limpia para Despliegue
 from typing import List
 from fastapi import APIRouter, HTTPException, Depends, status, Body
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
