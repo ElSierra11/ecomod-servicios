@@ -3,7 +3,6 @@ export default {
   content: ["./index.html", "./src/**/*.{js,jsx}"],
   darkMode: "class",
   theme: {
-<<<<<<< HEAD
     container: {
       center: true,
       padding: "2rem",
@@ -46,19 +45,6 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-      },
-      borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
-      },
-      fontFamily: {
-        head: ["Outfit", "sans-serif"],
-        body: ["Inter", "sans-serif"],
-      },
-=======
-    extend: {
-      colors: {
         ecomod: {
           50: "#fef2f2",
           100: "#fee2e2",
@@ -72,8 +58,13 @@ export default {
           900: "#7f1d1d",
         },
       },
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
+      },
       fontFamily: {
-        head: ["Barlow Condensed", "sans-serif"],
+        head: ["Outfit", "sans-serif"],
         body: ["Inter", "sans-serif"],
       },
       animation: {
@@ -90,7 +81,6 @@ export default {
           "100%": { opacity: "1" },
         },
       },
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
     },
   },
   plugins: [],

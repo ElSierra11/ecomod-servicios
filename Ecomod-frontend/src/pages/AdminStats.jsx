@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+﻿import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../hooks/useTheme";
 import { authApi } from "../services/api";
@@ -13,7 +13,6 @@ import {
   Activity,
   Crown,
   Sparkles,
-<<<<<<< HEAD
 =======
   ArrowUpRight,
   ArrowDownRight,
@@ -30,10 +29,9 @@ export default function AdminStats() {
   const isDark = theme === "dark";
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
-<<<<<<< HEAD
   const [error, setError] = useState(null);
 
-  // ✅ useCallback para evitar re-renders infinitos
+  // âœ… useCallback para evitar re-renders infinitos
   const loadStats = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -42,38 +40,13 @@ export default function AdminStats() {
       setStats(data);
     } catch (err) {
       console.error("Error loading stats:", err);
-      setError(err.message || "No se pudieron cargar las estadísticas");
+      setError(err.message || "No se pudieron cargar las estadÃ­sticas");
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-=======
-  const [animatedValues, setAnimatedValues] = useState({});
-
-  useEffect(() => {
-    const loadStats = async () => {
-      try {
-        const data = await authApi.getUserStats();
-        setStats(data);
-        // Animar valores
-        setTimeout(() => {
-          setAnimatedValues({
-            total: data?.total || 0,
-            active: data?.active || 0,
-            inactive: data?.inactive || 0,
-            admins: data?.admins || 0,
-            clients: data?.clients || 0,
-          });
-        }, 300);
-      } catch (error) {
-        console.error("Error loading stats:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
     loadStats();
   }, [loadStats]);
 
@@ -81,7 +54,7 @@ export default function AdminStats() {
     return (
       <div className="as-loading">
         <div className="as-spinner" />
-        <span>Cargando estadísticas...</span>
+        <span>Cargando estadÃ­sticas...</span>
         <div className="as-loading-dots">
           <span />
           <span />
@@ -94,8 +67,8 @@ export default function AdminStats() {
   if (error) {
     return (
       <div className="as-error">
-        <span className="as-error-icon">⚠️</span>
-        <h3>No se pudieron cargar las estadísticas</h3>
+        <span className="as-error-icon">âš ï¸</span>
+        <h3>No se pudieron cargar las estadÃ­sticas</h3>
         <p>{error}</p>
         <button className="as-retry-btn" onClick={loadStats}>
           Reintentar
@@ -104,7 +77,7 @@ export default function AdminStats() {
     );
   }
 
-  // ✅ Datos 100% reales del backend — sin inventar nada
+  // âœ… Datos 100% reales del backend â€” sin inventar nada
   const total = stats?.total ?? 0;
   const active = stats?.active ?? 0;
   const inactive = stats?.inactive ?? 0;
@@ -115,67 +88,34 @@ export default function AdminStats() {
     {
       icon: Users,
       label: "Total usuarios",
-<<<<<<< HEAD
       value: total,
       color: "#e8291c",
       bg: "rgba(232,41,28,.1)",
-=======
-      value: animatedValues.total,
-      color: "#e8291c",
-      bg: "rgba(232,41,28,.1)",
-      trend: "+12%",
-      trendUp: true,
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
     },
     {
       icon: UserCheck,
       label: "Usuarios activos",
-<<<<<<< HEAD
       value: active,
       color: "#10b981",
       bg: "rgba(16,185,129,.1)",
-=======
-      value: animatedValues.active,
-      color: "#10b981",
-      bg: "rgba(16,185,129,.1)",
-      trend: "+8%",
-      trendUp: true,
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
     },
     {
       icon: UserX,
       label: "Usuarios inactivos",
-<<<<<<< HEAD
       value: inactive,
       color: "#f59e0b",
       bg: "rgba(245,158,11,.1)",
-=======
-      value: animatedValues.inactive,
-      color: "#f59e0b",
-      bg: "rgba(245,158,11,.1)",
-      trend: "-3%",
-      trendUp: false,
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
     },
     {
       icon: Shield,
       label: "Administradores",
-<<<<<<< HEAD
       value: admins,
       color: "#8b5cf6",
       bg: "rgba(139,92,246,.1)",
-=======
-      value: animatedValues.admins,
-      color: "#8b5cf6",
-      bg: "rgba(139,92,246,.1)",
-      trend: "+1",
-      trendUp: true,
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
     },
     {
       icon: UserIcon,
       label: "Clientes",
-<<<<<<< HEAD
       value: clients,
       color: "#3b82f6",
       bg: "rgba(59,130,246,.1)",
@@ -188,21 +128,6 @@ export default function AdminStats() {
   const clientPercent = (clients / safeTotal) * 100;
   const activePercent = (active / safeTotal) * 100;
   const inactivePercent = (inactive / safeTotal) * 100;
-=======
-      value: animatedValues.clients,
-      color: "#3b82f6",
-      bg: "rgba(59,130,246,.1)",
-      trend: "+15%",
-      trendUp: true,
-    },
-  ];
-
-  const total = stats?.total || 1;
-  const adminPercent = ((stats?.admins || 0) / total) * 100;
-  const clientPercent = ((stats?.clients || 0) / total) * 100;
-  const activePercent = ((stats?.active || 0) / total) * 100;
-  const inactivePercent = ((stats?.inactive || 0) / total) * 100;
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
 
   return (
     <div className={`as-root ${isDark ? "dark" : "light"}`}>
@@ -219,14 +144,10 @@ export default function AdminStats() {
               strokeWidth={2.5}
               style={{ color: "#e8291c" }}
             />
-            Estadísticas de Usuarios
+            EstadÃ­sticas de Usuarios
           </h1>
           <p className="as-sub">
-<<<<<<< HEAD
-            Visualiza la distribución real de tu base de usuarios
-=======
-            Visualiza el crecimiento y distribución de tu base de usuarios
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
+            Visualiza la distribuciÃ³n real de tu base de usuarios
           </p>
         </div>
         <div className="as-header-right">
@@ -252,8 +173,7 @@ export default function AdminStats() {
               >
                 <card.icon size={24} strokeWidth={2} />
               </div>
-<<<<<<< HEAD
-              {/* ✅ Porcentaje real respecto al total en lugar de trend inventado */}
+              {/* âœ… Porcentaje real respecto al total en lugar de trend inventado */}
               {card.label !== "Total usuarios" && (
                 <div
                   className="as-real-percent"
@@ -261,19 +181,9 @@ export default function AdminStats() {
                 >
                   {total > 0
                     ? `${((card.value / safeTotal) * 100).toFixed(1)}%`
-                    : "—"}
+                    : "â€”"}
                 </div>
               )}
-=======
-              <div className={`as-trend ${card.trendUp ? "up" : "down"}`}>
-                {card.trendUp ? (
-                  <ArrowUpRight size={14} strokeWidth={2.5} />
-                ) : (
-                  <ArrowDownRight size={14} strokeWidth={2.5} />
-                )}
-                <span>{card.trend}</span>
-              </div>
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
             </div>
             <div className="as-stat-body">
               <span className="as-stat-value" style={{ color: card.color }}>
@@ -285,11 +195,7 @@ export default function AdminStats() {
               <div
                 className="as-stat-bar-fill"
                 style={{
-<<<<<<< HEAD
                   width: `${Math.min((card.value / safeTotal) * 100, 100)}%`,
-=======
-                  width: `${Math.min((card.value / (stats?.total || 1)) * 100, 100)}%`,
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
                   background: `linear-gradient(90deg, ${card.color}, ${card.color}88)`,
                 }}
               />
@@ -311,14 +217,8 @@ export default function AdminStats() {
               strokeWidth={2.5}
               style={{ color: "#e8291c" }}
             />
-            <h3>Distribución de usuarios</h3>
-<<<<<<< HEAD
+            <h3>DistribuciÃ³n de usuarios</h3>
             <span className="as-chart-sub">{formatNumber(total)} total</span>
-=======
-            <span className="as-chart-sub">
-              {formatNumber(stats?.total || 0)} total
-            </span>
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
           </div>
 
           <div className="as-chart-content">
@@ -344,10 +244,6 @@ export default function AdminStats() {
                   strokeDasharray={`${adminPercent * 3.14} ${314 - adminPercent * 3.14}`}
                   strokeDashoffset={78.5}
                   transform="rotate(-90 60 60)"
-<<<<<<< HEAD
-=======
-                  className="as-circle-admin"
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
                 />
                 <circle
                   cx="60"
@@ -360,20 +256,10 @@ export default function AdminStats() {
                   strokeDasharray={`${clientPercent * 3.14} ${314 - clientPercent * 3.14}`}
                   strokeDashoffset={78.5 - adminPercent * 3.14}
                   transform="rotate(-90 60 60)"
-<<<<<<< HEAD
                 />
               </svg>
               <div className="as-circular-center">
                 <span className="as-circular-value">{formatNumber(total)}</span>
-=======
-                  className="as-circle-client"
-                />
-              </svg>
-              <div className="as-circular-center">
-                <span className="as-circular-value">
-                  {formatNumber(stats?.total || 0)}
-                </span>
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
                 <span className="as-circular-label">Total</span>
               </div>
             </div>
@@ -388,11 +274,7 @@ export default function AdminStats() {
                 <div className="as-legend-info">
                   <span className="as-legend-label">Administradores</span>
                   <span className="as-legend-value">
-<<<<<<< HEAD
                     {formatNumber(admins)}
-=======
-                    {formatNumber(stats?.admins || 0)}
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
                   </span>
                 </div>
                 <div className="as-legend-percent">
@@ -407,11 +289,7 @@ export default function AdminStats() {
                 <div className="as-legend-info">
                   <span className="as-legend-label">Clientes</span>
                   <span className="as-legend-value">
-<<<<<<< HEAD
                     {formatNumber(clients)}
-=======
-                    {formatNumber(stats?.clients || 0)}
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
                   </span>
                 </div>
                 <div className="as-legend-percent">
@@ -443,11 +321,7 @@ export default function AdminStats() {
                   Usuarios activos
                 </span>
                 <span className="as-bar-value" style={{ color: "#10b981" }}>
-<<<<<<< HEAD
                   {formatNumber(active)}
-=======
-                  {formatNumber(stats?.active || 0)}
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
                 </span>
               </div>
               <div className="as-bar-track">
@@ -472,11 +346,7 @@ export default function AdminStats() {
                   Usuarios inactivos
                 </span>
                 <span className="as-bar-value" style={{ color: "#f59e0b" }}>
-<<<<<<< HEAD
                   {formatNumber(inactive)}
-=======
-                  {formatNumber(stats?.inactive || 0)}
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
                 </span>
               </div>
               <div className="as-bar-track">
@@ -510,15 +380,7 @@ export default function AdminStats() {
                     className="as-summary-value"
                     style={{ color: "#10b981" }}
                   >
-<<<<<<< HEAD
                     {activePercent.toFixed(1)}%
-=======
-                    {(
-                      ((stats?.active || 0) / (stats?.total || 1)) *
-                      100
-                    ).toFixed(1)}
-                    %
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
                   </span>
                   <span className="as-summary-label">Tasa de actividad</span>
                 </div>
@@ -539,13 +401,9 @@ export default function AdminStats() {
                     className="as-summary-value"
                     style={{ color: "#f59e0b" }}
                   >
-<<<<<<< HEAD
                     {formatNumber(inactive)}
-=======
-                    {formatNumber(stats?.inactive || 0)}
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
                   </span>
-                  <span className="as-summary-label">Requieren atención</span>
+                  <span className="as-summary-label">Requieren atenciÃ³n</span>
                 </div>
               </div>
             </div>
@@ -563,7 +421,6 @@ export default function AdminStats() {
           margin: 0 auto;
         }
         .as-root.dark {
-<<<<<<< HEAD
           --card: #1c1c24; --border: rgba(255,255,255,.08);
           --text: #f0f0f5; --text2: #a0a0b0; --text3: #6b6b80;
           --bg: #0f0f13; --bg2: #16161e;
@@ -572,51 +429,23 @@ export default function AdminStats() {
           --card: #ffffff; --border: #e5e7eb;
           --text: #1a1a1a; --text2: #4b5563; --text3: #9ca3af;
           --bg: #f5f5f5; --bg2: #fafafa;
-=======
-          --card: #1c1c24;
-          --border: rgba(255,255,255,.08);
-          --text: #f0f0f5;
-          --text2: #a0a0b0;
-          --text3: #6b6b80;
-          --bg: #0f0f13;
-          --bg2: #16161e;
-        }
-        .as-root.light {
-          --card: #ffffff;
-          --border: #e5e7eb;
-          --text: #1a1a1a;
-          --text2: #4b5563;
-          --text3: #9ca3af;
-          --bg: #f5f5f5;
-          --bg2: #fafafa;
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
         }
 
         /* Loading */
         .as-loading {
           display: flex; flex-direction: column; align-items: center;
           justify-content: center; min-height: 50vh; gap: 16px;
-<<<<<<< HEAD
           color: #9ca3af;
-=======
-          color: var(--text3);
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
         }
         .as-spinner {
           width: 44px; height: 44px;
           border: 3px solid rgba(232,41,28,.12);
-<<<<<<< HEAD
           border-top-color: #e8291c; border-radius: 50%;
-=======
-          border-top-color: #e8291c;
-          border-radius: 50%;
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
           animation: asSpin .8s linear infinite;
         }
         @keyframes asSpin { to { transform: rotate(360deg); } }
         .as-loading-dots { display: flex; gap: 6px; margin-top: 4px; }
         .as-loading-dots span {
-<<<<<<< HEAD
           width: 6px; height: 6px; background: #e8291c;
           border-radius: 50%; animation: asBounce 1.4s ease-in-out infinite both;
         }
@@ -641,15 +470,6 @@ export default function AdminStats() {
           transition: all .25s;
         }
         .as-retry-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(232,41,28,.3); }
-=======
-          width: 6px; height: 6px;
-          background: #e8291c; border-radius: 50%;
-          animation: asBounce 1.4s ease-in-out infinite both;
-        }
-        .as-loading-dots span:nth-child(1) { animation-delay: -.32s; }
-        .as-loading-dots span:nth-child(2) { animation-delay: -.16s; }
-        @keyframes asBounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
 
         /* Header */
         .as-header {
@@ -659,7 +479,6 @@ export default function AdminStats() {
         .as-header-left { flex: 1; }
         .as-badge {
           display: inline-flex; align-items: center; gap: 8px;
-<<<<<<< HEAD
           padding: 5px 14px; background: rgba(232,41,28,.08);
           border: 1.5px solid rgba(232,41,28,.15); border-radius: 20px;
           font-size: 10px; font-weight: 800; letter-spacing: .12em;
@@ -697,70 +516,6 @@ export default function AdminStats() {
         @keyframes asFadeUp { to{opacity:1;transform:translateY(0)} from{opacity:0;transform:translateY(16px)} }
         .as-stat-card:hover {
           transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,.1);
-=======
-          padding: 5px 14px;
-          background: rgba(232,41,28,.08);
-          border: 1.5px solid rgba(232,41,28,.15);
-          border-radius: 20px;
-          font-size: 10px; font-weight: 800;
-          letter-spacing: .12em; color: #e8291c;
-          margin-bottom: 12px; text-transform: uppercase;
-        }
-        .as-title {
-          font-family: 'Barlow Condensed', sans-serif;
-          font-size: 32px; font-weight: 800;
-          color: var(--text); margin: 0 0 8px;
-          display: flex; align-items: center; gap: 12px;
-          letter-spacing: -.02em;
-        }
-        .as-sub {
-          font-size: 15px; color: var(--text3);
-          margin: 0; font-weight: 500;
-        }
-        .as-header-right { display: flex; align-items: center; }
-
-        .as-live-indicator {
-          display: flex; align-items: center; gap: 8px;
-          padding: 8px 16px;
-          background: rgba(16,185,129,.08);
-          border: 1.5px solid rgba(16,185,129,.2);
-          border-radius: 20px;
-          font-size: 13px; font-weight: 700;
-          color: #10b981;
-        }
-        .as-live-indicator::before {
-          content: '';
-          width: 8px; height: 8px;
-          background: #10b981;
-          border-radius: 50%;
-          animation: livePulse 2s ease-in-out infinite;
-        }
-        @keyframes livePulse {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: .5; transform: scale(.8); }
-        }
-
-        /* Stats Grid */
-        .as-stats-grid {
-          display: grid;
-          grid-template-columns: repeat(5, 1fr);
-          gap: 16px;
-          margin-bottom: 32px;
-        }
-        .as-stat-card {
-          background: var(--card);
-          border: 1.5px solid var(--border);
-          border-radius: 18px;
-          padding: 20px;
-          animation: asFadeUp .5s ease forwards;
-          opacity: 0;
-          transition: all .25s;
-        }
-        @keyframes asFadeUp { to { opacity: 1; transform: translateY(0); } from { opacity: 0; transform: translateY(16px); } }
-        .as-stat-card:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 12px 32px rgba(0,0,0,.1);
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
           border-color: rgba(232,41,28,.2);
         }
         .as-stat-top {
@@ -768,11 +523,10 @@ export default function AdminStats() {
           margin-bottom: 16px;
         }
         .as-stat-icon {
-<<<<<<< HEAD
           width: 48px; height: 48px; border-radius: 14px;
           display: flex; align-items: center; justify-content: center;
         }
-        /* ✅ Badge de porcentaje real (reemplaza el trend inventado) */
+        /* âœ… Badge de porcentaje real (reemplaza el trend inventado) */
         .as-real-percent {
           padding: 4px 10px; border-radius: 20px;
           font-size: 12px; font-weight: 800;
@@ -791,73 +545,6 @@ export default function AdminStats() {
         }
         .as-stat-bar-fill {
           height: 100%; border-radius: 2px; transition: width 1s ease;
-=======
-          width: 48px; height: 48px;
-          border-radius: 14px;
-          display: flex; align-items: center; justify-content: center;
-        }
-        .as-trend {
-          display: flex; align-items: center; gap: 4px;
-          padding: 4px 10px;
-          border-radius: 20px;
-          font-size: 12px; font-weight: 800;
-        }
-        .as-trend.up {
-          background: rgba(16,185,129,.1);
-          color: #10b981;
-        }
-        .as-trend.down {
-          background: rgba(220,38,38,.1);
-          color: #dc2626;
-        }
-        .as-stat-body { margin-bottom: 14px; }
-        .as-stat-value {
-          display: block;
-          font-family: 'Barlow Condensed', sans-serif;
-          font-size: 32px; font-weight: 800;
-          letter-spacing: -.01em;
-          line-height: 1;
-        }
-        .as-stat-label {
-          display: block;
-          font-size: 13px;
-          color: var(--text3);
-          margin-top: 6px;
-          font-weight: 600;
-        }
-        .as-stat-bar {
-          height: 4px;
-          background: var(--bg);
-          border-radius: 2px;
-          overflow: hidden;
-        }
-        .as-stat-bar-fill {
-          height: 100%;
-          border-radius: 2px;
-          transition: width 1s ease;
-        }
-
-        /* Charts Section */
-        .as-charts-section {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 24px;
-        }
-        .as-chart-card {
-          background: var(--card);
-          border: 1.5px solid var(--border);
-          border-radius: 20px;
-          padding: 28px;
-          transition: all .25s;
-        }
-        .as-chart-card:hover {
-          box-shadow: 0 8px 24px rgba(0,0,0,.08);
-          border-color: rgba(232,41,28,.15);
-        }
-        .as-chart-header {
-          display: flex; align-items: center; gap: 10px;
-          margin-bottom: 28px;
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
         }
         .as-chart-header h3 {
           font-size: 18px; font-weight: 800;
@@ -873,7 +560,6 @@ export default function AdminStats() {
           color: var(--text3);
         }
 
-<<<<<<< HEAD
         /* Charts Section */
         .as-charts-section {
           display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
@@ -971,170 +657,6 @@ export default function AdminStats() {
         .as-summary-label {
           display: block; font-size: 12px; color: var(--text3);
           font-weight: 500; margin-top: 2px;
-=======
-        /* Circular Chart */
-        .as-chart-content {
-          display: flex;
-          align-items: center;
-          gap: 32px;
-        }
-        .as-circular-chart {
-          position: relative;
-          width: 140px; height: 140px;
-          flex-shrink: 0;
-        }
-        .as-circular-svg {
-          width: 100%; height: 100%;
-          transform: rotate(-90deg);
-        }
-        .as-circle-admin, .as-circle-client {
-          transition: stroke-dasharray 1s ease;
-        }
-        .as-circular-center {
-          position: absolute;
-          inset: 0;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-        }
-        .as-circular-value {
-          font-family: 'Barlow Condensed', sans-serif;
-          font-size: 28px; font-weight: 800;
-          color: var(--text);
-          line-height: 1;
-        }
-        .as-circular-label {
-          font-size: 11px;
-          color: var(--text3);
-          font-weight: 600;
-          text-transform: uppercase;
-          letter-spacing: .05em;
-        }
-
-        /* Legend */
-        .as-chart-legend {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-        }
-        .as-legend-item {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 12px;
-          background: var(--bg2);
-          border-radius: 12px;
-          transition: all .2s;
-        }
-        .as-legend-item:hover {
-          transform: translateX(4px);
-        }
-        .as-legend-dot {
-          width: 12px; height: 12px;
-          border-radius: 50%;
-          flex-shrink: 0;
-        }
-        .as-legend-info {
-          flex: 1;
-        }
-        .as-legend-label {
-          display: block;
-          font-size: 13px;
-          color: var(--text2);
-          font-weight: 600;
-        }
-        .as-legend-value {
-          display: block;
-          font-size: 18px;
-          font-weight: 800;
-          color: var(--text);
-          font-family: 'Barlow Condensed', sans-serif;
-          margin-top: 2px;
-        }
-        .as-legend-percent {
-          font-size: 14px;
-          font-weight: 800;
-          color: var(--text3);
-          font-family: 'Barlow Condensed', sans-serif;
-        }
-
-        /* Bars Chart */
-        .as-bars-chart {
-          display: flex;
-          flex-direction: column;
-          gap: 24px;
-        }
-        .as-bar-item {}
-        .as-bar-header {
-          display: flex; justify-content: space-between; align-items: center;
-          margin-bottom: 10px;
-        }
-        .as-bar-label {
-          display: flex; align-items: center; gap: 8px;
-          font-size: 14px; font-weight: 700;
-          color: var(--text2);
-        }
-        .as-bar-value {
-          font-family: 'Barlow Condensed', sans-serif;
-          font-size: 20px; font-weight: 800;
-        }
-        .as-bar-track {
-          height: 12px;
-          background: var(--bg);
-          border-radius: 6px;
-          overflow: hidden;
-        }
-        .as-bar-fill {
-          height: 100%;
-          border-radius: 6px;
-          transition: width 1s ease;
-        }
-        .as-bar-percent {
-          display: block;
-          text-align: right;
-          font-size: 12px;
-          color: var(--text3);
-          font-weight: 700;
-          margin-top: 6px;
-        }
-
-        /* Activity Summary */
-        .as-activity-summary {
-          display: flex;
-          align-items: center;
-          gap: 20px;
-          margin-top: 8px;
-          padding-top: 20px;
-          border-top: 1.5px solid var(--border);
-        }
-        .as-summary-item {
-          display: flex; align-items: center; gap: 12px;
-          flex: 1;
-        }
-        .as-summary-icon {
-          width: 40px; height: 40px;
-          border-radius: 10px;
-          display: flex; align-items: center; justify-content: center;
-        }
-        .as-summary-value {
-          display: block;
-          font-family: 'Barlow Condensed', sans-serif;
-          font-size: 22px; font-weight: 800;
-          line-height: 1;
-        }
-        .as-summary-label {
-          display: block;
-          font-size: 12px;
-          color: var(--text3);
-          font-weight: 500;
-          margin-top: 2px;
-        }
-        .as-summary-divider {
-          width: 1px; height: 40px;
-          background: var(--border);
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
         }
         .as-summary-divider { width: 1px; height: 40px; background: var(--border); }
 

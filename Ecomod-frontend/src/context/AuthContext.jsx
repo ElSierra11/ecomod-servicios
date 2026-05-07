@@ -1,4 +1,4 @@
-import {
+﻿import {
   createContext,
   useContext,
   useState,
@@ -84,7 +84,6 @@ export function AuthProvider({ children }) {
   }, []);
 
   const clearNotifications = useCallback(() => setNotifications([]), []);
-<<<<<<< HEAD
 
   const handleCartMerge = useCallback(async (userId) => {
     const anonToken = localStorage.getItem("ecomod_anon_token");
@@ -96,87 +95,11 @@ export function AuthProvider({ children }) {
         anonymous_token: anonToken
       });
       localStorage.removeItem("ecomod_anon_token");
-      console.log("Carrito anónimo fusionado correctamente");
+      console.log("Carrito anÃ³nimo fusionado correctamente");
     } catch (error) {
       console.error("Error fusionando carrito:", error);
     }
   }, []);
-=======
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
-
-  const fetchProfile = useCallback(async () => {
-    try {
-      const profile = await authApi.profile();
-      setUser(profile);
-      setPermissions(profile.permissions || []);
-      return profile;
-    } catch (error) {
-      console.error("Error fetching profile:", error);
-      throw error;
-    }
-  }, []);
-
-  const refreshToken = useCallback(async () => {
-    const token = localStorage.getItem("ecomod_token");
-    const refreshTokenStored = localStorage.getItem("ecomod_refresh_token");
-    if (!token || !refreshTokenStored || isRefreshing) return null;
-    setIsRefreshing(true);
-    try {
-      const response = await authApi.refreshToken(refreshTokenStored);
-      if (response.access_token) {
-        localStorage.setItem("ecomod_token", response.access_token);
-        if (response.refresh_token)
-          localStorage.setItem("ecomod_refresh_token", response.refresh_token);
-        const decoded = decodeToken(response.access_token);
-        setSessionExpiresAt(decoded?.exp || null);
-        addNotification({
-          type: AUTH_EVENTS.TOKEN_REFRESHED,
-          message: "Sesión actualizada correctamente",
-          severity: "success",
-        });
-        return response.access_token;
-      }
-    } catch (error) {
-      console.error("Error refreshing token:", error);
-      logout(true);
-      return null;
-    } finally {
-      setIsRefreshing(false);
-    }
-  }, [isRefreshing]);
-
-  useEffect(() => {
-    if (!user || !sessionExpiresAt) return;
-    const timeUntilExpiry = sessionExpiresAt - Date.now();
-    const refreshDelay = Math.max(timeUntilExpiry - 60 * 1000, 0);
-    const timeoutId = setTimeout(() => {
-      refreshToken();
-    }, refreshDelay);
-    return () => clearTimeout(timeoutId);
-  }, [user, sessionExpiresAt, refreshToken]);
-
-  // Login normal (email + password)
-  const login = useCallback(
-    async (email, password, rememberMe = false) => {
-      setError(null);
-      setLoading(true);
-      try {
-        const data = await authApi.login({ email, password });
-        localStorage.setItem("ecomod_token", data.access_token);
-        if (data.refresh_token)
-          localStorage.setItem("ecomod_refresh_token", data.refresh_token);
-        if (rememberMe) localStorage.setItem("ecomod_remember_me", "true");
-        const decoded = decodeToken(data.access_token);
-        setSessionExpiresAt(decoded?.exp || null);
-        setUser(data.user);
-        setPermissions(data.user?.permissions || []);
-<<<<<<< HEAD
-        
-        // Fusión de carrito
-        await handleCartMerge(data.user.id);
-
-=======
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
         addNotification({
           type: AUTH_EVENTS.LOGIN_SUCCESS,
           message: `Bienvenido, ${data.user?.nombre || data.user?.email || "Usuario"}!`,
@@ -187,7 +110,7 @@ export function AuthProvider({ children }) {
         setError(err.message);
         addNotification({
           type: AUTH_EVENTS.LOGIN_ERROR,
-          message: err.message || "Error al iniciar sesión",
+          message: err.message || "Error al iniciar sesiÃ³n",
           severity: "error",
         });
         throw err;
@@ -198,11 +121,7 @@ export function AuthProvider({ children }) {
     [addNotification],
   );
 
-<<<<<<< HEAD
-  // NUEVO: Login con Google — recibe la respuesta del backend y guarda tokens
-=======
-  // ✅ NUEVO: Login con Google — recibe la respuesta del backend y guarda tokens
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
+  // NUEVO: Login con Google â€” recibe la respuesta del backend y guarda tokens
   const loginWithToken = useCallback(
     (data) => {
       localStorage.setItem("ecomod_token", data.access_token);
@@ -212,13 +131,10 @@ export function AuthProvider({ children }) {
       setSessionExpiresAt(decoded?.exp || null);
       setUser(data.user);
       setPermissions(data.user?.permissions || []);
-<<<<<<< HEAD
 
-      // Fusión de carrito
+      // FusiÃ³n de carrito
       handleCartMerge(data.user.id);
 
-=======
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
       addNotification({
         type: AUTH_EVENTS.LOGIN_SUCCESS,
         message: `Bienvenido, ${data.user?.nombre || data.user?.email || "Usuario"}!`,
@@ -245,14 +161,14 @@ export function AuthProvider({ children }) {
         if (!sessionExpired) {
           addNotification({
             type: AUTH_EVENTS.LOGOUT,
-            message: "Sesión cerrada correctamente",
+            message: "SesiÃ³n cerrada correctamente",
             severity: "info",
           });
         } else {
           addNotification({
             type: AUTH_EVENTS.SESSION_EXPIRED,
             message:
-              "Tu sesión ha expirado. Por favor, inicia sesión nuevamente.",
+              "Tu sesiÃ³n ha expirado. Por favor, inicia sesiÃ³n nuevamente.",
             severity: "warning",
           });
         }
@@ -295,14 +211,14 @@ export function AuthProvider({ children }) {
         await authApi.changePassword({ currentPassword, newPassword });
         addNotification({
           type: "PASSWORD_CHANGED",
-          message: "Contraseña actualizada correctamente",
+          message: "ContraseÃ±a actualizada correctamente",
           severity: "success",
         });
         return true;
       } catch (err) {
         addNotification({
           type: "PASSWORD_CHANGE_ERROR",
-          message: err.message || "Error al cambiar contraseña",
+          message: err.message || "Error al cambiar contraseÃ±a",
           severity: "error",
         });
         throw err;
@@ -372,7 +288,7 @@ export function AuthProvider({ children }) {
       isSessionExpiringSoon: isSessionExpiringSoon(),
       sessionExpiresAt,
       login,
-      loginWithToken, // ✅ expuesto para Google
+      loginWithToken, // âœ… expuesto para Google
       logout,
       updateProfile,
       changePassword,
