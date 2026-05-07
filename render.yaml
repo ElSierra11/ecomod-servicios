@@ -1,33 +1,21 @@
-# EcoMod Infrastructure Blueprint (V5 - Especificación Oficial Validada)
+# EcoMod Infrastructure Blueprint (V7 - Validado)
 
-# 1. BASES DE DATOS (Sección de primer nivel)
 databases:
   - name: ecomod-db
-    databaseName: ecomod
-    user: ecomod_user
-    plan: free
+    plan: free # El único que puede ser free
 
-# 2. SERVICIOS (Microservicios, Redis y RabbitMQ)
 services:
-  # Redis (Instancia de Key Value)
   - type: keyvalue
     name: ecomod-redis
     plan: free
 
-  # RabbitMQ (Private Service)
   - type: pserv
     name: rabbitmq
     env: docker
     dockerContext: .
     dockerfilePath: ./Ecomod2/rabbitmq.Dockerfile
-    plan: starter
-    ports:
-      - port: 5672
-        protocol: TCP
-      - port: 15672
-        protocol: TCP
+    plan: starter # Los pserv REQUIEREN plan starter o superior
 
-  # Auth Service
   - type: pserv
     name: auth-service
     env: docker
@@ -41,7 +29,6 @@ services:
       - key: RABBITMQ_URL
         value: amqp://guest:guest@rabbitmq:5672
 
-  # Catalog Service
   - type: pserv
     name: catalog-service
     env: docker
@@ -53,7 +40,6 @@ services:
           name: ecomod-db
           property: connectionString
 
-  # Inventory Service
   - type: pserv
     name: inventory-service
     env: docker
@@ -67,7 +53,6 @@ services:
       - key: RABBITMQ_URL
         value: amqp://guest:guest@rabbitmq:5672
 
-  # Cart Service
   - type: pserv
     name: cart-service
     env: docker
@@ -84,7 +69,6 @@ services:
           name: ecomod-redis
           property: connectionString
 
-  # Order Service
   - type: pserv
     name: order-service
     env: docker
@@ -98,7 +82,6 @@ services:
       - key: RABBITMQ_URL
         value: amqp://guest:guest@rabbitmq:5672
 
-  # Payment Service
   - type: pserv
     name: payment-service
     env: docker
@@ -112,7 +95,6 @@ services:
       - key: RABBITMQ_URL
         value: amqp://guest:guest@rabbitmq:5672
 
-  # Shipping Service
   - type: pserv
     name: shipping-service
     env: docker
@@ -126,7 +108,6 @@ services:
       - key: RABBITMQ_URL
         value: amqp://guest:guest@rabbitmq:5672
 
-  # Notification Service
   - type: pserv
     name: notification-service
     env: docker
@@ -140,7 +121,6 @@ services:
       - key: RABBITMQ_URL
         value: amqp://guest:guest@rabbitmq:5672
 
-  # API GATEWAY (Público)
   - type: web
     name: ecomod-gateway
     env: docker
