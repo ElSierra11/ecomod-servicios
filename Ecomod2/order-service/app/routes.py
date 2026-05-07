@@ -5,7 +5,6 @@ from typing import List
 
 from app.database import SessionLocal
 from app import models, schemas
-from app.saga import release_order_stock
 from app.event_bus import publish_event
 from app.notifier import notify_order_cancelled
 
@@ -50,6 +49,13 @@ async def create_order(body: schemas.OrderCreate, db: Session = Depends(get_db))
             quantity=item.quantity, subtotal=round(item.unit_price * item.quantity, 2)
         ))
 
+    # Historial inicial
+    db.add(models.OrderStatusHistory(
+        order_id=order.id,
+        status=models.OrderStatus.pending,
+        comment="Orden creada — Esperando validación de inventario"
+    ))
+
     db.commit()
     db.refresh(order)
 
@@ -90,11 +96,28 @@ async def update_order_status(order_id: int, update: schemas.OrderStatusUpdate, 
     order = db.query(models.Order).filter(models.Order.id == order_id).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
-    if update.status == "cancelled" and order.status == "confirmed":
-        await release_order_stock(order.items)
+        
+    old_status = order.status
     order.status = update.status
+    
+    # Historial de cambio
+    db.add(models.OrderStatusHistory(
+        order_id=order.id,
+        status=update.status,
+        comment=f"Estado actualizado de {old_status} a {update.status}"
+    ))
+
     db.commit()
     db.refresh(order)
+    
+    if update.status == "cancelled" and old_status != "cancelled":
+        # Publicar evento para liberar inventario y notificar a otros servicios
+        await publish_event("order.cancelled", {
+            "order_id": order.id,
+            "user_id": order.user_id,
+            "items": [{"product_id": item.product_id, "quantity": item.quantity} for item in order.items]
+        })
+        
     return order
 
 @router.get("/", response_model=List[schemas.OrderResponse])

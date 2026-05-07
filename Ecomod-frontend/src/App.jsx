@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect, createContext, useContext, useCallback } from "react";
+import { CheckCircle, XCircle, AlertTriangle, Info, X, ShieldOff } from "lucide-react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import AuthPage from "./pages/AuthPage";
@@ -16,16 +17,112 @@ import AppLayout from "./components/AppLayout";
 import PaypalReturn from "./pages/PaypalReturn";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import LogoIcon from "./components/LogoIcon";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
-//rutas que requieren rol admin
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
+
+/* ════════════════════════════════════════
+   TOAST CONTEXT - Notificaciones globales
+   ════════════════════════════════════════ */
+export const ToastContext = createContext(null);
+
+export function ToastProvider({ children }) {
+  const [toasts, setToasts] = useState([]);
+
+  const addToast = useCallback((type, title, message, duration = 3000) => {
+    const id = Date.now() + Math.random();
+    setToasts((prev) => [...prev, { id, type, title, message }]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, duration);
+  }, []);
+
+  const removeToast = useCallback((id) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  }, []);
+
+  return (
+    <ToastContext.Provider value={{ toasts, addToast, removeToast }}>
+      {children}
+      {/* Toast Container */}
+      <div className="toast-container">
+        {toasts.map((toast) => (
+          <div key={toast.id} className={`toast toast-${toast.type}`}>
+            <div className="toast-icon">
+              {toast.type === "success" && <CheckCircle size={18} />}
+              {toast.type === "error" && <XCircle size={18} />}
+              {toast.type === "warning" && <AlertTriangle size={18} />}
+              {toast.type === "info" && <Info size={18} />}
+            </div>
+            <div className="toast-content">
+              <div className="toast-title">{toast.title}</div>
+              <div className="toast-message">{toast.message}</div>
+            </div>
+            <button
+              className="toast-close"
+              onClick={() => removeToast(toast.id)}
+            >
+              <X size={14} />
+            </button>
+          </div>
+        ))}
+      </div>
+    </ToastContext.Provider>
+  );
+}
+
+export const useToast = () => {
+  const ctx = useContext(ToastContext);
+  if (!ctx) throw new Error("useToast must be inside ToastProvider");
+  return ctx;
+};
+
+/* ════════════════════════════════════════
+   CART CONTEXT - Carrito global
+   ════════════════════════════════════════ */
+export const CartContext = createContext(null);
+
+export function CartProvider({ children }) {
+  const [cartCount, setCartCount] = useState(0);
+  const [cartItems, setCartItems] = useState([]);
+
+  const updateCartCount = useCallback((count) => setCartCount(count), []);
+  const updateCartItems = useCallback((items) => setCartItems(items), []);
+
+  return (
+    <CartContext.Provider
+      value={{ cartCount, cartItems, updateCartCount, updateCartItems }}
+    >
+      {children}
+    </CartContext.Provider>
+  );
+}
+
+export const useCart = () => {
+  const ctx = useContext(CartContext);
+  if (!ctx) throw new Error("useCart must be inside CartProvider");
+  return ctx;
+};
+
+/* ════════════════════════════════════════
+   ADMIN GUARD
+   ════════════════════════════════════════ */
 function AdminOnly({ user, children }) {
   if (user?.role !== "admin") {
     return (
-      <div className="page">
-        <div className="empty">
-          <div className="empty-icon">🔒</div>
-          <div className="empty-title">Acceso restringido</div>
-          <p style={{ color: "var(--text3)", fontSize: 14, marginTop: 8 }}>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center p-8">
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: "16px" }}>
+            <ShieldOff size={48} strokeWidth={1.5} style={{ color: "#e8291c" }} />
+          </div>
+          <h2
+            className="text-xl font-bold mb-2"
+            style={{ color: "var(--text)" }}
+          >
+            Acceso restringido
+          </h2>
+          <p style={{ color: "var(--text3)", fontSize: 14 }}>
             Esta sección requiere permisos de <strong>administrador</strong>.
           </p>
         </div>
@@ -35,60 +132,105 @@ function AdminOnly({ user, children }) {
   return children;
 }
 
-function AppContent() {
-  const { user, loading } = useAuth();
-  const [page, setPage] = useState("dashboard");
-
-  // Pantalla de carga
-  if (loading)
-    return (
-      <div
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "var(--bg)",
-        }}
-      >
-        <div style={{ textAlign: "center" }}>
+/* ════════════════════════════════════════
+   LOADING SCREEN CON NUEVO LOGO
+   ════════════════════════════════════════ */
+function LoadingScreen() {
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "var(--bg)",
+      }}
+    >
+      <div style={{ textAlign: "center" }}>
+        <div className="flex items-center justify-center gap-3 mb-4">
+          <LogoIcon size={48} />
           <div
             style={{
               fontFamily: "var(--font-head)",
-              fontSize: 32,
+              fontSize: 42,
               fontWeight: 800,
-              background: "linear-gradient(135deg, var(--accent), var(--cyan))",
+              background:
+                "linear-gradient(135deg, var(--primary), var(--secondary))",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
+              letterSpacing: "-1px",
             }}
           >
             EcoMod
           </div>
-          <div style={{ color: "var(--text3)", fontSize: 13, marginTop: 8 }}>
-            Cargando...
-          </div>
         </div>
+        <div style={{ color: "var(--text3)", fontSize: 13, marginTop: 12 }}>
+          Cargando tu experiencia de compra...
+        </div>
+        <div
+          style={{
+            width: 40,
+            height: 40,
+            border: "3px solid rgba(232,41,28,0.15)",
+            borderTopColor: "var(--primary)",
+            borderRadius: "50%",
+            margin: "20px auto 0",
+            animation: "spin 0.8s linear infinite",
+          }}
+        />
       </div>
-    );
+    </div>
+  );
+}
 
-  // principal — si no hay usuario, mostrar login
+/* ════════════════════════════════════════
+   APP CONTENT
+   ════════════════════════════════════════ */
+function AppContent() {
+  const { user, loading } = useAuth();
+  const [page, setPage] = useState(null);
+  const [checkoutOrderId, setCheckoutOrderId] = useState(null);
+
+  // Establecer página inicial según rol
+  useEffect(() => {
+    if (user && page === null) {
+      setPage(user.role === "admin" ? "admin-stats" : "dashboard");
+    }
+  }, [user, page]);
+
+  if (loading) {
+    return <LoadingScreen />;
+  }
+
   if (!user) return <AuthPage />;
+
+  // Mientras se determina la página inicial
+  if (page === null) return <LoadingScreen />;
 
   return (
     <AppLayout page={page} setPage={setPage}>
-      {page === "dashboard" && <Dashboard />}
+      {page === "dashboard" && <Dashboard setPage={setPage} />}
       {page === "catalog" && <CatalogPage />}
       {page === "inventory" && (
         <AdminOnly user={user}>
           <InventoryPage />
         </AdminOnly>
       )}
-      {page === "cart" && <CartPage />}
+      {page === "cart" && (
+        <CartPage
+          setPage={setPage}
+          onCheckout={(orderId) => setCheckoutOrderId(orderId)}
+        />
+      )}
       {page === "orders" && <OrdersPage />}
-      {page === "payments" && <PaymentsPage />}
+      {page === "payments" && (
+        <PaymentsPage
+          checkoutOrderId={checkoutOrderId}
+          onCheckoutHandled={() => setCheckoutOrderId(null)}
+        />
+      )}
       {page === "shipping" && <ShippingPage />}
       {page === "notifications" && <NotificationsPage />}
-      {/*PÁGINAS DE ADMIN */}
       {page === "admin-users" && (
         <AdminOnly user={user}>
           <AdminUsers />
@@ -103,19 +245,26 @@ function AppContent() {
   );
 }
 
+/* ════════════════════════════════════════
+   MAIN APP
+   ════════════════════════════════════════ */
 export default function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          {/* Ruta principal con el layout */}
-          <Route path="/*" element={<AppContent />} />
-          {/* Ruta independiente para retorno de PayPal (sin layout) */}
-          <Route path="/paypal-return" element={<PaypalReturn />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+      <AuthProvider>
+        <ToastProvider>
+          <CartProvider>
+            <BrowserRouter>
+              <Routes>
+                <Route path="/*" element={<AppContent />} />
+                <Route path="/paypal-return" element={<PaypalReturn />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+              </Routes>
+            </BrowserRouter>
+          </CartProvider>
+        </ToastProvider>
+      </AuthProvider>
+    </GoogleOAuthProvider>
   );
 }

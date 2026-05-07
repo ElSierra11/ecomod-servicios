@@ -7,12 +7,16 @@ import {
   CheckCircle,
   AlertCircle,
   Sparkles,
-  Shield,
   Zap,
+  Shield,
+  Lock,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 
 export default function ForgotPassword() {
   const { theme } = useTheme();
+  const isDark = theme === "dark";
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -28,102 +32,307 @@ export default function ForgotPassword() {
       await authApi.forgotPassword(email);
       setSuccess(true);
     } catch (err) {
-      setError(err.message || "Error al enviar el correo");
+      setError(err.message || "Error al enviar el correo de recuperación");
     } finally {
       setLoading(false);
     }
   };
 
+  // ── SUCCESS STATE ──
   if (success) {
     return (
-      <div className={`auth-modern ${theme === "dark" ? "dark" : "light"}`}>
-        <div className="auth-bg">
-          <div className="auth-grid"></div>
-          <div className="auth-gradient"></div>
+      <div className={`fp-root ${isDark ? "dark" : "light"}`}>
+        <div className="fp-bg">
+          <div className="fp-bg-orb orb1" />
+          <div className="fp-bg-orb orb2" />
+          <div className="fp-bg-grid" />
         </div>
-        <div className="min-h-screen flex items-center justify-center p-4">
-          <div className="glass-card text-center max-w-md w-full animate-fadeIn">
-            <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-              <CheckCircle size={40} className="text-emerald-400" />
+
+        <div className="fp-container">
+          <div className="fp-card success-card">
+            {/* Success Animation */}
+            <div className="fp-success-icon">
+              <div className="fp-success-ring ring1" />
+              <div className="fp-success-ring ring2" />
+              <div className="fp-success-ring ring3" />
+              <div className="fp-check-wrap">
+                <CheckCircle size={40} strokeWidth={2.5} color="#10b981" />
+              </div>
             </div>
-            <h2 className="text-2xl font-bold mb-3">¡Revisa tu correo!</h2>
-            <p className="text-white/60 mb-6">
+
+            <div className="fp-stamp">
+              <Shield size={12} strokeWidth={2.5} />
+              <span>CORREO ENVIADO</span>
+            </div>
+
+            <h2 className="fp-title">¡Revisa tu correo!</h2>
+            <p className="fp-sub">
               Hemos enviado un enlace de recuperación a{" "}
-              <strong className="text-emerald-400">{email}</strong>
+              <strong className="fp-highlight">{email}</strong>
             </p>
-            <a
-              href="/login"
-              className="inline-flex items-center gap-2 text-emerald-400 hover:underline"
-            >
-              <ArrowLeft size={16} />
+
+            <div className="fp-info-box">
+              <div className="fp-info-row">
+                <Mail size={14} strokeWidth={2} />
+                <span>El enlace expira en 24 horas</span>
+              </div>
+              <div className="fp-info-row">
+                <Lock size={14} strokeWidth={2} />
+                <span>Verifica tu bandeja de spam</span>
+              </div>
+            </div>
+
+            <a href="/login" className="fp-link-btn">
+              <ArrowLeft size={16} strokeWidth={2.5} />
               Volver al inicio de sesión
             </a>
           </div>
         </div>
+
+        <style>{`
+          .fp-root {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+          }
+          .fp-root.dark { background: linear-gradient(135deg, #0f0f13 0%, #1a1a24 50%, #0f0f13 100%); }
+          .fp-root.light { background: linear-gradient(135deg, #f5f5f5 0%, #fafafa 50%, #f5f5f5 100%); }
+
+          .fp-bg { position: fixed; inset: 0; pointer-events: none; }
+          .fp-bg-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.1;
+          }
+          .orb1 {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, #e8291c, transparent);
+            top: -100px; left: -100px;
+            animation: orbFloat 10s ease-in-out infinite alternate;
+          }
+          .orb2 {
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, #f97316, transparent);
+            bottom: -80px; right: -80px;
+            animation: orbFloat 12s ease-in-out infinite alternate-reverse;
+          }
+          @keyframes orbFloat {
+            from { transform: translate(0, 0); }
+            to   { transform: translate(30px, 30px); }
+          }
+          .fp-bg-grid {
+            position: absolute; inset: 0;
+            background-image:
+              linear-gradient(rgba(232,41,28,0.03) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(232,41,28,0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+          }
+
+          .fp-container {
+            position: relative;
+            z-index: 10;
+            padding: 20px;
+            width: 100%;
+            max-width: 440px;
+          }
+
+          .fp-card {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border: 1.5px solid rgba(232, 41, 28, 0.15);
+            border-radius: 24px;
+            padding: 48px 36px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: cardIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+          }
+          .fp-root.dark .fp-card {
+            background: rgba(28, 28, 36, 0.95);
+            border-color: rgba(232, 41, 28, 0.2);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+          }
+          @keyframes cardIn {
+            from { opacity: 0; transform: translateY(30px) scale(0.96); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+          }
+
+          .fp-success-icon {
+            position: relative;
+            width: 100px; height: 100px;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px;
+          }
+          .fp-success-ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 1.5px solid rgba(16, 185, 129, 0.3);
+            animation: ringPulse 2.5s ease-out infinite;
+          }
+          .ring1 { inset: 0; animation-delay: 0s; }
+          .ring2 { inset: -12px; animation-delay: 0.5s; }
+          .ring3 { inset: -24px; animation-delay: 1s; }
+          @keyframes ringPulse {
+            0%   { transform: scale(0.9); opacity: 0.6; }
+            100% { transform: scale(1.2); opacity: 0; }
+          }
+          .fp-check-wrap {
+            width: 64px; height: 64px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 2px solid rgba(16, 185, 129, 0.3);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            animation: checkIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both;
+          }
+          @keyframes checkIn {
+            from { transform: scale(0); opacity: 0; }
+            to   { transform: scale(1); opacity: 1; }
+          }
+
+          .fp-stamp {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 14px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1.5px solid rgba(16, 185, 129, 0.2);
+            border-radius: 40px;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.15em;
+            color: #10b981;
+            margin-bottom: 20px;
+            animation: stampIn 0.4s ease 0.6s both;
+          }
+          @keyframes stampIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to   { opacity: 1; transform: scale(1); }
+          }
+
+          .fp-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 32px;
+            font-weight: 800;
+            color: #1a1a1a;
+            margin: 0 0 12px;
+            letter-spacing: -0.02em;
+          }
+          .fp-root.dark .fp-title { color: #f0f0f5; }
+
+          .fp-sub {
+            font-size: 14px;
+            color: #6b7280;
+            line-height: 1.6;
+            margin: 0 0 24px;
+          }
+          .fp-root.dark .fp-sub { color: #a0a0b0; }
+
+          .fp-highlight {
+            color: #e8291c;
+            font-weight: 700;
+          }
+
+          .fp-info-box {
+            background: #f9fafb;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 24px;
+            text-align: left;
+          }
+          .fp-root.dark .fp-info-box {
+            background: rgba(255, 255, 255, 0.03);
+            border-color: rgba(255, 255, 255, 0.08);
+          }
+          .fp-info-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            color: #6b7280;
+            padding: 6px 0;
+          }
+          .fp-info-row:first-child { border-bottom: 1px solid #e5e7eb; padding-top: 0; }
+          .fp-info-row:last-child { padding-bottom: 0; }
+          .fp-root.dark .fp-info-row { color: #a0a0b0; }
+          .fp-root.dark .fp-info-row:first-child { border-color: rgba(255, 255, 255, 0.08); }
+
+          .fp-link-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #e8291c, #c2200f);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.25s;
+            box-shadow: 0 4px 16px rgba(232, 41, 28, 0.25);
+          }
+          .fp-link-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(232, 41, 28, 0.35);
+          }
+        `}</style>
       </div>
     );
   }
 
+  // ── MAIN FORM ──
   return (
-    <div className={`auth-modern ${theme === "dark" ? "dark" : "light"}`}>
-      {/* Fondo animado */}
-      <div className="auth-bg">
-        <div className="auth-grid"></div>
-        <div className="auth-gradient"></div>
-        <div className="auth-particles">
-          {[...Array(20)].map((_, i) => (
-            <div
-              key={i}
-              className="particle"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 5}s`,
-                animationDuration: `${3 + Math.random() * 4}s`,
-              }}
-            />
-          ))}
-        </div>
+    <div className={`fp-root ${isDark ? "dark" : "light"}`}>
+      <div className="fp-bg">
+        <div className="fp-bg-orb orb1" />
+        <div className="fp-bg-orb orb2" />
+        <div className="fp-bg-grid" />
       </div>
 
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="glass-card max-w-md w-full animate-slideUp">
+      <div className="fp-container">
+        <div className="fp-card">
           {/* Logo */}
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-emerald-500/10 rounded-2xl mb-4">
-              <Zap size={32} className="text-emerald-400" />
+          <div className="fp-logo">
+            <div className="fp-logo-icon">
+              <Zap size={24} strokeWidth={2.5} color="#fff" />
             </div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
-              EcoMod
-            </h1>
-            <p className="text-white/50 text-sm mt-1">
-              Recuperación de contraseña
+            <div>
+              <h1 className="fp-logo-text">EcoMod</h1>
+              <span className="fp-logo-sub">Recuperación de cuenta</span>
+            </div>
+          </div>
+
+          <div className="fp-header">
+            <h2 className="fp-form-title">¿Olvidaste tu contraseña?</h2>
+            <p className="fp-form-sub">
+              No te preocupes, te enviaremos un enlace seguro para restablecerla
             </p>
           </div>
 
-          <div className="text-center mb-6">
-            <h2 className="text-xl font-bold">¿Olvidaste tu contraseña?</h2>
-            <p className="text-white/50 text-sm mt-2">
-              Ingresa tu correo y te enviaremos un enlace para restablecerla
-            </p>
-          </div>
-
+          {/* Error */}
           {error && (
-            <div className="mb-4 p-3 bg-red-500/20 border border-red-500/50 rounded-xl text-red-400 text-sm flex items-center gap-2 animate-shake">
-              <AlertCircle size={16} />
-              {error}
+            <div className="fp-error">
+              <AlertCircle size={16} strokeWidth={2.5} />
+              <span>{error}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="input-group">
+          <form onSubmit={handleSubmit}>
+            <div className="fp-input-group">
+              <label className="fp-label">Correo electrónico</label>
               <div
-                className={`input-field ${focusedField === "email" ? "focused" : ""}`}
+                className={`fp-input-wrap ${focusedField === "email" ? "focused" : ""}`}
               >
-                <Mail size={18} />
+                <Mail size={16} strokeWidth={2} />
                 <input
                   type="email"
-                  placeholder="correo@ejemplo.com"
+                  placeholder="tucorreo@ejemplo.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   onFocus={() => setFocusedField("email")}
@@ -131,295 +340,306 @@ export default function ForgotPassword() {
                   required
                 />
               </div>
+              <span className="fp-hint">
+                Ingresa el correo asociado a tu cuenta
+              </span>
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="submit-btn w-full"
-            >
+            <button type="submit" disabled={loading} className="fp-submit-btn">
               {loading ? (
-                <div className="spinner"></div>
+                <span className="fp-spinner" />
               ) : (
                 <>
                   <span>Enviar enlace de recuperación</span>
-                  <Sparkles size={16} />
+                  <Sparkles size={16} strokeWidth={2} />
                 </>
               )}
             </button>
           </form>
 
-          <div className="mt-6 text-center">
-            <a
-              href="/login"
-              className="text-white/40 hover:text-white text-sm flex items-center justify-center gap-1 transition-colors"
-            >
-              <ArrowLeft size={14} />
+          <div className="fp-footer">
+            <a href="/login" className="fp-back-link">
+              <ArrowLeft size={14} strokeWidth={2.5} />
               Volver al inicio de sesión
             </a>
-          </div>
 
-          <div className="mt-8 pt-6 border-t border-white/10 text-center">
-            <p className="text-white/30 text-xs">
-              ¿Problemas para recibir el correo? Verifica tu bandeja de spam o
-              contacta a soporte.
-            </p>
+            <div className="fp-security">
+              <Shield size={12} strokeWidth={2} />
+              <span>Enlace seguro · Expira en 24h</span>
+            </div>
           </div>
         </div>
       </div>
 
-      <style jsx>{`
-        .auth-modern {
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Barlow+Condensed:wght@400;600;700;800&display=swap');
+
+        .fp-root {
           min-height: 100vh;
-          position: relative;
-          overflow: hidden;
-        }
-
-        .auth-modern.dark {
-          background: linear-gradient(135deg, #0a0a0f 0%, #0f0f1a 100%);
-        }
-
-        .auth-modern.light {
-          background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
-        }
-
-        .auth-bg {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          z-index: 0;
-        }
-
-        .auth-grid {
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background-image:
-            linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0, 255, 136, 0.03) 1px, transparent 1px);
-          background-size: 50px 50px;
-          animation: gridMove 20s linear infinite;
-        }
-
-        @keyframes gridMove {
-          0% {
-            transform: translate(0, 0);
-          }
-          100% {
-            transform: translate(50px, 50px);
-          }
-        }
-
-        .auth-gradient {
-          position: absolute;
-          top: -50%;
-          left: -50%;
-          width: 200%;
-          height: 200%;
-          background: radial-gradient(
-            circle at 50% 50%,
-            rgba(0, 255, 136, 0.08),
-            transparent 50%
-          );
-          animation: gradientRotate 30s ease infinite;
-        }
-
-        @keyframes gradientRotate {
-          0% {
-            transform: rotate(0deg);
-          }
-          100% {
-            transform: rotate(360deg);
-          }
-        }
-
-        .particle {
-          position: absolute;
-          width: 2px;
-          height: 2px;
-          background: rgba(0, 255, 136, 0.3);
-          border-radius: 50%;
-          animation: floatParticle linear infinite;
-        }
-
-        @keyframes floatParticle {
-          0% {
-            transform: translateY(0) translateX(0);
-            opacity: 0;
-          }
-          50% {
-            opacity: 0.5;
-          }
-          100% {
-            transform: translateY(-100px) translateX(20px);
-            opacity: 0;
-          }
-        }
-
-        .glass-card {
-          position: relative;
-          z-index: 1;
-          background: rgba(18, 18, 28, 0.8);
-          backdrop-filter: blur(20px);
-          border: 1px solid rgba(0, 255, 136, 0.15);
-          border-radius: 24px;
-          padding: 40px;
-          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        }
-
-        .auth-modern.light .glass-card {
-          background: rgba(255, 255, 255, 0.95);
-          border-color: rgba(0, 184, 148, 0.15);
-        }
-
-        .input-group {
-          margin-bottom: 20px;
-        }
-
-        .input-field {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 14px 18px;
-          background: rgba(0, 0, 0, 0.3);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 16px;
-          transition: all 0.3s;
-        }
-
-        .auth-modern.light .input-field {
-          background: #f8f9fa;
-          border-color: #e9ecef;
-        }
-
-        .input-field.focused {
-          border-color: #00ff88;
-          box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.1);
-        }
-
-        .auth-modern.light .input-field.focused {
-          border-color: #00b894;
-          box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.1);
-        }
-
-        .input-field svg {
-          color: rgba(255, 255, 255, 0.4);
-        }
-
-        .auth-modern.light .input-field svg {
-          color: #adb5bd;
-        }
-
-        .input-field input {
-          flex: 1;
-          background: transparent;
-          border: none;
-          outline: none;
-          font-size: 14px;
-          color: inherit;
-        }
-
-        .input-field input::placeholder {
-          color: rgba(255, 255, 255, 0.3);
-        }
-
-        .auth-modern.light .input-field input::placeholder {
-          color: #adb5bd;
-        }
-
-        .submit-btn {
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 8px;
-          padding: 14px 24px;
-          background: linear-gradient(135deg, #00ff88, #00d4ff);
-          border: none;
-          border-radius: 40px;
+          position: relative;
+          overflow: hidden;
+          font-family: 'Inter', sans-serif;
+        }
+        .fp-root.dark { background: linear-gradient(135deg, #0f0f13 0%, #1a1a24 50%, #0f0f13 100%); }
+        .fp-root.light { background: linear-gradient(135deg, #f5f5f5 0%, #fafafa 50%, #f5f5f5 100%); }
+
+        .fp-bg { position: fixed; inset: 0; pointer-events: none; }
+        .fp-bg-orb {
+          position: absolute;
+          border-radius: 50%;
+          filter: blur(100px);
+          opacity: 0.1;
+        }
+        .orb1 {
+          width: 500px; height: 500px;
+          background: radial-gradient(circle, #e8291c, transparent);
+          top: -100px; left: -100px;
+          animation: orbFloat 10s ease-in-out infinite alternate;
+        }
+        .orb2 {
+          width: 400px; height: 400px;
+          background: radial-gradient(circle, #f97316, transparent);
+          bottom: -80px; right: -80px;
+          animation: orbFloat 12s ease-in-out infinite alternate-reverse;
+        }
+        @keyframes orbFloat {
+          from { transform: translate(0, 0); }
+          to   { transform: translate(30px, 30px); }
+        }
+        .fp-bg-grid {
+          position: absolute; inset: 0;
+          background-image:
+            linear-gradient(rgba(232,41,28,0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(232,41,28,0.03) 1px, transparent 1px);
+          background-size: 50px 50px;
+        }
+
+        .fp-container {
+          position: relative;
+          z-index: 10;
+          padding: 20px;
+          width: 100%;
+          max-width: 440px;
+          animation: slideUp 0.5s ease both;
+        }
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(24px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .fp-card {
+          background: rgba(255, 255, 255, 0.98);
+          backdrop-filter: blur(20px);
+          border: 1.5px solid rgba(232, 41, 28, 0.12);
+          border-radius: 24px;
+          padding: 40px 36px;
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+        }
+        .fp-root.dark .fp-card {
+          background: rgba(28, 28, 36, 0.95);
+          border-color: rgba(232, 41, 28, 0.18);
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Logo */
+        .fp-logo {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 14px;
+          margin-bottom: 32px;
+        }
+        .fp-logo-icon {
+          width: 48px; height: 48px;
+          background: linear-gradient(135deg, #e8291c, #f97316);
+          border-radius: 14px;
+          display: flex; align-items: center; justify-content: center;
+          box-shadow: 0 4px 16px rgba(232, 41, 28, 0.3);
+        }
+        .fp-logo-text {
+          font-family: 'Barlow Condensed', sans-serif;
+          font-size: 28px;
+          font-weight: 800;
+          color: #1a1a1a;
+          line-height: 1;
+          letter-spacing: -0.02em;
+        }
+        .fp-root.dark .fp-logo-text { color: #f0f0f5; }
+        .fp-logo-sub {
+          font-size: 12px;
+          color: #9ca3af;
+          font-weight: 500;
+        }
+        .fp-root.dark .fp-logo-sub { color: #6b6b80; }
+
+        /* Header */
+        .fp-header { text-align: center; margin-bottom: 28px; }
+        .fp-form-title {
+          font-family: 'Barlow Condensed', sans-serif;
+          font-size: 26px;
+          font-weight: 800;
+          color: #1a1a1a;
+          margin: 0 0 8px;
+          letter-spacing: -0.01em;
+        }
+        .fp-root.dark .fp-form-title { color: #f0f0f5; }
+        .fp-form-sub {
           font-size: 14px;
+          color: #6b7280;
+          line-height: 1.5;
+          margin: 0;
+        }
+        .fp-root.dark .fp-form-sub { color: #a0a0b0; }
+
+        /* Error */
+        .fp-error {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 12px 16px;
+          background: rgba(220, 38, 38, 0.08);
+          border: 1.5px solid rgba(220, 38, 38, 0.2);
+          border-radius: 12px;
+          color: #dc2626;
+          font-size: 13px;
           font-weight: 600;
-          color: #000;
-          cursor: pointer;
-          transition: all 0.3s;
+          margin-bottom: 20px;
+          animation: shake 0.4s ease-in-out;
+        }
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-6px); }
+          75% { transform: translateX(6px); }
         }
 
-        .auth-modern.light .submit-btn {
-          background: linear-gradient(135deg, #00b894, #0984e3);
+        /* Input */
+        .fp-input-group { margin-bottom: 24px; }
+        .fp-label {
+          display: block;
+          font-size: 12px;
+          font-weight: 700;
+          color: #4b5563;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          margin-bottom: 8px;
+        }
+        .fp-root.dark .fp-label { color: #a0a0b0; }
+        .fp-input-wrap {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 14px 16px;
+          background: #f9fafb;
+          border: 1.5px solid #e5e7eb;
+          border-radius: 14px;
+          transition: all 0.2s;
+        }
+        .fp-root.dark .fp-input-wrap {
+          background: rgba(255, 255, 255, 0.03);
+          border-color: rgba(255, 255, 255, 0.08);
+        }
+        .fp-input-wrap.focused {
+          border-color: #e8291c;
+          box-shadow: 0 0 0 4px rgba(232, 41, 28, 0.1);
+          background: #fff;
+        }
+        .fp-root.dark .fp-input-wrap.focused {
+          background: rgba(255, 255, 255, 0.05);
+          box-shadow: 0 0 0 4px rgba(232, 41, 28, 0.15);
+        }
+        .fp-input-wrap svg { color: #9ca3af; flex-shrink: 0; }
+        .fp-input-wrap.focused svg { color: #e8291c; }
+        .fp-input-wrap input {
+          flex: 1;
+          background: none;
+          border: none;
+          outline: none;
+          font-family: 'Inter', sans-serif;
+          font-size: 15px;
+          color: #1a1a1a;
+        }
+        .fp-root.dark .fp-input-wrap input { color: #f0f0f5; }
+        .fp-input-wrap input::placeholder { color: #9ca3af; }
+        .fp-hint {
+          display: block;
+          font-size: 12px;
+          color: #9ca3af;
+          margin-top: 8px;
+          font-weight: 500;
+        }
+
+        /* Submit */
+        .fp-submit-btn {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          padding: 14px;
+          background: linear-gradient(135deg, #e8291c, #c2200f);
+          border: none;
+          border-radius: 14px;
           color: #fff;
+          font-family: 'Inter', sans-serif;
+          font-size: 15px;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all 0.25s;
+          box-shadow: 0 4px 16px rgba(232, 41, 28, 0.25);
+          margin-top: 8px;
         }
-
-        .submit-btn:hover:not(:disabled) {
+        .fp-submit-btn:hover:not(:disabled) {
           transform: translateY(-2px);
-          box-shadow: 0 8px 25px rgba(0, 255, 136, 0.3);
+          box-shadow: 0 8px 24px rgba(232, 41, 28, 0.35);
         }
-
-        .submit-btn:disabled {
-          opacity: 0.7;
-          cursor: not-allowed;
-        }
-
-        .spinner {
-          width: 18px;
-          height: 18px;
-          border: 2px solid rgba(0, 0, 0, 0.3);
-          border-top-color: #000;
+        .fp-submit-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+        .fp-spinner {
+          width: 20px; height: 20px;
+          border: 2px solid rgba(255, 255, 255, 0.4);
+          border-top-color: #fff;
           border-radius: 50%;
           animation: spin 0.6s linear infinite;
         }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        @keyframes spin {
-          to {
-            transform: rotate(360deg);
-          }
+        /* Footer */
+        .fp-footer {
+          margin-top: 28px;
+          padding-top: 24px;
+          border-top: 1.5px solid #e5e7eb;
+          text-align: center;
         }
-
-        .animate-fadeIn {
-          animation: fadeIn 0.5s ease-out;
+        .fp-root.dark .fp-footer { border-color: rgba(255, 255, 255, 0.08); }
+        .fp-back-link {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          color: #6b7280;
+          font-size: 14px;
+          font-weight: 600;
+          text-decoration: none;
+          transition: all 0.2s;
+          margin-bottom: 16px;
         }
-
-        .animate-slideUp {
-          animation: slideUp 0.4s ease-out;
+        .fp-back-link:hover { color: #e8291c; gap: 12px; }
+        .fp-security {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          font-size: 11px;
+          color: #9ca3af;
+          font-weight: 500;
         }
+        .fp-root.dark .fp-security { color: #6b6b80; }
 
-        .animate-shake {
-          animation: shake 0.3s ease-in-out;
-        }
-
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
-
-        @keyframes slideUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes shake {
-          0%,
-          100% {
-            transform: translateX(0);
-          }
-          25% {
-            transform: translateX(-5px);
-          }
-          75% {
-            transform: translateX(5px);
-          }
+        @media (max-width: 480px) {
+          .fp-card { padding: 32px 24px; }
+          .fp-logo-text { font-size: 24px; }
+          .fp-form-title { font-size: 22px; }
         }
       `}</style>
     </div>

@@ -9,8 +9,7 @@ import stripe
 
 from app.database import SessionLocal
 from app import models, schemas
-from app.processor import notify_order_payment_result
-from app.notifier import notify_payment_succeeded, notify_payment_failed
+from app.processor import notify_order_payment_result, cop_to_usd_cents
 from app.paypal_client import create_paypal_payment, execute_paypal_payment
 
 # Configurar logger
@@ -87,10 +86,17 @@ async def create_stripe_intent(body: dict, db: Session = Depends(get_db)):
         }
 
     try:
+        amount_usd_cents = cop_to_usd_cents(float(amount))
+        logger.info(f"💳 Stripe create-intent: {amount} COP → {amount_usd_cents} USD cents")
         intent = stripe.PaymentIntent.create(
-            amount=int(amount),
-            currency="cop",
-            metadata={"order_id": order_id, "user_id": user_id}
+            amount=amount_usd_cents,
+            currency="usd",
+            metadata={
+                "order_id": order_id,
+                "user_id": user_id,
+                "amount_cop": str(int(amount))
+            },
+            description=f"EcoMod — Orden #{order_id}"
         )
 
         payment = models.Payment(
@@ -154,9 +160,6 @@ async def confirm_stripe_payment(body: dict, db: Session = Depends(get_db)):
             user_id=user_id, email=email,
             amount=amount, transaction_id=payment.transaction_id
         )
-        await notify_payment_succeeded(
-            payment.id, order_id, user_id, email, amount, payment.transaction_id
-        )
 
         return {
             "id":             payment.id,
@@ -182,9 +185,6 @@ async def confirm_stripe_payment(body: dict, db: Session = Depends(get_db)):
                 user_id=user_id, email=email,
                 amount=amount, transaction_id=intent.id
             )
-            await notify_payment_succeeded(
-                payment.id, order_id, user_id, email, amount, intent.id
-            )
 
         elif intent.status in ["requires_payment_method", "requires_confirmation", "requires_action"]:
             payment.status = "pending"
@@ -200,9 +200,6 @@ async def confirm_stripe_payment(body: dict, db: Session = Depends(get_db)):
                 order_id, success=False,
                 user_id=user_id, email=email,
                 amount=amount, transaction_id=""
-            )
-            await notify_payment_failed(
-                payment.id, order_id, user_id, email, payment.failure_reason
             )
             raise HTTPException(status_code=400, detail=f"Pago fallido: {intent.status}")
 
@@ -366,11 +363,6 @@ async def execute_paypal_order(
             amount=payment.amount,
             transaction_id=paymentId
         )
-        await notify_payment_succeeded(
-            payment.id, order_id, payment.user_id,
-            f"user_{payment.user_id}@ecomod.com",
-            payment.amount, paymentId
-        )
 
         logger.info(f"✅ [SIMULACIÓN] Pago PayPal orden #{order_id} completado")
         return {"success": True, "message": "Pago PayPal completado (simulación)"}
@@ -394,11 +386,6 @@ async def execute_paypal_order(
             amount=payment.amount,
             transaction_id=payment.transaction_id
         )
-        await notify_payment_succeeded(
-            payment.id, order_id, payment.user_id,
-            f"user_{payment.user_id}@ecomod.com",
-            payment.amount, payment.transaction_id
-        )
 
         logger.info(f"✅ Pago PayPal ejecutado | orden={order_id} | txn={payment.transaction_id}")
         return {
@@ -413,9 +400,6 @@ async def execute_paypal_order(
         db.commit()
 
         await notify_order_payment_result(order_id, success=False, user_id=payment.user_id, email="", amount=0, transaction_id="")
-        await notify_payment_failed(
-            payment.id, order_id, payment.user_id, "", payment.failure_reason
-        )
 
         logger.error(f"❌ PayPal execute fallido | orden={order_id} | error={result.get('error')}")
         raise HTTPException(status_code=400, detail=result.get("error", "Error al procesar pago PayPal"))

@@ -1,50 +1,55 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 100">
   <defs>
-    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#7cfc6e"/>
-      <stop offset="50%" stop-color="#22d3ee"/>
-      <stop offset="100%" stop-color="#a78bfa"/>
+    <linearGradient id="primaryGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e8291c"/>
+      <stop offset="100%" style="stop-color:#ff4d3d"/>
     </linearGradient>
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#e8291c"/>
+      <stop offset="50%" style="stop-color:#f97316"/>
+      <stop offset="100%" style="stop-color:#ff4d3d"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
   </defs>
-
-  <!-- Anillo con puntos -->
-  <g transform="translate(60, 100)">
-    <circle cx="0" cy="0" r="40" fill="none" stroke="url(#grad)" stroke-width="1.5" opacity="0.3"/>
-    <circle cx="0" cy="0" r="30" fill="none" stroke="url(#grad)" stroke-width="0.5" opacity="0.2" stroke-dasharray="4 4"/>
+  
+  <!-- Icon: Shopping bag with lightning bolt -->
+  <g transform="translate(10, 10)">
+    <!-- Bag body -->
+    <rect x="5" y="25" width="50" height="55" rx="8" fill="url(#primaryGradient)" filter="url(#glow)"/>
     
-    <!-- Puntos orbitando -->
-    <circle cx="0" cy="-40" r="3" fill="#7cfc6e" opacity="0.8">
-      <animateTransform attributeName="transform" type="rotate" from="0 0 0" to="360 0 0" dur="4s" repeatCount="indefinite"/>
-    </circle>
-    <circle cx="0" cy="-30" r="2" fill="#22d3ee" opacity="0.6">
-      <animateTransform attributeName="transform" type="rotate" from="120 0 0" to="480 0 0" dur="5s" repeatCount="indefinite"/>
-    </circle>
-    <circle cx="0" cy="-20" r="1.5" fill="#a78bfa" opacity="0.4">
-      <animateTransform attributeName="transform" type="rotate" from="240 0 0" to="600 0 0" dur="6s" repeatCount="indefinite"/>
-    </circle>
-  </g>
-
-  <!-- Texto -->
-  <g transform="translate(130, 70)">
-    <text font-family="'Syne', sans-serif" font-size="56" font-weight="900" letter-spacing="-2" fill="url(#grad)">
-      Eco
-    </text>
-    <text x="78" y="0" font-family="'Syne', sans-serif" font-size="56" font-weight="900" letter-spacing="-2" fill="currentColor">
-      Mod
-    </text>
+    <!-- Bag handles -->
+    <path d="M18 25 V18 C18 10 25 5 30 5 C35 5 42 10 42 18 V25" 
+          stroke="url(#primaryGradient)" stroke-width="4" fill="none" stroke-linecap="round"/>
     
-    <text x="0" y="32" font-family="'DM Sans', monospace" font-size="8" font-weight="600" fill="var(--text3)" letter-spacing="4">
-      COMMERCE PLATFORM
-    </text>
-
-    <!-- Stats inline -->
-    <g transform="translate(0, 48)">
-      <rect x="0" y="-6" width="6" height="6" rx="1" fill="#7cfc6e">
-        <animate attributeName="opacity" values="1;0.3;1" dur="1s" repeatCount="indefinite"/>
-      </rect>
-      <text x="12" y="0" font-family="'DM Sans', monospace" font-size="7" fill="var(--text3)" letter-spacing="1">
-        8 MICROSERVICIOS
-      </text>
-    </g>
+    <!-- Lightning bolt -->
+    <path d="M32 35 L24 52 L30 52 L28 65 L40 48 L34 48 L38 35 Z" fill="white" opacity="0.95"/>
   </g>
+  
+  <!-- Text: Eco -->
+  <text x="75" y="62" font-family="'Barlow Condensed', 'Inter', 'Arial', sans-serif" font-size="42" font-weight="600" fill="#1a1a1a" letter-spacing="-1">
+    Eco
+  </text>
+  
+  <!-- Text: Mod -->
+  <text x="143" y="62" font-family="'Barlow Condensed', 'Inter', 'Arial', sans-serif" font-size="42" font-weight="800" fill="url(#accentGradient)" letter-spacing="-1">
+    Mod
+  </text>
+  
+  <!-- Subtitle -->
+  <text x="75" y="82" font-family="'Inter', 'Arial', sans-serif" font-size="11" font-weight="600" fill="#9ca3af" letter-spacing="3">
+    COMMERCE PLATFORM
+  </text>
+  
+  <!-- Decorative dots -->
+  <circle cx="75" cy="92" r="1.5" fill="#e8291c" opacity="0.6"/>
+  <circle cx="82" cy="92" r="1.5" fill="#f97316" opacity="0.6"/>
+  <circle cx="89" cy="92" r="1.5" fill="#ff4d3d" opacity="0.6"/>
+  <circle cx="96" cy="92" r="1.5" fill="#f97316" opacity="0.6"/>
+  <circle cx="103" cy="92" r="1.5" fill="#e8291c" opacity="0.6"/>
 </svg>

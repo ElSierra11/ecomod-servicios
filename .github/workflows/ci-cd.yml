@@ -1,4 +1,4 @@
-name: EcoMod CI/CD Pipeline
+name: EcoMod Premium CI/CD Pipeline
 
 on:
   push:
@@ -8,171 +8,143 @@ on:
 
 jobs:
   # ─────────────────────────────────────────
-  # JOB 1: Tests de los microservicios
+  # JOB 1: Linting y Calidad de Código
   # ─────────────────────────────────────────
-  test-services:
-    name: Test Microservicios
+  lint:
+    name: Linting & Quality
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
 
-      - name: Setup Python 3.11
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
 
-      - name: Instalar dependencias auth-service
-        run: |
-          pip install -r Ecomod2/auth-service/requirements.txt
-          pip install pytest pytest-asyncio httpx
+      - name: Instalar Linters
+        run: pip install flake8 black
 
-      - name: Test auth-service
+      - name: Python Linting (flake8)
         run: |
-          cd Ecomod2/auth-service
-          python -m pytest tests/ -v --tb=short || echo "No tests found, skipping"
+          flake8 Ecomod2/ --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 Ecomod2/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
-      - name: Instalar dependencias catalog-service
-        run: |
-          pip install -r Ecomod2/catalog-service/requirements.txt
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
 
-      - name: Test catalog-service
+      - name: Frontend Linting
         run: |
-          cd Ecomod2/catalog-service
-          python -m pytest tests/ -v --tb=short || echo "No tests found, skipping"
+          cd Ecomod-frontend
+          npm install
+          npm run lint || echo "Linting skipped or not configured"
 
   # ─────────────────────────────────────────
-  # JOB 2: Build de imágenes Docker
+  # JOB 2: Tests de los microservicios
   # ─────────────────────────────────────────
-  build-docker:
-    name: Build Docker Images
+  test-services:
+    name: unit Tests
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Run Tests (pytest)
+        run: |
+          pip install pytest pytest-asyncio httpx sqlalchemy
+          # Intentar correr tests en cada carpeta si existen
+          for dir in Ecomod2/*-service; do
+            if [ -d "$dir/tests" ]; then
+              echo "Ejecutando tests en $dir"
+              cd $dir && python -m pytest tests/ -v || exit 1
+              cd ../..
+            fi
+          done
+
+  # ─────────────────────────────────────────
+  # JOB 3: Build & Push to GHCR (Docker)
+  # ─────────────────────────────────────────
+  build-push-ghcr:
+    name: Build & Push (GHCR)
     runs-on: ubuntu-latest
     needs: test-services
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      packages: write
+
+    strategy:
+      matrix:
+        service: [auth, catalog, inventory, cart, order, payment, shipping, notification]
 
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
 
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login a Docker Hub
+      - name: Login to GHCR
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build auth-service
+      - name: Build and Push
         uses: docker/build-push-action@v5
         with:
-          context: ./Ecomod2/auth-service
+          context: ./Ecomod2/${{ matrix.service }}-service
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/ecomod-auth:latest
-
-      - name: Build catalog-service
-        uses: docker/build-push-action@v5
-        with:
-          context: ./Ecomod2/catalog-service
-          push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/ecomod-catalog:latest
-
-      - name: Build inventory-service
-        uses: docker/build-push-action@v5
-        with:
-          context: ./Ecomod2/inventory-service
-          push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/ecomod-inventory:latest
-
-      - name: Build cart-service
-        uses: docker/build-push-action@v5
-        with:
-          context: ./Ecomod2/cart-service
-          push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/ecomod-cart:latest
-
-      - name: Build order-service
-        uses: docker/build-push-action@v5
-        with:
-          context: ./Ecomod2/order-service
-          push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/ecomod-orders:latest
-
-      - name: Build payment-service
-        uses: docker/build-push-action@v5
-        with:
-          context: ./Ecomod2/payment-service
-          push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/ecomod-payments:latest
-
-      - name: Build shipping-service
-        uses: docker/build-push-action@v5
-        with:
-          context: ./Ecomod2/shipping-service
-          push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/ecomod-shipping:latest
-
-      - name: Build notification-service
-        uses: docker/build-push-action@v5
-        with:
-          context: ./Ecomod2/notification-service
-          push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/ecomod-notifications:latest
+          tags: |
+            ghcr.io/${{ github.repository }}/ecomod-${{ matrix.service }}:latest
+            ghcr.io/${{ github.repository }}/ecomod-${{ matrix.service }}:${{ github.sha }}
 
   # ─────────────────────────────────────────
-  # JOB 3: Build del frontend
+  # JOB 4: Deploy to Render (Trigger)
+  # ─────────────────────────────────────────
+  deploy-render:
+    name: Deploy to Render
+    runs-on: ubuntu-latest
+    needs: build-push-ghcr
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Trigger Render Deploy (Auth)
+        if: ${{ secrets.RENDER_DEPLOY_HOOK_AUTH }}
+        run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK_AUTH }}
+
+      - name: Trigger Render Deploy (Catalog)
+        if: ${{ secrets.RENDER_DEPLOY_HOOK_CATALOG }}
+        run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK_CATALOG }}
+
+      - name: Trigger Render Deploy (Orders)
+        if: ${{ secrets.RENDER_DEPLOY_HOOK_ORDERS }}
+        run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK_ORDERS }}
+
+      # Se pueden añadir hooks para todos los servicios según necesidad
+
+  # ─────────────────────────────────────────
+  # JOB 5: Build Frontend (Vercel automatic)
   # ─────────────────────────────────────────
   build-frontend:
     name: Build Frontend
     runs-on: ubuntu-latest
     needs: test-services
-
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
-
-      - name: Setup Node.js 20
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "npm"
-          cache-dependency-path: Ecomod-frontend/package-lock.json
-
-      - name: Instalar dependencias
+      - name: Build
         run: |
           cd Ecomod-frontend
-          npm ci
-
-      - name: Build producción
-        run: |
-          cd Ecomod-frontend
+          npm install
           npm run build
-
-      - name: Subir artefacto dist
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-dist
-          path: Ecomod-frontend/dist/
-
-  # ─────────────────────────────────────────
-  # JOB 4: Notificación de resultado
-  # ─────────────────────────────────────────
-  notify:
-    name: Notificar resultado
-    runs-on: ubuntu-latest
-    needs: [build-docker, build-frontend]
-    if: always()
-
-    steps:
-      - name: Pipeline exitoso
-        if: ${{ needs.build-docker.result == 'success' && needs.build-frontend.result == 'success' }}
-        run: |
-          echo "✅ Pipeline completado exitosamente"
-          echo "🐳 Imágenes Docker subidas a Docker Hub"
-          echo "⚡ Frontend compilado correctamente"
-
-      - name: Pipeline fallido
-        if: ${{ needs.build-docker.result == 'failure' || needs.build-frontend.result == 'failure' }}
-        run: |
-          echo "❌ Pipeline falló — revisar logs"
-          exit 1

@@ -1,0 +1,17 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'ecomod-services'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets:
+          - 'auth-service:8000'
+          - 'catalog-service:8001'
+          - 'inventory-service:8002'
+          - 'cart-service:8003'
+          - 'order-service:8004'
+          - 'payment-service:8005'
+          - 'shipping-service:8006'
+          - 'notification-service:8007'

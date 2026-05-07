@@ -1,3 +1,36 @@
+
+import logging
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.sdk.resources import Resource, SERVICE_NAME
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
+from opentelemetry.instrumentation.aio_pika import AioPikaInstrumentor
+
+logging.getLogger("opentelemetry").setLevel(logging.ERROR)
+
+resource = Resource.create(attributes={
+    SERVICE_NAME: "shipping-service"
+})
+provider = TracerProvider(resource=resource)
+processor = BatchSpanProcessor(OTLPSpanExporter(endpoint="http://jaeger:4317", insecure=True))
+provider.add_span_processor(processor)
+trace.set_tracer_provider(provider)
+
+try:
+    from app.database import engine
+    SQLAlchemyInstrumentor().instrument(engine=engine)
+except Exception:
+    pass
+
+try:
+    AioPikaInstrumentor().instrument()
+except Exception:
+    pass
+
+from prometheus_fastapi_instrumentator import Instrumentator
 import asyncio
 import logging
 from fastapi import FastAPI
@@ -7,7 +40,6 @@ from app.database import engine, SessionLocal
 from app.models import Base, Shipment
 from app.event_bus import subscribe_events, publish_event
 from app.logistics import calculate_shipping_cost, generate_tracking_number
-from app.notifier import notify_shipment_created
 
 logger = logging.getLogger(__name__)
 Base.metadata.create_all(bind=engine)
@@ -18,11 +50,15 @@ app = FastAPI(
     version="2.0.0"
 )
 
+Instrumentator().instrument(app).expose(app)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], allow_credentials=True,
     allow_methods=["*"], allow_headers=["*"],
 )
+
+FastAPIInstrumentor.instrument_app(app)
 
 app.include_router(router)
 
@@ -65,14 +101,7 @@ async def handle_event(event_type: str, data: dict):
             db.commit()
             db.refresh(shipment)
 
-            # Notificar al usuario
-            estimated_str = logistics["estimated_delivery"].strftime("%d/%m/%Y") if logistics.get("estimated_delivery") else "Próximamente"
-            await notify_shipment_created(
-                shipment.id, order_id, user_id, email,
-                tracking, carrier, estimated_str
-            )
-
-            # Publicar evento
+            # Publicar evento (Notification Service lo escuchará)
             await publish_event("shipping.confirmed", {
                 "order_id": order_id,
                 "shipment_id": shipment.id,

@@ -1,0 +1,153 @@
+services:
+  # ────────────────────────────────────────────────────────────────
+  # 1. BASES DE DATOS Y CACHÉ
+  # ────────────────────────────────────────────────────────────────
+  - type: redis
+    name: ecomod-redis
+    ipAllowList: [] # Solo accesible internamente
+    plan: free
+
+  - type: database
+    name: ecomod-db
+    databaseName: ecomod
+    user: ecomod_user
+    plan: free
+
+  # ────────────────────────────────────────────────────────────────
+  # 2. BUS DE MENSAJES (RabbitMQ)
+  # ────────────────────────────────────────────────────────────────
+  - type: pvt
+    name: rabbitmq
+    env: docker
+    dockerContext: .
+    dockerfilePath: ./Ecomod2/rabbitmq.Dockerfile # Necesitarás crear este archivo simple
+    plan: starter
+    ports:
+      - port: 5672
+        protocol: TCP
+      - port: 15672
+        protocol: TCP
+
+  # ────────────────────────────────────────────────────────────────
+  # 3. MICROSERVICIOS (Red Privada)
+  # ────────────────────────────────────────────────────────────────
+  - type: pvt
+    name: auth-service
+    env: docker
+    dockerContext: ./Ecomod2/auth-service
+    plan: starter
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ecomod-db
+          property: connectionString
+      - key: RABBITMQ_URL
+        value: amqp://guest:guest@rabbitmq:5672
+
+  - type: pvt
+    name: catalog-service
+    env: docker
+    dockerContext: ./Ecomod2/catalog-service
+    plan: starter
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ecomod-db
+          property: connectionString
+
+  - type: pvt
+    name: inventory-service
+    env: docker
+    dockerContext: ./Ecomod2/inventory-service
+    plan: starter
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ecomod-db
+          property: connectionString
+      - key: RABBITMQ_URL
+        value: amqp://guest:guest@rabbitmq:5672
+
+  - type: pvt
+    name: cart-service
+    env: docker
+    dockerContext: ./Ecomod2/cart-service
+    plan: starter
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ecomod-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: ecomod-redis
+          property: connectionString
+
+  - type: pvt
+    name: order-service
+    env: docker
+    dockerContext: ./Ecomod2/order-service
+    plan: starter
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ecomod-db
+          property: connectionString
+      - key: RABBITMQ_URL
+        value: amqp://guest:guest@rabbitmq:5672
+
+  - type: pvt
+    name: payment-service
+    env: docker
+    dockerContext: ./Ecomod2/payment-service
+    plan: starter
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ecomod-db
+          property: connectionString
+      - key: RABBITMQ_URL
+        value: amqp://guest:guest@rabbitmq:5672
+
+  - type: pvt
+    name: shipping-service
+    env: docker
+    dockerContext: ./Ecomod2/shipping-service
+    plan: starter
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ecomod-db
+          property: connectionString
+      - key: RABBITMQ_URL
+        value: amqp://guest:guest@rabbitmq:5672
+
+  - type: pvt
+    name: notification-service
+    env: docker
+    dockerContext: ./Ecomod2/notification-service
+    plan: starter
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ecomod-db
+          property: connectionString
+      - key: RABBITMQ_URL
+        value: amqp://guest:guest@rabbitmq:5672
+
+  # ────────────────────────────────────────────────────────────────
+  # 4. API GATEWAY (Público)
+  # ────────────────────────────────────────────────────────────────
+  - type: web
+    name: ecomod-gateway
+    env: docker
+    dockerContext: ./Ecomod2
+    dockerfilePath: ./Ecomod2/kong.Dockerfile # Kong con tu config
+    plan: starter
+    healthCheckPath: /auth/health
+    envVars:
+      - key: KONG_DATABASE
+        value: "off"
+      - key: KONG_DECLARATIVE_CONFIG
+        value: /usr/local/kong/declarative/kong.yml

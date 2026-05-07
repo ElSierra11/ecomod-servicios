@@ -1,3 +1,36 @@
+
+import logging
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.sdk.resources import Resource, SERVICE_NAME
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
+from opentelemetry.instrumentation.aio_pika import AioPikaInstrumentor
+
+logging.getLogger("opentelemetry").setLevel(logging.ERROR)
+
+resource = Resource.create(attributes={
+    SERVICE_NAME: "inventory-service"
+})
+provider = TracerProvider(resource=resource)
+processor = BatchSpanProcessor(OTLPSpanExporter(endpoint="http://jaeger:4317", insecure=True))
+provider.add_span_processor(processor)
+trace.set_tracer_provider(provider)
+
+try:
+    from app.database import engine
+    SQLAlchemyInstrumentor().instrument(engine=engine)
+except Exception:
+    pass
+
+try:
+    AioPikaInstrumentor().instrument()
+except Exception:
+    pass
+
+from prometheus_fastapi_instrumentator import Instrumentator
 import asyncio
 import logging
 import httpx
@@ -18,11 +51,15 @@ app = FastAPI(
     version="2.0.0"
 )
 
+Instrumentator().instrument(app).expose(app)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], allow_credentials=True,
     allow_methods=["*"], allow_headers=["*"],
 )
+
+FastAPIInstrumentor.instrument_app(app)
 
 app.include_router(router)
 
@@ -90,6 +127,27 @@ async def handle_event(event_type: str, data: dict):
                 })
                 logger.info(f"Stock reservado para orden #{order_id}")
 
+        elif event_type in ["order.cancelled", "payment.failed"]:
+            order_id = data.get("order_id")
+            items = data.get("items", [])
+            
+            # Si payment.failed no trae items, no podemos liberar sin consultar.
+            # Asumiremos que order.cancelled SI trae items (porque lo agregamos en order-service).
+            # Para mayor robustez, inventory-service podría guardar qué items reservó por order_id
+            # en una tabla, pero por ahora dependemos de los items en el payload.
+            if items:
+                for item in items:
+                    product_id = item.get("product_id")
+                    quantity = item.get("quantity", 0)
+                    inv = db.query(Inventory).filter(Inventory.product_id == product_id).first()
+                    if inv and inv.reserved >= quantity:
+                        inv.reserved -= quantity
+                db.commit()
+                logger.info(f"Stock liberado para orden cancelada/pago fallido #{order_id}")
+            else:
+                logger.warning(f"No se pudieron liberar items para orden #{order_id} porque no venían en el evento")
+
+
     finally:
         db.close()
 
@@ -97,11 +155,11 @@ async def handle_event(event_type: str, data: dict):
 @app.on_event("startup")
 async def startup():
     asyncio.create_task(subscribe_events(
-        routing_keys=["order.created"],
+        routing_keys=["order.created", "order.cancelled", "payment.failed"],
         callback=handle_event,
         queue_name="inventory-service-queue"
     ))
-    logger.info("Inventory Service escuchando eventos RabbitMQ")
+    logger.info("Inventory Service escuchando eventos RabbitMQ: order.created, order.cancelled, payment.failed")
 
 
 @app.get("/")
