@@ -41,6 +41,8 @@ services:
         fromDatabase:
           name: ecomod-db
           property: connectionString
+      - key: SECRET_KEY
+        value: "ecomod_secret_key_123"
       - key: PORT
         value: "8001"
 
@@ -56,6 +58,8 @@ services:
         fromDatabase:
           name: ecomod-db
           property: connectionString
+      - key: SECRET_KEY
+        value: "ecomod_secret_key_123"
       - key: PORT
         value: "8002"
 
@@ -71,6 +75,8 @@ services:
         fromDatabase:
           name: ecomod-db
           property: connectionString
+      - key: SECRET_KEY
+        value: "ecomod_secret_key_123"
       - key: REDIS_URL
         fromService:
           type: keyvalue
@@ -91,6 +97,8 @@ services:
         fromDatabase:
           name: ecomod-db
           property: connectionString
+      - key: SECRET_KEY
+        value: "ecomod_secret_key_123"
       - key: PORT
         value: "8004"
       - key: INVENTORY_SERVICE_URL
@@ -112,6 +120,8 @@ services:
         fromDatabase:
           name: ecomod-db
           property: connectionString
+      - key: SECRET_KEY
+        value: "ecomod_secret_key_123"
       - key: PORT
         value: "8005"
       - key: ORDER_SERVICE_URL
@@ -129,6 +139,8 @@ services:
         fromDatabase:
           name: ecomod-db
           property: connectionString
+      - key: SECRET_KEY
+        value: "ecomod_secret_key_123"
       - key: PORT
         value: "8006"
       - key: NOTIFICATION_SERVICE_URL
@@ -146,6 +158,8 @@ services:
         fromDatabase:
           name: ecomod-db
           property: connectionString
+      - key: SECRET_KEY
+        value: "ecomod_secret_key_123"
       - key: PORT
         value: "8007"
 
