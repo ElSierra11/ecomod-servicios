@@ -1,4 +1,4 @@
-# EcoMod Infrastructure Blueprint (V13 - Survival Mode)
+# EcoMod Infrastructure Blueprint (V14 - Nginx Gateway)
 
 databases:
   - name: ecomod-db
@@ -10,7 +10,7 @@ services:
     plan: free
     ipAllowList: []
 
-  # Auth Service (Ajustado)
+  # Auth Service
   - type: web
     name: auth-service
     plan: free
@@ -23,9 +23,7 @@ services:
           name: ecomod-db
           property: connectionString
       - key: SECRET_KEY
-        value: "ecomod_secret_key_123_change_me" # A veces crashea si esto falta
-      - key: RABBITMQ_URL
-        value: "amqp://guest:guest@localhost"
+        value: "ecomod_secret_key_123_change_me"
 
   # Catalog Service
   - type: web
@@ -52,8 +50,6 @@ services:
         fromDatabase:
           name: ecomod-db
           property: connectionString
-      - key: RABBITMQ_URL
-        value: "amqp://guest:guest@localhost"
 
   # Cart Service
   - type: web
@@ -85,8 +81,6 @@ services:
         fromDatabase:
           name: ecomod-db
           property: connectionString
-      - key: RABBITMQ_URL
-        value: "amqp://guest:guest@localhost"
 
   # Payment Service
   - type: web
@@ -126,19 +120,12 @@ services:
         fromDatabase:
           name: ecomod-db
           property: connectionString
-      - key: RABBITMQ_URL
-        value: "amqp://guest:guest@localhost"
 
-  # API GATEWAY (Kong - Simplificado para plan Free)
+  # API GATEWAY (Nginx - ULTRA LIGHT)
   - type: web
     name: ecomod-gateway
     plan: free
     env: docker
     dockerContext: .
-    dockerfilePath: Ecomod2/kong.Dockerfile
-    envVars:
-      - key: KONG_DATABASE
-        value: "off"
-      - key: KONG_DECLARATIVE_CONFIG
-        value: /usr/local/kong/declarative/kong.yml
-      # Quitamos el KONG_PROXY_LISTEN dinámico y dejamos que Render use el suyo
+    dockerfilePath: Ecomod2/nginx.Dockerfile
+    healthCheckPath: /health
