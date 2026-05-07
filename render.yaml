@@ -1,15 +1,15 @@
-# EcoMod Infrastructure Blueprint (V8 - Fix IP Allow List)
+# EcoMod Infrastructure Blueprint (V9 - Remove Ports from Pserv)
 
 databases:
   - name: ecomod-db
     plan: free
 
 services:
-  # Redis (Requiere IP allow list)
+  # Redis
   - type: keyvalue
     name: ecomod-redis
     plan: free
-    ipAllowList: [] # Solo accesible internamente
+    ipAllowList: []
 
   # RabbitMQ
   - type: pserv
@@ -18,11 +18,7 @@ services:
     dockerContext: .
     dockerfilePath: ./Ecomod2/rabbitmq.Dockerfile
     plan: starter
-    ports:
-      - port: 5672
-        protocol: TCP
-      - port: 15672
-        protocol: TCP
+    # Nota: Los pserv no llevan campo 'ports' en el YAML de Render
 
   # Auth Service
   - type: pserv
