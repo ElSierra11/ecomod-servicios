@@ -88,7 +88,6 @@
   width: 8px;
   height: 8px;
 }
-}
 ::-webkit-scrollbar-track {
   background: transparent;
 }
@@ -692,5 +691,4 @@
 }
 .swal2-timer-progress-bar {
   background: linear-gradient(90deg, #e8291c, #f97316) !important;
->>>>>>> 7a936b07f48b43d7f5672176b09371ae9ab85c04
 }
