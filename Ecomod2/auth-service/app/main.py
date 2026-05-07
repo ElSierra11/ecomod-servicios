@@ -15,9 +15,10 @@ resource = Resource.create(attributes={
     SERVICE_NAME: "auth-service"
 })
 provider = TracerProvider(resource=resource)
-processor = BatchSpanProcessor(OTLPSpanExporter(endpoint="http://jaeger:4317", insecure=True))
-provider.add_span_processor(processor)
-trace.set_tracer_provider(provider)
+# Omitir telemetría en producción para evitar crasheos si no hay Jaeger
+# processor = BatchSpanProcessor(OTLPSpanExporter(endpoint="http://jaeger:4317", insecure=True))
+# provider.add_span_processor(processor)
+# trace.set_tracer_provider(provider)
 
 try:
     from app.database import engine
