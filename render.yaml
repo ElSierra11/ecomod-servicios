@@ -164,4 +164,14 @@ services:
       - key: KONG_PROXY_LISTEN
         value: 0.0.0.0:10000
       - key: KONG_LOG_LEVEL
-        value: debug
+        value: warn
+      - key: KONG_NGINX_WORKER_PROCESSES
+        value: "1"
+      - key: KONG_MEM_CACHE_SIZE
+        value: 32m
+      - key: KONG_NGINX_HTTP_CLIENT_BODY_BUFFER_SIZE
+        value: 64k
+      - key: KONG_NGINX_HTTP_PROXY_BUFFER_SIZE
+        value: 4k
+      - key: KONG_NGINX_HTTP_PROXY_BUFFERS
+        value: 4 4k
