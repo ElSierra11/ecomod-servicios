@@ -49,111 +49,12 @@ function InputField({ label, icon: Icon, type = "text", value, onChange, error, 
   );
 }
 
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
-
-function useGoogleScript() {
-  const [ready, setReady] = useState(false);
-  useEffect(() => {
-    if (window.google?.accounts?.id) {
-      setReady(true);
-      return;
-    }
-    const script = document.createElement("script");
-    script.src = "https://accounts.google.com/gsi/client";
-    script.async = true;
-    script.defer = true;
-    script.onload = () => setReady(true);
-    document.head.appendChild(script);
-  }, []);
-  return ready;
-}
-
-function GoogleSignInButton({ onSuccess, onError }) {
-  const googleReady = useGoogleScript();
-  const buttonRef = useRef(null);
-  const initialized = useRef(false);
-
-  useEffect(() => {
-    if (
-      googleReady &&
-      buttonRef.current &&
-      !initialized.current &&
-      window.google?.accounts?.id &&
-      GOOGLE_CLIENT_ID
-    ) {
-      initialized.current = true;
-      window.google.accounts.id.initialize({
-        client_id: GOOGLE_CLIENT_ID,
-        callback: async (response) => {
-          try {
-            const result = await authApi.googleAuth(response.credential);
-            onSuccess(result);
-          } catch (err) {
-            onError(err.message || "Error al autenticar con Google");
-          }
-        },
-        auto_select: false,
-        cancel_on_tap_outside: true,
-      });
-      window.google.accounts.id.renderButton(buttonRef.current, {
-        type: "standard",
-        theme: "outline",
-        size: "large",
-        text: "continue_with",
-        shape: "rectangular",
-        width: 320,
-      });
-    }
-  }, [googleReady, onSuccess, onError]);
-
-  if (!GOOGLE_CLIENT_ID)
-    return (
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-          padding: "10px",
-          background: "rgba(232,41,28,0.1)",
-          borderRadius: "8px",
-          color: "#e8291c",
-          fontSize: "12px",
-        }}
-      >
-        <AlertCircle size={14} />
-        <span>Google login no configurado</span>
-      </div>
-    );
-  return (
-    <div
-      ref={buttonRef}
-      style={{ display: "flex", justifyContent: "center", minHeight: "44px" }}
-    />
-  );
-}
-
-const validateEmail = (email) => {
-  if (!email.trim()) return "El correo es obligatorio";
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-    return "Ingresa un correo válido";
-  return null;
-};
-const validatePassword = (password, minLength = 6) => {
-  if (!password.trim()) return "La contraseña es obligatoria";
-  if (password.length < minLength) return `Mínimo ${minLength} caracteres`;
-  return null;
-};
-const validateName = (name, field) => {
-  if (!name.trim()) return `El ${field} es obligatorio`;
-  if (name.trim().length < 2) return `Mínimo 2 caracteres`;
-  return null;
-};
 
 const perks = [
-  { icon: Truck, text: "Envíos a toda Colombia" },
-  { icon: ShieldCheck, text: "Compra 100% segura" },
-  { icon: RotateCcw, text: "30 días de devolución" },
-  { icon: Zap, text: "Despacho en 24 horas" },
+  { icon: "🚚", text: "Envíos a toda Colombia" },
+  { icon: "🛡️", text: "Compra 100% segura" },
+  { icon: "🔄", text: "30 días de devolución" },
+  { icon: "⚡", text: "Despacho en 24 horas" },
 ];
 
 export default function AuthPage() {
