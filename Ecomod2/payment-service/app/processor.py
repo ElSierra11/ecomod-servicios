@@ -68,23 +68,80 @@ def confirm_payment_intent(payment_intent_id: str) -> dict:
 
 # Helpers de Saga
 
+NOTIFICATION_SERVICE_URL = os.getenv(
+    "NOTIFICATION_SERVICE_URL",
+    "http://notification-service:8007"
+)
+
 async def notify_order_payment_result(order_id: int, success: bool, user_id: int = 0, email: str = "", amount: float = 0, transaction_id: str = ""):
 
     if success:
-        # Publicar payment.succeeded — shipping-service escucha esto y crea el envío
-        await publish_event("payment.succeeded", {
-            "order_id":       order_id,
-            "user_id":        user_id,
-            "email":          email,
-            "amount":         amount,
-            "transaction_id": transaction_id,
-        })
+        # Intentar publicar via RabbitMQ (para shipping-service, etc.)
+        try:
+            await publish_event("payment.succeeded", {
+                "order_id":       order_id,
+                "user_id":        user_id,
+                "email":          email,
+                "amount":         amount,
+                "transaction_id": transaction_id,
+            })
+        except Exception as e:
+            logger.warning(f"RabbitMQ no disponible, continuando con HTTP: {e}")
+
+        # Llamar directamente al notification-service por HTTP (siempre)
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                await client.post(
+                    f"{NOTIFICATION_SERVICE_URL}/notifications/events/payment-succeeded",
+                    json={
+                        "payment_id": 0,
+                        "order_id":   order_id,
+                        "user_id":    user_id,
+                        "email":      email,
+                        "amount":     amount,
+                        "transaction_id": transaction_id,
+                    }
+                )
+                logger.info(f"✅ Notificación de pago exitoso enviada para orden #{order_id}")
+        except Exception as e:
+            logger.error(f"❌ Error enviando notificación HTTP: {e}")
+
+        # Actualizar estado de la orden
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                await client.patch(
+                    f"{ORDER_SERVICE_URL}/orders/{order_id}/status",
+                    json={"status": "paid"}
+                )
+                logger.info(f"✅ Orden #{order_id} marcada como pagada")
+        except Exception as e:
+            logger.warning(f"⚠️ No se pudo actualizar estado de orden: {e}")
+
     else:
-        # Publicar payment.failed — order-service escucha esto y cancela la orden
-        await publish_event("payment.failed", {
-            "order_id": order_id,
-            "message":  "Pago fallido o rechazado",
-        })
+        try:
+            await publish_event("payment.failed", {
+                "order_id": order_id,
+                "message":  "Pago fallido o rechazado",
+            })
+        except Exception as e:
+            logger.warning(f"RabbitMQ no disponible: {e}")
+
+        # Notificar fallo por HTTP
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                await client.post(
+                    f"{NOTIFICATION_SERVICE_URL}/notifications/events/payment-failed",
+                    json={
+                        "payment_id": 0,
+                        "order_id":   order_id,
+                        "user_id":    user_id,
+                        "email":      email,
+                        "reason":     "Pago fallido o rechazado",
+                    }
+                )
+        except Exception as e:
+            logger.error(f"❌ Error enviando notificación de fallo: {e}")
+
 
 
 async def release_inventory_on_failure(order_items: list):
