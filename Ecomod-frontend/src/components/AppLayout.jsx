@@ -50,21 +50,21 @@ export default function AppLayout({ children, page, setPage }) {
 
   const userNavItems = [
     { id: "dashboard", icon: ShoppingBag, label: "Inicio" },
-    { id: "catalog", icon: Package, label: "CatÃ¡logo" },
+    { id: "catalog", icon: Package, label: "Catálogo" },
     { id: "cart", icon: ShoppingCart, label: "Carrito" },
     { id: "orders", icon: ClipboardList, label: "Pedidos" },
     { id: "payments", icon: CreditCard, label: "Pagos" },
-    { id: "shipping", icon: Truck, label: "EnvÃ­os" },
+    { id: "shipping", icon: Truck, label: "Envíos" },
     { id: "notifications", icon: Bell, label: "Alertas" },
   ];
 
   const adminNavItems = [
     { id: "admin-stats", icon: BarChart3, label: "Dashboard" },
-    { id: "catalog", icon: Package, label: "CatÃ¡logo" },
+    { id: "catalog", icon: Package, label: "Catálogo" },
     { id: "inventory", icon: Package, label: "Inventario" },
     { id: "orders", icon: ClipboardList, label: "Pedidos" },
     { id: "payments", icon: CreditCard, label: "Pagos" },
-    { id: "shipping", icon: Truck, label: "EnvÃ­os" },
+    { id: "shipping", icon: Truck, label: "Envíos" },
     { id: "admin-users", icon: Users, label: "Usuarios" },
     { id: "notifications", icon: Bell, label: "Alertas" },
   ];
@@ -75,7 +75,7 @@ export default function AppLayout({ children, page, setPage }) {
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
-      addToast("info", "BÃºsqueda iniciada", `Resultados para "${searchQuery}"`);
+      addToast("info", "Búsqueda iniciada", `Resultados para "${searchQuery}"`);
       setPage("catalog");
     }
   };
@@ -188,7 +188,7 @@ export default function AppLayout({ children, page, setPage }) {
                           className="flex items-center gap-3 w-full px-3 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-md transition-colors mt-1"
                         >
                           <LogOut className="h-4 w-4" />
-                          Cerrar SesiÃ³n
+                          Cerrar Sesión
                         </button>
                       </div>
                     </motion.div>
@@ -245,7 +245,7 @@ export default function AppLayout({ children, page, setPage }) {
               className="fixed inset-y-0 right-0 w-3/4 max-w-sm bg-card border-l border-border shadow-2xl z-50 p-6 flex flex-col md:hidden"
             >
               <div className="flex justify-between items-center mb-8">
-                <span className="font-head text-xl font-bold">MenÃº</span>
+                <span className="font-head text-xl font-bold">Menú</span>
                 <button onClick={() => setMobileOpen(false)} className="p-2 hover:bg-secondary rounded-full">
                   <X className="h-5 w-5" />
                 </button>
@@ -272,7 +272,7 @@ export default function AppLayout({ children, page, setPage }) {
                 </button>
                 <button onClick={() => { logout(); setMobileOpen(false); }} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-destructive hover:bg-destructive/10">
                   <LogOut className="h-5 w-5" />
-                  Cerrar SesiÃ³n
+                  Cerrar Sesión
                 </button>
               </div>
             </motion.div>
@@ -305,22 +305,22 @@ export default function AppLayout({ children, page, setPage }) {
                 <span className="font-head text-xl font-bold">EcoMod</span>
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Plataforma de comercio electrÃ³nico moderno construido sobre una arquitectura de microservicios robusta y escalable.
+                Plataforma de comercio electrónico moderno construido sobre una arquitectura de microservicios robusta y escalable.
               </p>
             </div>
             <div>
               <h4 className="font-semibold mb-4">Plataforma</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#" className="hover:text-primary transition-colors">CatÃ¡logo</a></li>
+                <li><a href="#" className="hover:text-primary transition-colors">Catálogo</a></li>
                 <li><a href="#" className="hover:text-primary transition-colors">Ofertas</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">CategorÃ­as</a></li>
+                <li><a href="#" className="hover:text-primary transition-colors">Categorías</a></li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold mb-4">Soporte</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><a href="#" className="hover:text-primary transition-colors">Centro de Ayuda</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">TÃ©rminos de Servicio</a></li>
+                <li><a href="#" className="hover:text-primary transition-colors">Términos de Servicio</a></li>
                 <li><a href="#" className="hover:text-primary transition-colors">Privacidad</a></li>
               </ul>
             </div>

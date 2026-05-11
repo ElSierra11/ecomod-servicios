@@ -61,7 +61,7 @@ export default function PaypalReturn() {
 
     if (!paymentId || !payerId) {
       setStatus("error");
-      setMessage("No se recibiÃ³ la informaciÃ³n de confirmaciÃ³n de PayPal.");
+      setMessage("No se recibió la información de confirmación de PayPal.");
       return;
     }
 
@@ -78,14 +78,14 @@ export default function PaypalReturn() {
           setTxnId(paymentId);
           setOrderAmount(result.amount || result.order?.total_amount);
           setStatus("success");
-          setMessage("Â¡Pago completado con Ã©xito!");
+          setMessage("¡Pago completado con éxito!");
         } else {
           setStatus("error");
           setMessage(result.error || "No se pudo procesar el pago");
         }
       } catch (err) {
         setStatus("error");
-        setMessage("Error en la conexiÃ³n con el servidor");
+        setMessage("Error en la conexión con el servidor");
       }
     };
     run();
@@ -129,16 +129,16 @@ export default function PaypalReturn() {
             <div className="w-20 h-20 bg-emerald-500/10 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle className="w-10 h-10" />
             </div>
-            <h2 className="text-3xl font-bold mb-2">Â¡Pago Exitoso!</h2>
-            <p className="text-muted-foreground mb-8">Tu orden #{orderId} estÃ¡ lista.</p>
+            <h2 className="text-3xl font-bold mb-2">¡Pago Exitoso!</h2>
+            <p className="text-muted-foreground mb-8">Tu orden #{orderId} está lista.</p>
             
             <div className="bg-secondary/30 rounded-2xl p-4 text-left space-y-3 mb-8">
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground flex items-center gap-1"><Hash className="w-4 h-4"/> ID TransacciÃ³n</span>
+                <span className="text-muted-foreground flex items-center gap-1"><Hash className="w-4 h-4"/> ID Transacción</span>
                 <span className="font-mono font-bold truncate ml-4">{txnId}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground flex items-center gap-1"><CreditCard className="w-4 h-4"/> MÃ©todo</span>
+                <span className="text-muted-foreground flex items-center gap-1"><CreditCard className="w-4 h-4"/> Método</span>
                 <span className="font-bold">PayPal</span>
               </div>
               {orderAmount && (

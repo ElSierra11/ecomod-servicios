@@ -70,11 +70,11 @@ async function generateReceipt(payment, order) {
     
     y += 5;
     doc.text(order?.user?.email || "contacto@ecomod.com", margin, y);
-    doc.text(`MÃ©todo: ${payment.payment_method === "card_stripe" ? "Tarjeta de CrÃ©dito" : "PayPal"}`, pageWidth / 2 + 10, y);
+    doc.text(`Método: ${payment.payment_method === "card_stripe" ? "Tarjeta de Crédito" : "PayPal"}`, pageWidth / 2 + 10, y);
     
     y += 5;
     doc.text("Colombia", margin, y);
-    doc.text(`TransacciÃ³n: ${payment.transaction_id?.slice(0, 24) || "N/A"}`, pageWidth / 2 + 10, y);
+    doc.text(`Transacción: ${payment.transaction_id?.slice(0, 24) || "N/A"}`, pageWidth / 2 + 10, y);
 
     // --- Table Header ---
     y += 20;
@@ -82,7 +82,7 @@ async function generateReceipt(payment, order) {
     doc.rect(margin, y, pageWidth - margin * 2, 10, "F");
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9);
-    doc.text("DescripciÃ³n", margin + 5, y + 6.5);
+    doc.text("Descripción", margin + 5, y + 6.5);
     doc.text("Cant.", margin + 110, y + 6.5, { align: "center" });
     doc.text("Precio Unit.", margin + 140, y + 6.5, { align: "center" });
     doc.text("Total", pageWidth - margin - 5, y + 6.5, { align: "right" });
@@ -117,8 +117,8 @@ async function generateReceipt(payment, order) {
     doc.setFontSize(8);
     doc.setTextColor(150, 150, 150);
     const footerY = 280;
-    doc.text("Gracias por su compra en EcoMod. Si tiene alguna duda, contÃ¡ctenos en soporte@ecomod.com", pageWidth / 2, footerY, { align: "center" });
-    doc.text("Este documento es un comprobante de pago electrÃ³nico vÃ¡lido.", pageWidth / 2, footerY + 4, { align: "center" });
+    doc.text("Gracias por su compra en EcoMod. Si tiene alguna duda, contáctenos en soporte@ecomod.com", pageWidth / 2, footerY, { align: "center" });
+    doc.text("Este documento es un comprobante de pago electrónico válido.", pageWidth / 2, footerY + 4, { align: "center" });
 
     doc.save(`EcoMod-Recibo-${String(payment.id).padStart(6, "0")}.pdf`);
   } catch (e) {
@@ -144,7 +144,7 @@ function StripeCheckoutForm({ order, user, onSuccess, onError, swal }) {
     e.preventDefault();
     if (!stripe || !elements) return;
     
-    const confirm = await swal.confirm("Confirmar Pago", `Â¿Pagar ${formatCOP(order.total_amount)}?`, "SÃ­, pagar", "Cancelar");
+    const confirm = await swal.confirm("Confirmar Pago", `¿Pagar ${formatCOP(order.total_amount)}?`, "Sí, pagar", "Cancelar");
     if (!confirm.isConfirmed) return;
 
     setProcessing(true);
@@ -229,13 +229,13 @@ const STATUS_CONF = {
 
 function ReceiptModal({ payment, order, onClose, swal }) {
   const [gen, setGen] = useState(false);
-  const handleDl = async () => { setGen(true); try { await generateReceipt(payment, order); swal.success("Â¡Descargado!", "Tu recibo estÃ¡ listo"); } catch { swal.error("Error", "No se pudo generar el PDF"); } finally { setGen(false); } };
+  const handleDl = async () => { setGen(true); try { await generateReceipt(payment, order); swal.success("¡Descargado!", "Tu recibo está listo"); } catch { swal.error("Error", "No se pudo generar el PDF"); } finally { setGen(false); } };
   const st = STATUS_CONF[payment.status] || STATUS_CONF.pending;
   const items = order?.items || [];
 
   const handlePrint = () => {
     // â† NUEVO: SweetAlert informativo
-    swal.info("Imprimiendo", "Preparando comprobante para impresiÃ³n...");
+    swal.info("Imprimiendo", "Preparando comprobante para impresión...");
   };
 
   const statusConfig = {
@@ -284,8 +284,8 @@ function ReceiptModal({ payment, order, onClose, swal }) {
             <div className={cn("w-20 h-20 rounded-full mx-auto flex items-center justify-center mb-4 shadow-inner", st.bg, st.c)}>
               <st.icon className="w-10 h-10" />
             </div>
-            <h3 className="text-2xl font-bold mb-1">Â¡Pago {st.label}!</h3>
-            <p className="text-sm text-muted-foreground">TransacciÃ³n #{payment.transaction_id?.slice(-12).toUpperCase() || payment.id}</p>
+            <h3 className="text-2xl font-bold mb-1">¡Pago {st.label}!</h3>
+            <p className="text-sm text-muted-foreground">Transacción #{payment.transaction_id?.slice(-12).toUpperCase() || payment.id}</p>
           </div>
 
           <div className="space-y-6">
@@ -307,7 +307,7 @@ function ReceiptModal({ payment, order, onClose, swal }) {
                   <span className="font-bold">#{String(payment.order_id).padStart(6, "0")}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground font-medium">MÃ©todo de pago</span>
+                  <span className="text-muted-foreground font-medium">Método de pago</span>
                   <span className="font-bold flex items-center gap-2">
                     {payment.payment_method === "card_stripe" ? <><CreditCard className="w-4 h-4" /> Tarjeta</> : <><Wallet className="w-4 h-4" /> PayPal</>}
                   </span>
@@ -386,12 +386,12 @@ export default function PaymentsPage({ checkoutOrderId, onCheckoutHandled }) {
     <div className="max-w-6xl mx-auto space-y-8 pb-12">
       <div className="flex items-center gap-4 mb-8">
         <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center text-white"><CreditCard className="w-6 h-6" /></div>
-        <h1 className="text-3xl font-head font-bold">Pagos y FacturaciÃ³n</h1>
+        <h1 className="text-3xl font-head font-bold">Pagos y Facturación</h1>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         
-        {/* Nueva TransacciÃ³n */}
+        {/* Nueva Transacción */}
         <div className="glass-card p-6 rounded-3xl border border-border">
           <h2 className="text-xl font-bold flex items-center gap-2 mb-6"><Wallet className="w-5 h-5 text-primary" /> Pagar Orden</h2>
           {!orders.length ? (

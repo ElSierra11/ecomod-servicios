@@ -14,10 +14,10 @@ const TYPE_CONFIG = {
   order_confirmed: { icon: ShoppingBag, label: "Orden confirmada", c: "text-emerald-500", bg: "bg-emerald-500/10" },
   payment_succeeded: { icon: CreditCard, label: "Pago exitoso", c: "text-emerald-500", bg: "bg-emerald-500/10" },
   payment_failed: { icon: XCircle, label: "Pago fallido", c: "text-red-500", bg: "bg-red-500/10" },
-  shipment_created: { icon: Truck, label: "EnvÃ­o creado", c: "text-blue-500", bg: "bg-blue-500/10" },
+  shipment_created: { icon: Truck, label: "Envío creado", c: "text-blue-500", bg: "bg-blue-500/10" },
   shipment_delivered: { icon: Package, label: "Pedido entregado", c: "text-purple-500", bg: "bg-purple-500/10" },
   system: { icon: Zap, label: "Sistema", c: "text-amber-500", bg: "bg-amber-500/10" },
-  promotion: { icon: Sparkles, label: "PromociÃ³n", c: "text-pink-500", bg: "bg-pink-500/10" },
+  promotion: { icon: Sparkles, label: "Promoción", c: "text-pink-500", bg: "bg-pink-500/10" },
 };
 
 const GROUP_LABELS = { today: "Hoy", yesterday: "Ayer", week: "Esta semana", older: "Anteriores" };
@@ -97,7 +97,7 @@ export default function NotificationsPage() {
           </div>
           <div>
             <h1 className="text-3xl font-head font-bold">Notificaciones</h1>
-            <p className="text-muted-foreground text-sm">{stats.unread > 0 ? `Tienes ${stats.unread} sin leer` : "Todo al dÃ­a"}</p>
+            <p className="text-muted-foreground text-sm">{stats.unread > 0 ? `Tienes ${stats.unread} sin leer` : "Todo al día"}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -138,7 +138,7 @@ export default function NotificationsPage() {
         <div className="text-center py-16 border-2 border-dashed border-border rounded-3xl">
           <Bell className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
           <h3 className="text-xl font-bold mb-2">No hay notificaciones</h3>
-          <p className="text-muted-foreground">EstÃ¡s al dÃ­a con tus notificaciones.</p>
+          <p className="text-muted-foreground">Estás al día con tus notificaciones.</p>
         </div>
       ) : (
         <div className="space-y-8">

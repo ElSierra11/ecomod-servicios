@@ -34,7 +34,7 @@ export default function AdminStats() {
       setStats(data);
     } catch (err) {
       console.error("Error loading stats:", err);
-      setError(err.message || "No se pudieron cargar las estadÃ­sticas");
+      setError(err.message || "No se pudieron cargar las estadísticas");
     } finally {
       setLoading(false);
     }
@@ -48,7 +48,7 @@ export default function AdminStats() {
     return (
       <div className="as-loading">
         <div className="as-spinner" />
-        <span>Cargando estadÃ­sticas...</span>
+        <span>Cargando estadísticas...</span>
         <div className="as-loading-dots">
           <span />
           <span />
@@ -62,7 +62,7 @@ export default function AdminStats() {
     return (
       <div className="as-error">
         <span className="as-error-icon">âš ï¸</span>
-        <h3>No se pudieron cargar las estadÃ­sticas</h3>
+        <h3>No se pudieron cargar las estadísticas</h3>
         <p>{error}</p>
         <button className="as-retry-btn" onClick={loadStats}>
           Reintentar
@@ -138,10 +138,10 @@ export default function AdminStats() {
               strokeWidth={2.5}
               style={{ color: "#e8291c" }}
             />
-            EstadÃ­sticas de Usuarios
+            Estadísticas de Usuarios
           </h1>
           <p className="as-sub">
-            Visualiza la distribuciÃ³n real de tu base de usuarios
+            Visualiza la distribución real de tu base de usuarios
           </p>
         </div>
         <div className="as-header-right">
@@ -211,7 +211,7 @@ export default function AdminStats() {
               strokeWidth={2.5}
               style={{ color: "#e8291c" }}
             />
-            <h3>DistribuciÃ³n de usuarios</h3>
+            <h3>Distribución de usuarios</h3>
             <span className="as-chart-sub">{formatNumber(total)} total</span>
           </div>
 
@@ -397,7 +397,7 @@ export default function AdminStats() {
                   >
                     {formatNumber(inactive)}
                   </span>
-                  <span className="as-summary-label">Requieren atenciÃ³n</span>
+                  <span className="as-summary-label">Requieren atención</span>
                 </div>
               </div>
             </div>

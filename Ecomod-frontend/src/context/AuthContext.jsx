@@ -183,7 +183,7 @@ export function AuthProvider({ children }) {
       setUser(data.user);
       setPermissions(data.user?.permissions || []);
 
-      // FusiÃ³n de carrito
+      // Fusión de carrito
       handleCartMerge(data.user.id);
 
       addNotification({
@@ -212,14 +212,14 @@ export function AuthProvider({ children }) {
         if (!sessionExpired) {
           addNotification({
             type: AUTH_EVENTS.LOGOUT,
-            message: "SesiÃ³n cerrada correctamente",
+            message: "Sesión cerrada correctamente",
             severity: "info",
           });
         } else {
           addNotification({
             type: AUTH_EVENTS.SESSION_EXPIRED,
             message:
-              "Tu sesiÃ³n ha expirado. Por favor, inicia sesiÃ³n nuevamente.",
+              "Tu sesión ha expirado. Por favor, inicia sesión nuevamente.",
             severity: "warning",
           });
         }
@@ -262,14 +262,14 @@ export function AuthProvider({ children }) {
         await authApi.changePassword({ currentPassword, newPassword });
         addNotification({
           type: "PASSWORD_CHANGED",
-          message: "ContraseÃ±a actualizada correctamente",
+          message: "Contraseña actualizada correctamente",
           severity: "success",
         });
         return true;
       } catch (err) {
         addNotification({
           type: "PASSWORD_CHANGE_ERROR",
-          message: err.message || "Error al cambiar contraseÃ±a",
+          message: err.message || "Error al cambiar contraseña",
           severity: "error",
         });
         throw err;
