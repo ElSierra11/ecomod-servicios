@@ -1,8 +1,12 @@
 import os
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import logging
+import httpx
 
+logger = logging.getLogger(__name__)
+
+# ─── Configuración de Email ───
+# Prioridad: Brevo API (HTTP) > SMTP (bloqueado en Render free tier)
+BREVO_API_KEY = os.getenv("BREVO_API_KEY", "")
 SMTP_HOST  = os.getenv("SMTP_HOST", "")
 SMTP_PORT  = int(os.getenv("SMTP_PORT", "587"))
 SMTP_USER  = os.getenv("SMTP_USER", "")
@@ -13,24 +17,73 @@ FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3001")
 
 
 def send_email(to_email: str, subject: str, html_body: str) -> dict:
-    if not SMTP_HOST or not SMTP_USER:
-        print(f"[EMAIL SIMULADO] Para: {to_email} | Asunto: {subject}")
-        return {"success": True, "simulated": True}
+    """Envía email usando Brevo API (HTTP) o SMTP como fallback."""
 
+    # Método 1: Brevo API (funciona en Render, no depende de SMTP)
+    if BREVO_API_KEY:
+        return _send_via_brevo(to_email, subject, html_body)
+
+    # Método 2: SMTP directo (bloqueado en Render free tier)
+    if SMTP_HOST and SMTP_USER:
+        return _send_via_smtp(to_email, subject, html_body)
+
+    # Sin configuración — simular
+    logger.warning(f"[EMAIL SIMULADO] Para: {to_email} | Asunto: {subject}")
+    return {"success": True, "simulated": True}
+
+
+def _send_via_brevo(to_email: str, subject: str, html_body: str) -> dict:
+    """Envía email usando la API HTTP de Brevo (Sendinblue)."""
     try:
+        response = httpx.post(
+            "https://api.brevo.com/v3/smtp/email",
+            headers={
+                "api-key": BREVO_API_KEY,
+                "Content-Type": "application/json",
+                "accept": "application/json",
+            },
+            json={
+                "sender": {"name": FROM_NAME, "email": FROM_EMAIL},
+                "to": [{"email": to_email}],
+                "subject": subject,
+                "htmlContent": html_body,
+            },
+            timeout=15.0,
+        )
+        if response.status_code in (200, 201):
+            logger.info(f"✅ Email enviado via Brevo a {to_email}")
+            return {"success": True, "simulated": False, "provider": "brevo"}
+        else:
+            error_msg = f"Brevo API error {response.status_code}: {response.text}"
+            logger.error(f"❌ {error_msg}")
+            return {"success": False, "error": error_msg}
+    except Exception as e:
+        logger.error(f"❌ Error enviando email via Brevo: {e}")
+        return {"success": False, "error": str(e)}
+
+
+def _send_via_smtp(to_email: str, subject: str, html_body: str) -> dict:
+    """Envía email usando SMTP directo (puede estar bloqueado en Render)."""
+    try:
+        import smtplib
+        from email.mime.text import MIMEText
+        from email.mime.multipart import MIMEMultipart
+
         msg = MIMEMultipart("alternative")
         msg["Subject"] = subject
         msg["From"]    = f"{FROM_NAME} <{FROM_EMAIL}>"
         msg["To"]      = to_email
         msg.attach(MIMEText(html_body, "html"))
 
-        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
+        with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=10) as server:
             server.starttls()
             server.login(SMTP_USER, SMTP_PASS)
             server.sendmail(FROM_EMAIL, to_email, msg.as_string())
 
-        return {"success": True, "simulated": False}
+        logger.info(f"✅ Email enviado via SMTP a {to_email}")
+        return {"success": True, "simulated": False, "provider": "smtp"}
     except Exception as e:
+        logger.error(f"❌ Error enviando email via SMTP: {e}")
         return {"success": False, "error": str(e)}
 
 
@@ -59,7 +112,7 @@ def get_html_layout(content: str) -> str:
                 {content}
             </div>
             <div class="footer">
-                <p>&copy; {datetime.now().year} EcoMod E-commerce Ecosystem. Todos los derechos reservados.</p>
+                <p>&copy; 2026 EcoMod E-commerce Ecosystem. Todos los derechos reservados.</p>
                 <p>Este es un correo automático, por favor no respondas.</p>
             </div>
         </div>
@@ -67,81 +120,71 @@ def get_html_layout(content: str) -> str:
     </html>
     """
 
-from datetime import datetime
 
-def build_order_confirmed_email(order_id: int, total: float, items: int) -> dict:
-    content = f"""
-        <h1 style="color: #111;">¡Tu orden ha sido recibida! 🚀</h1>
-        <p>Hola, estamos procesando tu pedido y pronto estará listo para envío.</p>
-        <div style="background: #fafafa; padding: 15px; border-radius: 10px; margin: 20px 0;">
-            <p style="margin: 5px 0;"><strong>Orden:</strong> #{order_id}</p>
-            <p style="margin: 5px 0;"><strong>Total:</strong> ${total:,.0f}</p>
-            <p style="margin: 5px 0;"><strong>Items:</strong> {items}</p>
-        </div>
-        <p>Tu inventario ha sido reservado. Por favor, completa el pago para proceder con el envío.</p>
-        <a href="{FRONTEND_URL}/orders" class="btn">Ver mi pedido</a>
-    """
-    return {
-        "subject": f"✅ Orden #{order_id} recibida — EcoMod",
-        "body": get_html_layout(content)
-    }
-
-def build_payment_succeeded_email(order_id: int, amount: float, txn: str) -> dict:
+def build_payment_succeeded_email(order_id: int, amount: float, transaction_id: str) -> dict:
     content = f"""
         <h1 style="color: #10b981;">¡Pago confirmado! 💳</h1>
         <p>Hemos recibido correctamente tu pago. Tu pedido ya está en manos de nuestro equipo de logística.</p>
         <div style="background: #f0fdf4; padding: 15px; border-radius: 10px; border: 1px solid #bbf7d0; margin: 20px 0;">
             <p style="margin: 5px 0;"><strong>Orden:</strong> #{order_id}</p>
             <p style="margin: 5px 0;"><strong>Monto:</strong> ${amount:,.0f}</p>
-            <p style="margin: 5px 0;"><strong>Transacción:</strong> <code style="color: #059669;">{txn}</code></p>
+            <p style="margin: 5px 0;"><strong>Transacción:</strong> <code style="color: #059669;">{transaction_id}</code></p>
         </div>
         <p>Te avisaremos en cuanto tu paquete salga de nuestra bodega.</p>
         <a href="{FRONTEND_URL}/orders" class="btn">Seguir Pedido</a>
     """
-    return {
-        "subject": f"💳 Pago confirmado — Orden #{order_id} — EcoMod",
-        "body": get_html_layout(content)
-    }
+    return {"subject": f"💳 Pago confirmado — Orden #{order_id} — EcoMod", "body": get_html_layout(content)}
+
 
 def build_payment_failed_email(order_id: int, reason: str) -> dict:
     content = f"""
-        <h1 style="color: #ef4444;">Problema con tu pago ❌</h1>
-        <p>Lamentablemente, el pago para tu orden #{order_id} no pudo ser procesado.</p>
-        <p style="color: #b91c1c; font-weight: bold;">Motivo: {reason}</p>
-        <p>No te preocupes, tus productos siguen reservados. Puedes intentar el pago nuevamente con otro método.</p>
-        <a href="{FRONTEND_URL}/orders" class="btn">Reintentar Pago</a>
-    """
-    return {
-        "subject": f"⚠️ Pago fallido — Orden #{order_id} — EcoMod",
-        "body": get_html_layout(content)
-    }
-
-def build_shipment_created_email(order_id: int, tracking: str, carrier: str, delivery: str) -> dict:
-    content = f"""
-        <h1 style="color: #111;">¡Tu pedido está en camino! 🚚</h1>
-        <p>Tu paquete ha sido entregado a la transportadora y está viajando hacia ti.</p>
-        <div style="background: #fafafa; padding: 15px; border-radius: 10px; margin: 20px 0;">
-            <p style="margin: 5px 0;"><strong>Tracking:</strong> <span class="pill">{tracking}</span></p>
-            <p style="margin: 5px 0;"><strong>Transportadora:</strong> {carrier}</p>
-            <p style="margin: 5px 0;"><strong>Entrega estimada:</strong> {delivery}</p>
+        <h1 style="color: #ef4444;">Pago no procesado ❌</h1>
+        <p>Tu pago para la orden <strong>#{order_id}</strong> no pudo ser procesado.</p>
+        <div style="background: #fef2f2; padding: 15px; border-radius: 10px; border: 1px solid #fecaca; margin: 20px 0;">
+            <p><strong>Motivo:</strong> {reason}</p>
         </div>
-        <p>Puedes rastrear tu envío en tiempo real desde tu panel.</p>
+        <p>Puedes intentar de nuevo con otro método de pago.</p>
+        <a href="{FRONTEND_URL}/payments" class="btn">Reintentar Pago</a>
+    """
+    return {"subject": f"❌ Pago no procesado — Orden #{order_id} — EcoMod", "body": get_html_layout(content)}
+
+
+def build_order_confirmed_email(order_id: int) -> dict:
+    content = f"""
+        <h1 style="color: #10b981;">¡Pedido confirmado! ✅</h1>
+        <p>Tu pedido <strong>#{order_id}</strong> ha sido confirmado y está siendo preparado.</p>
+        <a href="{FRONTEND_URL}/orders" class="btn">Ver Mi Pedido</a>
+    """
+    return {"subject": f"✅ Pedido #{order_id} confirmado — EcoMod", "body": get_html_layout(content)}
+
+
+def build_shipment_created_email(order_id: int, tracking: str, carrier: str) -> dict:
+    content = f"""
+        <h1 style="color: #3b82f6;">¡Tu pedido va en camino! 🚚</h1>
+        <p>Tu pedido <strong>#{order_id}</strong> ha sido despachado.</p>
+        <div style="background: #eff6ff; padding: 15px; border-radius: 10px; border: 1px solid #bfdbfe; margin: 20px 0;">
+            <p style="margin: 5px 0;"><strong>Transportadora:</strong> {carrier}</p>
+            <p style="margin: 5px 0;"><strong>Código de rastreo:</strong> <code style="color: #2563eb;">{tracking}</code></p>
+        </div>
         <a href="{FRONTEND_URL}/shipping" class="btn">Rastrear Envío</a>
     """
-    return {
-        "subject": f"🚚 Pedido en camino — Orden #{order_id} — EcoMod",
-        "body": get_html_layout(content)
-    }
+    return {"subject": f"🚚 Pedido #{order_id} en camino — EcoMod", "body": get_html_layout(content)}
 
-def build_shipment_delivered_email(order_id: int, tracking: str) -> dict:
+
+def build_welcome_email(nombre: str) -> dict:
     content = f"""
-        <h1 style="color: #111;">¡Entregado! 📦</h1>
-        <p>Tu orden #{order_id} ha sido entregada satisfactoriamente.</p>
-        <p>Esperamos que disfrutes tus productos EcoMod. ¡Gracias por confiar en nosotros!</p>
-        <p style="font-size: 14px; color: #666;">Número de guía: {tracking}</p>
-        <a href="{FRONTEND_URL}/catalog" class="btn">Seguir Comprando</a>
+        <h1 style="color: #e8291c;">¡Bienvenido a EcoMod, {nombre}! 🎉</h1>
+        <p>Tu cuenta ha sido creada exitosamente. Ya puedes explorar nuestro catálogo de productos modulares.</p>
+        <a href="{FRONTEND_URL}" class="btn">Explorar Catálogo</a>
     """
-    return {
-        "subject": f"📦 Pedido entregado — Orden #{order_id} — EcoMod",
-        "body": get_html_layout(content)
-    }
+    return {"subject": f"🎉 Bienvenido a EcoMod, {nombre}!", "body": get_html_layout(content)}
+
+
+def build_password_reset_email(reset_link: str) -> dict:
+    content = f"""
+        <h1 style="color: #f59e0b;">Restablecer contraseña 🔑</h1>
+        <p>Recibimos una solicitud para restablecer tu contraseña. Haz clic en el botón para continuar:</p>
+        <a href="{reset_link}" class="btn">Restablecer Contraseña</a>
+        <p style="font-size: 12px; color: #999; margin-top: 20px;">Si no solicitaste esto, ignora este correo.</p>
+    """
+    return {"subject": "🔑 Restablecer contraseña — EcoMod", "body": get_html_layout(content)}
