@@ -49,23 +49,26 @@ async def publish_event(event_type: str, payload: dict):
 
     try:
         connection = await get_connection()
-        async with connection:
-            channel = await connection.channel()
-            exchange = await channel.declare_exchange(
-                EXCHANGE_NAME,
-                aio_pika.ExchangeType.TOPIC,
-                durable=True
-            )
-            message = aio_pika.Message(
-                body=json.dumps({
-                    "event": event_type,
-                    "data": payload
-                }).encode(),
-                delivery_mode=aio_pika.DeliveryMode.PERSISTENT,
-                content_type="application/json"
-            )
-            await exchange.publish(message, routing_key=event_type)
-            logger.info(f"Evento publicado: {event_type} → {payload}")
+        channel = await connection.channel()
+        exchange = await channel.declare_exchange(
+            EXCHANGE_NAME,
+            aio_pika.ExchangeType.TOPIC,
+            durable=True
+        )
+        message = aio_pika.Message(
+            body=json.dumps({
+                "event": event_type,
+                "data": payload
+            }).encode(),
+            delivery_mode=aio_pika.DeliveryMode.PERSISTENT,
+            content_type="application/json"
+        )
+        await exchange.publish(message, routing_key=event_type)
+        logger.info(f"Evento publicado: {event_type} → {payload}")
+        try:
+            await connection.close()
+        except Exception:
+            pass
     except Exception as e:
         logger.error(f"Error publicando evento {event_type}: {e}")
 
