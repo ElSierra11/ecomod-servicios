@@ -25,6 +25,7 @@ SECRET_KEY = os.getenv("SECRET_KEY", "ecomod_secret_dev")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
 NOTIFICATION_SERVICE_URL = os.getenv("NOTIFICATION_SERVICE_URL", "http://notification-service:8007")
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3001")
 
 
 def get_db():
@@ -269,7 +270,7 @@ async def forgot_password(body: dict = Body(...), db: Session = Depends(get_db))
              "exp": datetime.utcnow() + timedelta(minutes=15)},
             SECRET_KEY, algorithm=ALGORITHM
         )
-        reset_link = f"http://localhost:3001/reset-password?token={reset_token}"
+        reset_link = f"{FRONTEND_URL}/reset-password?token={reset_token}"
         try:
             async with httpx.AsyncClient(timeout=5.0) as client:
                 await client.post(
