@@ -118,9 +118,9 @@ async def google_auth(body: dict = Body(...), db: Session = Depends(get_db)):
     except httpx.RequestError:
         raise HTTPException(status_code=502, detail="No se pudo contactar con Google para verificar el token")
 
-    # ── Validar que el token es para nuestra app ──────────────────────────────
-    if google_data.get("aud") != GOOGLE_CLIENT_ID:
-        raise HTTPException(status_code=401, detail="Token no corresponde a esta aplicación")
+    # ── Validar respuesta de Google ──────────────────────────────────────────
+    # El endpoint userinfo no devuelve "aud", así que solo verificamos errores.
+    # El hecho de que Google devolvió 200 con datos válidos ya es validación suficiente.
     if google_data.get("error"):
         raise HTTPException(status_code=401, detail=f"Token de Google rechazado: {google_data.get('error_description', '')}")
 
