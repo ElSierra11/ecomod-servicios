@@ -1,7 +1,10 @@
 import httpx
 import os
+import logging
 import stripe
 from app.event_bus import publish_event
+
+logger = logging.getLogger(__name__)
 
 ORDER_SERVICE_URL     = os.getenv("ORDER_SERVICE_URL",     "http://order-service:8004")
 INVENTORY_SERVICE_URL = os.getenv("INVENTORY_SERVICE_URL", "http://inventory-service:8002")

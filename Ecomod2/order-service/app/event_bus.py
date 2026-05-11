@@ -72,6 +72,10 @@ async def publish_event(event_type: str, payload: dict):
 
 async def subscribe_events(routing_keys: list, callback, queue_name: str):
 
+    if not _rabbitmq_available:
+        logger.info(f"⏭️ RabbitMQ no disponible — suscripción a {routing_keys} omitida (usando HTTP)")
+        return
+
     try:
         connection = await get_connection()
         channel = await connection.channel()
