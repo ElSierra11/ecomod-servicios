@@ -231,6 +231,7 @@ async def create_paypal_order(body: dict, db: Session = Depends(get_db)):
     order_id = body.get("order_id")
     user_id  = body.get("user_id")
     amount   = body.get("amount")   # ya viene en USD desde el frontend
+    email    = body.get("email", "")
 
     if not order_id or not user_id or not amount:
         raise HTTPException(status_code=400, detail="Faltan campos requeridos: order_id, user_id, amount")
@@ -247,7 +248,7 @@ async def create_paypal_order(body: dict, db: Session = Depends(get_db)):
     db.commit()
 
     # PayPal redirige al usuario a estas URLs tras aprobar/cancelar.
-    return_url = f"{FRONTEND_URL}/paypal-return?order_id={order_id}"
+    return_url = f"{FRONTEND_URL}/paypal-return?order_id={order_id}&email={email}"
     cancel_url = f"{FRONTEND_URL}/payments?paypal=cancelled&order_id={order_id}"
 
     # ─── Verificar credenciales PayPal 
@@ -324,6 +325,7 @@ async def execute_paypal_order(
     paymentId: str = None,
     PayerID:   str = None,
     order_id:  int = None,
+    email:     str = None,
     db: Session = Depends(get_db)
 ):
     """
@@ -359,7 +361,7 @@ async def execute_paypal_order(
         await notify_order_payment_result(
             order_id, success=True,
             user_id=payment.user_id,
-            email=f"user_{payment.user_id}@ecomod.com",
+            email=email or f"user_{payment.user_id}@ecomod.com",
             amount=payment.amount,
             transaction_id=paymentId
         )
@@ -382,7 +384,7 @@ async def execute_paypal_order(
         await notify_order_payment_result(
             order_id, success=True,
             user_id=payment.user_id,
-            email=f"user_{payment.user_id}@ecomod.com",
+            email=email or f"user_{payment.user_id}@ecomod.com",
             amount=payment.amount,
             transaction_id=payment.transaction_id
         )

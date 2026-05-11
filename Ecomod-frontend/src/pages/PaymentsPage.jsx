@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../hooks/useTheme";
 import { useToast } from "../App";
@@ -201,7 +201,7 @@ function PaypalForm({ order, user, onError, swal }) {
 
     setProcessing(true);
     try {
-      const res = await paymentsApi.createPaypalOrder({ order_id: order.id, user_id: user.id, amount: parseFloat(usd) });
+      const res = await paymentsApi.createPaypalOrder({ order_id: order.id, user_id: user.id, amount: parseFloat(usd), email: user.email });
       if (res.success) window.location.href = res.approval_url;
       else throw new Error("Error PayPal");
     } catch (e) { onError(e.message); setProcessing(false); }
