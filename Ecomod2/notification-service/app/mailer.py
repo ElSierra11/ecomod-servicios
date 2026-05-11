@@ -9,6 +9,7 @@ SMTP_USER  = os.getenv("SMTP_USER", "")
 SMTP_PASS  = os.getenv("SMTP_PASS", "")
 FROM_EMAIL = os.getenv("FROM_EMAIL", "noreply@ecomod.com")
 FROM_NAME  = os.getenv("FROM_NAME",  "EcoMod")
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3001")
 
 
 def send_email(to_email: str, subject: str, html_body: str) -> dict:
@@ -78,7 +79,7 @@ def build_order_confirmed_email(order_id: int, total: float, items: int) -> dict
             <p style="margin: 5px 0;"><strong>Items:</strong> {items}</p>
         </div>
         <p>Tu inventario ha sido reservado. Por favor, completa el pago para proceder con el envío.</p>
-        <a href="http://localhost:5173/orders" class="btn">Ver mi pedido</a>
+        <a href="{FRONTEND_URL}/orders" class="btn">Ver mi pedido</a>
     """
     return {
         "subject": f"✅ Orden #{order_id} recibida — EcoMod",
@@ -95,7 +96,7 @@ def build_payment_succeeded_email(order_id: int, amount: float, txn: str) -> dic
             <p style="margin: 5px 0;"><strong>Transacción:</strong> <code style="color: #059669;">{txn}</code></p>
         </div>
         <p>Te avisaremos en cuanto tu paquete salga de nuestra bodega.</p>
-        <a href="http://localhost:5173/orders" class="btn">Seguir Pedido</a>
+        <a href="{FRONTEND_URL}/orders" class="btn">Seguir Pedido</a>
     """
     return {
         "subject": f"💳 Pago confirmado — Orden #{order_id} — EcoMod",
@@ -108,7 +109,7 @@ def build_payment_failed_email(order_id: int, reason: str) -> dict:
         <p>Lamentablemente, el pago para tu orden #{order_id} no pudo ser procesado.</p>
         <p style="color: #b91c1c; font-weight: bold;">Motivo: {reason}</p>
         <p>No te preocupes, tus productos siguen reservados. Puedes intentar el pago nuevamente con otro método.</p>
-        <a href="http://localhost:5173/orders" class="btn">Reintentar Pago</a>
+        <a href="{FRONTEND_URL}/orders" class="btn">Reintentar Pago</a>
     """
     return {
         "subject": f"⚠️ Pago fallido — Orden #{order_id} — EcoMod",
@@ -125,7 +126,7 @@ def build_shipment_created_email(order_id: int, tracking: str, carrier: str, del
             <p style="margin: 5px 0;"><strong>Entrega estimada:</strong> {delivery}</p>
         </div>
         <p>Puedes rastrear tu envío en tiempo real desde tu panel.</p>
-        <a href="http://localhost:5173/shipping" class="btn">Rastrear Envío</a>
+        <a href="{FRONTEND_URL}/shipping" class="btn">Rastrear Envío</a>
     """
     return {
         "subject": f"🚚 Pedido en camino — Orden #{order_id} — EcoMod",
@@ -138,7 +139,7 @@ def build_shipment_delivered_email(order_id: int, tracking: str) -> dict:
         <p>Tu orden #{order_id} ha sido entregada satisfactoriamente.</p>
         <p>Esperamos que disfrutes tus productos EcoMod. ¡Gracias por confiar en nosotros!</p>
         <p style="font-size: 14px; color: #666;">Número de guía: {tracking}</p>
-        <a href="http://localhost:5173/catalog" class="btn">Seguir Comprando</a>
+        <a href="{FRONTEND_URL}/catalog" class="btn">Seguir Comprando</a>
     """
     return {
         "subject": f"📦 Pedido entregado — Orden #{order_id} — EcoMod",
