@@ -22,20 +22,30 @@ logger = logging.getLogger(__name__)
 RABBITMQ_URL = os.getenv("RABBITMQ_URL", "amqp://guest:guest@rabbitmq:5672/")
 EXCHANGE_NAME = "ecomod.events"
 
+# Detectar si RabbitMQ está configurado para producción
+_rabbitmq_available = "localhost" not in RABBITMQ_URL and "rabbitmq:" not in RABBITMQ_URL
+
 
 async def get_connection():
-    """Obtiene conexión a RabbitMQ con reintentos."""
-    for attempt in range(10):
+    """Obtiene conexión a RabbitMQ con reintentos rápidos."""
+    if not _rabbitmq_available:
+        raise Exception("RabbitMQ no configurado para producción (apunta a localhost/docker)")
+    
+    for attempt in range(3):
         try:
-            connection = await aio_pika.connect_robust(RABBITMQ_URL)
+            connection = await aio_pika.connect_robust(RABBITMQ_URL, timeout=5)
             return connection
         except Exception as e:
-            logger.warning(f"RabbitMQ no disponible (intento {attempt+1}/10): {e}")
-            await asyncio.sleep(3)
-    raise Exception("No se pudo conectar a RabbitMQ después de 10 intentos")
+            logger.warning(f"RabbitMQ no disponible (intento {attempt+1}/3): {e}")
+            await asyncio.sleep(1)
+    raise Exception("No se pudo conectar a RabbitMQ después de 3 intentos")
 
 
 async def publish_event(event_type: str, payload: dict):
+
+    if not _rabbitmq_available:
+        logger.info(f"⏭️ RabbitMQ no disponible — evento {event_type} será manejado por HTTP")
+        return
 
     try:
         connection = await get_connection()
