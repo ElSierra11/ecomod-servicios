@@ -188,3 +188,16 @@ def build_password_reset_email(reset_link: str) -> dict:
         <p style="font-size: 12px; color: #999; margin-top: 20px;">Si no solicitaste esto, ignora este correo.</p>
     """
     return {"subject": "🔑 Restablecer contraseña — EcoMod", "body": get_html_layout(content)}
+
+
+def build_shipment_delivered_email(order_id: int, tracking: str) -> dict:
+    content = f"""
+        <h1 style="color: #10b981;">¡Pedido entregado! 📦✅</h1>
+        <p>Tu pedido <strong>#{order_id}</strong> ha sido entregado exitosamente.</p>
+        <div style="background: #f0fdf4; padding: 15px; border-radius: 10px; border: 1px solid #bbf7d0; margin: 20px 0;">
+            <p style="margin: 5px 0;"><strong>Código de rastreo:</strong> <code style="color: #059669;">{tracking}</code></p>
+        </div>
+        <p>¡Gracias por comprar en EcoMod! Esperamos que disfrutes tu compra.</p>
+        <a href="{FRONTEND_URL}/orders" class="btn">Ver Mis Pedidos</a>
+    """
+    return {"subject": f"📦 Pedido #{order_id} entregado — EcoMod", "body": get_html_layout(content)}
