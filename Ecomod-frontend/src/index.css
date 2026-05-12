@@ -36,23 +36,26 @@
   --ec-toast-text: #0f172a;
 }
 
-[data-theme="dark"], .dark {
+/* Robust dark mode selector that works with both data-theme and class */
+[data-theme="dark"], 
+.dark,
+.dark-mode {
   --ec-primary: #ef4444;
   --ec-primary2: #dc2626;
   --ec-primary-dark: #b91c1c;
-  --ec-text: #e2e8f0;
-  --ec-text2: #94a3b8;
-  --ec-text3: #64748b;
-  --ec-bg: #0f172a;
-  --ec-bg2: #1e293b;
-  --ec-bg3: #334155;
-  --ec-card-bg: #1e293b;
-  --ec-surface: #1e293b;
-  --ec-border: #334155;
-  --ec-border2: #475569;
+  --ec-text: #f1f5f9;
+  --ec-text2: #cbd5e1;
+  --ec-text3: #94a3b8;
+  --ec-bg: #0b0f1a;
+  --ec-bg2: #151b2b;
+  --ec-bg3: #1e293b;
+  --ec-card-bg: #151b2b;
+  --ec-surface: #151b2b;
+  --ec-border: rgba(255,255,255,0.08);
+  --ec-border2: rgba(255,255,255,0.15);
   --ec-hover-bg: rgba(239,68,68,0.08);
-  --ec-toast-bg: #1e293b;
-  --ec-toast-text: #e2e8f0;
+  --ec-toast-bg: #151b2b;
+  --ec-toast-text: #f1f5f9;
 }
 
 @tailwind base;

@@ -21,8 +21,9 @@ import {
   BarChart3,
   Menu,
   X,
-  User,
   ShoppingBag,
+  MapPin,
+  Camera,
 } from "lucide-react";
 import { cn } from "../lib/utils";
 
@@ -86,14 +87,25 @@ export default function AppLayout({ children, page, setPage }) {
 
   return (
     <div className={cn("min-h-screen flex flex-col font-body transition-colors duration-300", isDark ? "dark bg-background text-foreground" : "bg-background text-foreground")}>
-      
+
+      {/* PROMOTIONAL TOP BAR */}
+      <div className="bg-primary text-white py-2 px-4 text-center text-[10px] font-black uppercase tracking-[0.3em] overflow-hidden whitespace-nowrap">
+        <motion.div
+          animate={{ x: ["100%", "-100%"] }}
+          transition={{ repeat: Infinity, duration: 25, ease: "linear" }}
+          className="inline-block"
+        >
+          🚀 Envío gratis en todas tus compras superiores a $150.000 COP • 🛡️ 100% Garantía de Satisfacción • 💳 Paga a cuotas con tu tarjeta favorita • 📦 Seguimiento en tiempo real
+        </motion.div>
+      </div>
+
       {/* HEADER */}
-      <header className="sticky top-0 z-50 glass-nav shadow-sm">
+      <header className="sticky top-0 z-50 glass-nav shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16 gap-4">
-            
+
             {/* Logo */}
-            <button 
+            <button
               onClick={() => setPage(isAdmin ? "admin-stats" : "dashboard")}
               className="flex items-center gap-2 group focus:outline-none"
             >
@@ -103,32 +115,52 @@ export default function AppLayout({ children, page, setPage }) {
               </span>
             </button>
 
-            {/* Search Bar (Desktop) */}
-            <div className="hidden md:flex flex-1 max-w-xl items-center relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-4 w-4 text-muted-foreground" />
+            {/* Search Bar (Desktop) - Homecenter Style */}
+            <div className="hidden md:flex flex-1 max-w-2xl items-center relative group">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none group-focus-within:text-primary transition-colors">
+                <Search className="h-5 w-5 text-muted-foreground" />
               </div>
               <input
                 type="text"
-                placeholder="Buscar productos..."
-                className="w-full pl-10 pr-4 py-2 rounded-full border border-border bg-secondary/50 focus:bg-background focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none text-sm"
+                placeholder="¿Qué estás buscando?"
+                className="w-full pl-12 pr-12 py-3 rounded-lg border-2 border-border/50 bg-white focus:ring-0 focus:border-primary transition-all outline-none text-sm font-medium shadow-sm"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={handleKeyDown}
               />
+              <div className="absolute inset-y-0 right-0 pr-4 flex items-center gap-2">
+                <button className="text-muted-foreground hover:text-primary transition-colors">
+                  <Camera className="h-5 w-5" />
+                </button>
+                <div className="h-6 w-[1px] bg-border mx-1" />
+                <Search className="h-5 w-5 text-muted-foreground group-focus-within:text-primary" />
+              </div>
             </div>
 
             {/* Actions */}
-            <div className="flex items-center gap-2 sm:gap-4">
-              
+            <div className="flex items-center gap-2 sm:gap-6">
+
+              {/* Location (Homecenter Style) */}
+              <button className="hidden lg:flex items-center gap-2 group text-left">
+                <div className="p-2 rounded-full bg-secondary/50 group-hover:bg-primary/10 transition-colors">
+                  <MapPin className="h-5 w-5 text-muted-foreground group-hover:text-primary" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-bold text-primary uppercase leading-none mb-1">Ingresa tu ubicación</span>
+                  <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground">Ver disponibilidad</span>
+                </div>
+              </button>
+
+              <div className="h-8 w-[1px] bg-border hidden lg:block" />
+
               {!isAdmin && (
-                <button 
+                <button
                   onClick={() => setPage("cart")}
-                  className="relative p-2 rounded-full hover:bg-secondary transition-colors focus:outline-none"
+                  className="relative p-2 rounded-full hover:bg-secondary transition-colors focus:outline-none group"
                 >
-                  <ShoppingCart className="h-5 w-5" />
+                  <ShoppingCart className="h-6 w-6 text-muted-foreground group-hover:text-primary" />
                   {cartCount > 0 && (
-                    <span className="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-primary rounded-full">
+                    <span className="absolute -top-1 -right-1 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 py-0.5 text-[10px] font-black leading-none text-white transform bg-primary rounded-full border-2 border-background shadow-lg">
                       {cartCount}
                     </span>
                   )}
@@ -137,7 +169,7 @@ export default function AppLayout({ children, page, setPage }) {
 
               {/* User Dropdown */}
               <div className="relative" ref={userMenuRef}>
-                <button 
+                <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
                   className="flex items-center gap-2 p-1.5 rounded-full hover:bg-secondary transition-colors focus:outline-none"
                 >
@@ -149,7 +181,7 @@ export default function AppLayout({ children, page, setPage }) {
 
                 <AnimatePresence>
                   {userMenuOpen && (
-                    <motion.div 
+                    <motion.div
                       initial={{ opacity: 0, y: 10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
@@ -176,14 +208,14 @@ export default function AppLayout({ children, page, setPage }) {
                         ))}
                       </div>
                       <div className="p-2 border-t border-border">
-                        <button 
+                        <button
                           onClick={toggle}
                           className="flex items-center gap-3 w-full px-3 py-2 text-sm text-foreground hover:bg-secondary rounded-md transition-colors"
                         >
                           {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
                           {isDark ? "Modo Claro" : "Modo Oscuro"}
                         </button>
-                        <button 
+                        <button
                           onClick={() => { logout(); setUserMenuOpen(false); }}
                           className="flex items-center gap-3 w-full px-3 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-md transition-colors mt-1"
                         >
@@ -197,7 +229,7 @@ export default function AppLayout({ children, page, setPage }) {
               </div>
 
               {/* Mobile Menu Toggle */}
-              <button 
+              <button
                 onClick={() => setMobileOpen(!mobileOpen)}
                 className="md:hidden p-2 rounded-full hover:bg-secondary transition-colors focus:outline-none"
               >
@@ -218,8 +250,8 @@ export default function AppLayout({ children, page, setPage }) {
               onClick={() => setPage(item.id)}
               className={cn(
                 "flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap",
-                page === item.id 
-                  ? "border-primary text-primary" 
+                page === item.id
+                  ? "border-primary text-primary"
                   : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
               )}
             >
@@ -234,7 +266,7 @@ export default function AppLayout({ children, page, setPage }) {
       <AnimatePresence>
         {mobileOpen && (
           <>
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setMobileOpen(false)}
               className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 md:hidden"
@@ -324,19 +356,3 @@ export default function AppLayout({ children, page, setPage }) {
                 <li><a href="#" className="hover:text-primary transition-colors">Privacidad</a></li>
               </ul>
             </div>
-            <div>
-              <h4 className="font-semibold mb-4">Sistema</h4>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground bg-secondary/50 p-3 rounded-lg">
-                <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                <span>API Gateway (Kong) Operativo</span>
-              </div>
-            </div>
-          </div>
-          <div className="mt-8 pt-8 border-t border-border text-center text-sm text-muted-foreground">
-            <p>&copy; {new Date().getFullYear()} EcoMod Inc. Todos los derechos reservados.</p>
-          </div>
-        </div>
-      </footer>
-    </div>
-  );
-}

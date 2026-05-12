@@ -224,7 +224,7 @@ export default function AdminStats() {
                   cy="60"
                   r="50"
                   fill="none"
-                  stroke="var(--border)"
+                  stroke="var(--ec-border)"
                   strokeWidth="8"
                 />
                 <circle

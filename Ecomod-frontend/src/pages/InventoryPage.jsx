@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { inventoryApi, catalogApi } from "../services/api";
+import { useTheme } from "../hooks/useTheme";
 import { useSwal } from "../hooks/useSwal";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -29,7 +30,8 @@ function StatusBadge({ avail }) {
 }
 
 export default function InventoryPage() {
-  const { success, error, warning, confirm, loading, close } = useSwal(false);
+  const { isDark } = useTheme();
+  const { success, error, warning, confirm, loading, close } = useSwal(isDark);
   const [inventory, setInventory] = useState([]);
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -215,7 +217,7 @@ export default function InventoryPage() {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 pb-12">
+    <div className={cn("max-w-7xl mx-auto space-y-8 pb-12", isDark && "dark")}>
       
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
