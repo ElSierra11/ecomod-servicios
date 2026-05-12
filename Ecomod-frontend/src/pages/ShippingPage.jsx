@@ -1138,7 +1138,7 @@ export default function ShippingPage() {
           display: flex; align-items: center; gap: 8px;
           padding: 10px 20px;
           background: var(--ec-bg2);
-          border: 1.5px solid var(--border);
+          border: 1.5px solid var(--ec-border);
           border-radius: 10px;
           font-family: 'Inter', sans-serif; font-size: 13px;
           font-weight: 700; color: var(--ec-text2);
@@ -1195,7 +1195,7 @@ export default function ShippingPage() {
           gap: 16px; margin-bottom: 32px;
         }
         .sp-stat {
-          background: var(--card); border: 1.5px solid var(--border);
+          background: var(--ec-card-bg); border: 1.5px solid var(--ec-border);
           border-radius: 16px; padding: 20px;
           display: flex; align-items: center; gap: 16px;
           animation: spFadeUp .5s ease forwards;
@@ -1215,11 +1215,11 @@ export default function ShippingPage() {
 
         /* Form Card */
         .sp-form-card {
-          background: var(--card); border: 1.5px solid var(--border);
+          background: var(--ec-card-bg); border: 1.5px solid var(--ec-border);
           border-radius: 20px; padding: 28px;
           margin-bottom: 28px; animation: spSlideDown .3s ease;
         }
-        .sp-form-header { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1.5px solid var(--border); }
+        .sp-form-header { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1.5px solid var(--ec-border); }
         .sp-form-header h3 {
           font-size: 18px; font-weight: 800; color: var(--ec-text);
           display: flex; align-items: center; gap: 10px; margin: 0 0 6px;
@@ -1243,7 +1243,7 @@ export default function ShippingPage() {
           display: flex; align-items: center; gap: 10px;
           padding: 11px 14px;
           background: var(--ec-bg2);
-          border: 1.5px solid var(--border);
+          border: 1.5px solid var(--ec-border);
           border-radius: 12px;
           transition: all .2s;
           color: var(--ec-text3);
@@ -1270,7 +1270,7 @@ export default function ShippingPage() {
           display: flex; align-items: center; gap: 10px;
           padding: 12px 14px;
           background: var(--ec-bg2);
-          border: 1.5px solid var(--border);
+          border: 1.5px solid var(--ec-border);
           border-radius: 12px;
           cursor: pointer; transition: all .2s;
           font-family: 'Inter', sans-serif; font-size: 13px;
@@ -1292,7 +1292,7 @@ export default function ShippingPage() {
         .sp-cost-section {
           margin-top: 24px; padding: 20px;
           background: var(--ec-bg2); border-radius: 14px;
-          border: 1.5px dashed var(--border);
+          border: 1.5px dashed var(--ec-border);
         }
         .sp-calc-btn {
           display: inline-flex; align-items: center; gap: 8px;
@@ -1308,7 +1308,7 @@ export default function ShippingPage() {
         .sp-cost-result {
           display: flex; align-items: center; gap: 24px;
           margin-top: 16px; padding-top: 16px;
-          border-top: 1.5px solid var(--border);
+          border-top: 1.5px solid var(--ec-border);
           flex-wrap: wrap;
         }
         .sp-cost-item { display: flex; flex-direction: column; gap: 4px; }
@@ -1319,18 +1319,18 @@ export default function ShippingPage() {
           font-size: 14px; font-weight: 700; color: var(--ec-warning);
         }
         .sp-cost-carrier { font-size: 14px; font-weight: 700; color: var(--ec-text2); }
-        .sp-cost-divider { width: 1px; height: 40px; background: var(--border); }
+        .sp-cost-divider { width: 1px; height: 40px; background: var(--ec-border); }
 
         /* Form Actions */
         .sp-form-actions {
           display: flex; justify-content: flex-end; gap: 10px;
           margin-top: 24px; padding-top: 20px;
-          border-top: 1.5px solid var(--border);
+          border-top: 1.5px solid var(--ec-border);
         }
         .sp-btn-secondary {
           padding: 12px 24px;
           background: var(--ec-bg2);
-          border: 1.5px solid var(--border);
+          border: 1.5px solid var(--ec-border);
           border-radius: 10px;
           font-family: 'Inter', sans-serif; font-size: 14px;
           font-weight: 700; color: var(--ec-text2);
@@ -1361,8 +1361,8 @@ export default function ShippingPage() {
         .sp-search-box {
           display: flex; align-items: center; gap: 10px;
           padding: 12px 16px;
-          background: var(--card);
-          border: 1.5px solid var(--border);
+          background: var(--ec-card-bg);
+          border: 1.5px solid var(--ec-border);
           border-radius: 12px;
           margin-bottom: 14px;
           transition: all .2s;
@@ -1390,8 +1390,8 @@ export default function ShippingPage() {
         .sp-status-pill {
           display: inline-flex; align-items: center; gap: 6px;
           padding: 8px 16px;
-          background: var(--card);
-          border: 1.5px solid var(--border);
+          background: var(--ec-card-bg);
+          border: 1.5px solid var(--ec-border);
           border-radius: 20px;
           font-size: 12px; font-weight: 700;
           color: var(--ec-text2); cursor: pointer;
@@ -1412,14 +1412,14 @@ export default function ShippingPage() {
 
         /* List Card */
         .sp-list-card {
-          background: var(--card);
-          border: 1.5px solid var(--border);
+          background: var(--ec-card-bg);
+          border: 1.5px solid var(--ec-border);
           border-radius: 20px; overflow: hidden;
         }
         .sp-list-header {
           display: flex; justify-content: space-between; align-items: center;
           padding: 20px 24px;
-          border-bottom: 1.5px solid var(--border);
+          border-bottom: 1.5px solid var(--ec-border);
         }
         .sp-list-header h2 {
           font-size: 18px; font-weight: 800; color: var(--ec-text);
@@ -1463,7 +1463,7 @@ export default function ShippingPage() {
         /* Shipments */
         .sp-shipments { display: flex; flex-direction: column; }
         .sp-shipment {
-          border-bottom: 1.5px solid var(--border);
+          border-bottom: 1.5px solid var(--ec-border);
           animation: spFadeUp .4s ease forwards;
           opacity: 0; transition: all .25s;
         }
@@ -1518,7 +1518,7 @@ export default function ShippingPage() {
         .sp-expand-btn {
           width: 32px; height: 32px;
           border-radius: 8px;
-          background: var(--ec-bg); border: 1.5px solid var(--border);
+          background: var(--ec-bg); border: 1.5px solid var(--ec-border);
           color: var(--ec-text3); cursor: pointer;
           display: flex; align-items: center; justify-content: center;
           transition: all .15s;
@@ -1530,8 +1530,8 @@ export default function ShippingPage() {
           display: flex; align-items: center; gap: 12px;
           padding: 12px 24px;
           background: var(--ec-bg);
-          border-top: 1.5px solid var(--border);
-          border-bottom: 1.5px solid var(--border);
+          border-top: 1.5px solid var(--ec-border);
+          border-bottom: 1.5px solid var(--ec-border);
         }
         .sp-tracking-label {
           font-size: 11px; font-weight: 700;
@@ -1543,16 +1543,16 @@ export default function ShippingPage() {
           font-family: 'SF Mono', monospace;
           font-size: 14px; font-weight: 700;
           color: var(--ec-text);
-          background: var(--card);
+          background: var(--ec-card-bg);
           padding: 6px 14px;
           border-radius: 8px;
-          border: 1.5px solid var(--border);
+          border: 1.5px solid var(--ec-border);
           letter-spacing: .05em;
         }
         .sp-tracking-copy {
           padding: 6px 14px;
-          background: var(--card);
-          border: 1.5px solid var(--border);
+          background: var(--ec-card-bg);
+          border: 1.5px solid var(--ec-border);
           border-radius: 8px;
           font-family: 'Inter', sans-serif; font-size: 12px;
           font-weight: 700; color: var(--ec-primary);
@@ -1563,7 +1563,7 @@ export default function ShippingPage() {
         /* Progress */
         .sp-progress-wrap { padding: 20px 24px 16px; }
         .sp-progress-track {
-          height: 6px; background: var(--border);
+          height: 6px; background: var(--ec-border);
           border-radius: 3px; overflow: hidden; margin-bottom: 12px;
         }
         .sp-progress-fill {
@@ -1599,8 +1599,8 @@ export default function ShippingPage() {
           gap: 24px; margin-bottom: 20px;
         }
         .sp-detail-section {
-          background: var(--card);
-          border: 1.5px solid var(--border);
+          background: var(--ec-card-bg);
+          border: 1.5px solid var(--ec-border);
           border-radius: 14px; padding: 20px;
         }
         .sp-detail-section h4 {
@@ -1613,7 +1613,7 @@ export default function ShippingPage() {
         .sp-detail-row {
           display: flex; justify-content: space-between; align-items: flex-start;
           padding: 8px 0;
-          border-bottom: 1px solid var(--border);
+          border-bottom: 1px solid var(--ec-border);
         }
         .sp-detail-row:last-child { border-bottom: none; }
         .sp-detail-label { font-size: 12px; color: var(--ec-text3); font-weight: 500; }

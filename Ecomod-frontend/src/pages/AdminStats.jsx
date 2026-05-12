@@ -503,7 +503,7 @@ export default function AdminStats() {
           gap: 16px; margin-bottom: 32px;
         }
         .as-stat-card {
-          background: var(--card); border: 1.5px solid var(--border);
+          background: var(--ec-card-bg); border: 1.5px solid var(--ec-border);
           border-radius: 18px; padding: 20px;
           animation: asFadeUp .5s ease forwards; opacity: 0; transition: all .25s;
         }
@@ -559,7 +559,7 @@ export default function AdminStats() {
           display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
         }
         .as-chart-card {
-          background: var(--card); border: 1.5px solid var(--border);
+          background: var(--ec-card-bg); border: 1.5px solid var(--ec-border);
           border-radius: 20px; padding: 28px; transition: all .25s;
         }
         .as-chart-card:hover {
@@ -637,7 +637,7 @@ export default function AdminStats() {
         /* Activity Summary */
         .as-activity-summary {
           display: flex; align-items: center; gap: 20px;
-          margin-top: 8px; padding-top: 20px; border-top: 1.5px solid var(--border);
+          margin-top: 8px; padding-top: 20px; border-top: 1.5px solid var(--ec-border);
         }
         .as-summary-item { display: flex; align-items: center; gap: 12px; flex: 1; }
         .as-summary-icon {
@@ -652,7 +652,7 @@ export default function AdminStats() {
           display: block; font-size: 12px; color: var(--ec-text3);
           font-weight: 500; margin-top: 2px;
         }
-        .as-summary-divider { width: 1px; height: 40px; background: var(--border); }
+        .as-summary-divider { width: 1px; height: 40px; background: var(--ec-border); }
 
         /* Responsive */
         @media (max-width: 1024px) {

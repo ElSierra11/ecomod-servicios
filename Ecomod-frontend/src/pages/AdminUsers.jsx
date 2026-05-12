@@ -508,7 +508,7 @@ export default function AdminUsers() {
         .au-count {
           text-align: center; padding: 12px 20px;
           background: var(--ec-bg2);
-          border: 1.5px solid var(--border);
+          border: 1.5px solid var(--ec-border);
           border-radius: 14px;
         }
         .au-count-value {
@@ -526,7 +526,7 @@ export default function AdminUsers() {
           display: flex; align-items: center; gap: 8px;
           padding: 10px 20px;
           background: var(--ec-bg2);
-          border: 1.5px solid var(--border);
+          border: 1.5px solid var(--ec-border);
           border-radius: 12px;
           font-size: 13px; font-weight: 700;
           color: var(--ec-text2); cursor: pointer;
@@ -574,8 +574,8 @@ export default function AdminUsers() {
           gap: 16px; margin-bottom: 28px;
         }
         .au-stat {
-          background: var(--card);
-          border: 1.5px solid var(--border);
+          background: var(--ec-card-bg);
+          border: 1.5px solid var(--ec-border);
           border-radius: 16px; padding: 18px;
           display: flex; align-items: center; gap: 14px;
           animation: fadeUp .5s ease forwards;
@@ -614,8 +614,8 @@ export default function AdminUsers() {
           flex: 1; min-width: 260px;
           display: flex; align-items: center; gap: 10px;
           padding: 11px 16px;
-          background: var(--card);
-          border: 1.5px solid var(--border);
+          background: var(--ec-card-bg);
+          border: 1.5px solid var(--ec-border);
           border-radius: 12px;
           transition: all .2s;
         }
@@ -642,8 +642,8 @@ export default function AdminUsers() {
         .au-filter-group {
           display: flex; align-items: center; gap: 8px;
           padding: 10px 14px;
-          background: var(--card);
-          border: 1.5px solid var(--border);
+          background: var(--ec-card-bg);
+          border: 1.5px solid var(--ec-border);
           border-radius: 10px; color: var(--ec-text2);
         }
         .au-filter-group select {
@@ -679,8 +679,8 @@ export default function AdminUsers() {
 
         /* Table */
         .au-table-wrap {
-          background: var(--card);
-          border: 1.5px solid var(--border);
+          background: var(--ec-card-bg);
+          border: 1.5px solid var(--ec-border);
           border-radius: 20px;
           overflow: hidden;
         }
@@ -693,7 +693,7 @@ export default function AdminUsers() {
           gap: 16px;
           padding: 16px 24px;
           background: var(--ec-bg2);
-          border-bottom: 1.5px solid var(--border);
+          border-bottom: 1.5px solid var(--ec-border);
         }
         .au-table-header span {
           font-size: 11px; font-weight: 800;
@@ -706,7 +706,7 @@ export default function AdminUsers() {
           grid-template-columns: 2fr 2fr 1fr 1.2fr 1.2fr 0.8fr;
           gap: 16px;
           padding: 14px 24px;
-          border-bottom: 1px solid var(--border);
+          border-bottom: 1px solid var(--ec-border);
           align-items: center;
           animation: fadeUp .4s ease forwards;
           opacity: 0;
@@ -761,7 +761,7 @@ export default function AdminUsers() {
         .au-select-wrap select {
           padding: 8px 28px 8px 12px;
           background: var(--ec-bg2);
-          border: 1.5px solid var(--border);
+          border: 1.5px solid var(--ec-border);
           border-radius: 10px;
           font-family: 'Inter', sans-serif;
           font-size: 12px; font-weight: 700;
@@ -819,7 +819,7 @@ export default function AdminUsers() {
         .au-delete-btn {
           width: 36px; height: 36px;
           border-radius: 10px;
-          background: none; border: 1.5px solid var(--border);
+          background: none; border: 1.5px solid var(--ec-border);
           color: var(--ec-text3); cursor: pointer;
           display: flex; align-items: center; justify-content: center;
           transition: all .2s;
