@@ -1,58 +1,58 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap");
 
-/* Legacy custom properties used by page components */
+/* Legacy custom properties used by page components (--ec- prefix avoids Tailwind HSL conflicts) */
 :root {
-  --primary: #dc2626;
-  --primary2: #b91c1c;
-  --primary-dark: #991b1b;
-  --secondary: #f97316;
-  --text: #0f172a;
-  --text2: #475569;
-  --text3: #94a3b8;
-  --bg: #f8fafc;
-  --bg2: #f1f5f9;
-  --bg3: #e2e8f0;
-  --card-bg: #ffffff;
-  --surface: #ffffff;
-  --border: #e2e8f0;
-  --border2: #cbd5e1;
-  --hover-bg: #fef2f2;
-  --success: #16a34a;
-  --danger: #dc2626;
-  --warning: #d97706;
-  --info: #2563eb;
-  --font-head: 'Outfit', sans-serif;
-  --font-body: 'Inter', sans-serif;
-  --radius: 0.75rem;
-  --radius-lg: 1rem;
-  --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-fast: 0.15s ease;
-  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-hover: 0 10px 25px rgba(0,0,0,0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04);
-  --shadow-primary: 0 4px 14px rgba(220,38,38,0.25);
-  --shadow-primary-lg: 0 8px 28px rgba(220,38,38,0.35);
-  --toast-bg: #ffffff;
-  --toast-text: #0f172a;
+  --ec-primary: #dc2626;
+  --ec-primary2: #b91c1c;
+  --ec-primary-dark: #991b1b;
+  --ec-secondary: #f97316;
+  --ec-text: #0f172a;
+  --ec-text2: #475569;
+  --ec-text3: #94a3b8;
+  --ec-bg: #f8fafc;
+  --ec-bg2: #f1f5f9;
+  --ec-bg3: #e2e8f0;
+  --ec-card-bg: #ffffff;
+  --ec-surface: #ffffff;
+  --ec-border: #e2e8f0;
+  --ec-border2: #cbd5e1;
+  --ec-hover-bg: #fef2f2;
+  --ec-success: #16a34a;
+  --ec-danger: #dc2626;
+  --ec-warning: #d97706;
+  --ec-info: #2563eb;
+  --ec-font-head: 'Outfit', sans-serif;
+  --ec-font-body: 'Inter', sans-serif;
+  --ec-radius: 0.75rem;
+  --ec-radius-lg: 1rem;
+  --ec-transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --ec-transition-fast: 0.15s ease;
+  --ec-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --ec-shadow-hover: 0 10px 25px rgba(0,0,0,0.1);
+  --ec-shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04);
+  --ec-shadow-primary: 0 4px 14px rgba(220,38,38,0.25);
+  --ec-shadow-primary-lg: 0 8px 28px rgba(220,38,38,0.35);
+  --ec-toast-bg: #ffffff;
+  --ec-toast-text: #0f172a;
 }
 
 [data-theme="dark"], .dark {
-  --primary: #ef4444;
-  --primary2: #dc2626;
-  --primary-dark: #b91c1c;
-  --text: #e2e8f0;
-  --text2: #94a3b8;
-  --text3: #64748b;
-  --bg: #0f172a;
-  --bg2: #1e293b;
-  --bg3: #334155;
-  --card-bg: #1e293b;
-  --surface: #1e293b;
-  --border: #334155;
-  --border2: #475569;
-  --hover-bg: rgba(239,68,68,0.08);
-  --toast-bg: #1e293b;
-  --toast-text: #e2e8f0;
+  --ec-primary: #ef4444;
+  --ec-primary2: #dc2626;
+  --ec-primary-dark: #b91c1c;
+  --ec-text: #e2e8f0;
+  --ec-text2: #94a3b8;
+  --ec-text3: #64748b;
+  --ec-bg: #0f172a;
+  --ec-bg2: #1e293b;
+  --ec-bg3: #334155;
+  --ec-card-bg: #1e293b;
+  --ec-surface: #1e293b;
+  --ec-border: #334155;
+  --ec-border2: #475569;
+  --ec-hover-bg: rgba(239,68,68,0.08);
+  --ec-toast-bg: #1e293b;
+  --ec-toast-text: #e2e8f0;
 }
 
 @tailwind base;

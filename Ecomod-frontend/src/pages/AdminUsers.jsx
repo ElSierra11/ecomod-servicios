@@ -494,12 +494,12 @@ export default function AdminUsers() {
         .au-title {
           font-family: 'Barlow Condensed', sans-serif;
           font-size: 32px; font-weight: 800;
-          color: var(--text); margin: 0 0 8px;
+          color: var(--ec-text); margin: 0 0 8px;
           display: flex; align-items: center; gap: 12px;
           letter-spacing: -.02em;
         }
         .au-sub {
-          font-size: 15px; color: var(--text3);
+          font-size: 15px; color: var(--ec-text3);
           margin: 0; font-weight: 500;
         }
         .au-header-right {
@@ -507,7 +507,7 @@ export default function AdminUsers() {
         }
         .au-count {
           text-align: center; padding: 12px 20px;
-          background: var(--bg2);
+          background: var(--ec-bg2);
           border: 1.5px solid var(--border);
           border-radius: 14px;
         }
@@ -518,23 +518,23 @@ export default function AdminUsers() {
           color: #e8291c; line-height: 1;
         }
         .au-count-label {
-          font-size: 11px; color: var(--text3);
+          font-size: 11px; color: var(--ec-text3);
           font-weight: 600; text-transform: uppercase;
           letter-spacing: .05em;
         }
         .au-refresh-btn {
           display: flex; align-items: center; gap: 8px;
           padding: 10px 20px;
-          background: var(--bg2);
+          background: var(--ec-bg2);
           border: 1.5px solid var(--border);
           border-radius: 12px;
           font-size: 13px; font-weight: 700;
-          color: var(--text2); cursor: pointer;
+          color: var(--ec-text2); cursor: pointer;
           transition: all .2s;
         }
         .au-refresh-btn:hover {
           border-color: #e8291c; color: #e8291c;
-          background: var(--hover-bg);
+          background: var(--ec-hover-bg);
         }
 
         /* Message */
@@ -601,7 +601,7 @@ export default function AdminUsers() {
           line-height: 1;
         }
         .au-stat-label {
-          font-size: 12px; color: var(--text3);
+          font-size: 12px; color: var(--ec-text3);
           font-weight: 600; margin-top: 4px;
         }
 
@@ -626,12 +626,12 @@ export default function AdminUsers() {
         .au-search input {
           flex: 1; background: none; border: none; outline: none;
           font-family: 'Inter', sans-serif; font-size: 14px;
-          color: var(--text);
+          color: var(--ec-text);
         }
-        .au-search input::placeholder { color: var(--text3); }
+        .au-search input::placeholder { color: var(--ec-text3); }
         .au-search-clear {
           background: none; border: none; cursor: pointer;
-          color: var(--text3); display: flex; align-items: center;
+          color: var(--ec-text3); display: flex; align-items: center;
           transition: color .15s;
         }
         .au-search-clear:hover { color: #e8291c; }
@@ -644,12 +644,12 @@ export default function AdminUsers() {
           padding: 10px 14px;
           background: var(--card);
           border: 1.5px solid var(--border);
-          border-radius: 10px; color: var(--text2);
+          border-radius: 10px; color: var(--ec-text2);
         }
         .au-filter-group select {
           background: none; border: none; outline: none;
           font-family: 'Inter', sans-serif; font-size: 13px;
-          font-weight: 600; color: var(--text);
+          font-weight: 600; color: var(--ec-text);
           cursor: pointer;
         }
         .au-clear-filters {
@@ -668,10 +668,10 @@ export default function AdminUsers() {
 
         /* Results */
         .au-results {
-          font-size: 13px; color: var(--text3);
+          font-size: 13px; color: var(--ec-text3);
           margin-bottom: 16px; font-weight: 500;
         }
-        .au-results strong { color: var(--text); }
+        .au-results strong { color: var(--ec-text); }
         .au-results-filtered {
           color: #e8291c; font-weight: 700;
           margin-left: 4px;
@@ -692,12 +692,12 @@ export default function AdminUsers() {
           grid-template-columns: 2fr 2fr 1fr 1.2fr 1.2fr 0.8fr;
           gap: 16px;
           padding: 16px 24px;
-          background: var(--bg2);
+          background: var(--ec-bg2);
           border-bottom: 1.5px solid var(--border);
         }
         .au-table-header span {
           font-size: 11px; font-weight: 800;
-          color: var(--text3); text-transform: uppercase;
+          color: var(--ec-text3); text-transform: uppercase;
           letter-spacing: .06em;
         }
 
@@ -713,7 +713,7 @@ export default function AdminUsers() {
           transition: all .2s;
         }
         .au-table-row:last-child { border-bottom: none; }
-        .au-table-row:hover { background: var(--hover-bg); }
+        .au-table-row:hover { background: var(--ec-hover-bg); }
         .au-table-row.is-self {
           background: rgba(232,41,28,.03);
           border-left: 3px solid #e8291c;
@@ -733,7 +733,7 @@ export default function AdminUsers() {
         .au-user-info { display: flex; flex-direction: column; gap: 2px; }
         .au-user-name {
           font-size: 14px; font-weight: 700;
-          color: var(--text); display: flex; align-items: center; gap: 8px;
+          color: var(--ec-text); display: flex; align-items: center; gap: 8px;
         }
         .au-self-badge {
           padding: 2px 8px;
@@ -745,27 +745,27 @@ export default function AdminUsers() {
           letter-spacing: .05em;
         }
         .au-user-handle {
-          font-size: 12px; color: var(--text3);
+          font-size: 12px; color: var(--ec-text3);
           font-weight: 500;
         }
 
         .au-col-contact {
           display: flex; align-items: center; gap: 8px;
-          font-size: 13px; color: var(--text2);
+          font-size: 13px; color: var(--ec-text2);
         }
-        .au-col-contact svg { color: var(--text3); flex-shrink: 0; }
+        .au-col-contact svg { color: var(--ec-text3); flex-shrink: 0; }
 
         .au-select-wrap {
           position: relative; display: flex; align-items: center;
         }
         .au-select-wrap select {
           padding: 8px 28px 8px 12px;
-          background: var(--bg2);
+          background: var(--ec-bg2);
           border: 1.5px solid var(--border);
           border-radius: 10px;
           font-family: 'Inter', sans-serif;
           font-size: 12px; font-weight: 700;
-          color: var(--text); cursor: pointer;
+          color: var(--ec-text); cursor: pointer;
           appearance: none;
           transition: all .2s;
         }
@@ -783,7 +783,7 @@ export default function AdminUsers() {
         }
         .au-select-wrap svg {
           position: absolute; right: 10px;
-          pointer-events: none; color: var(--text3);
+          pointer-events: none; color: var(--ec-text3);
         }
 
         .au-status-toggle {
@@ -813,14 +813,14 @@ export default function AdminUsers() {
 
         .au-col-date {
           display: flex; align-items: center; gap: 6px;
-          font-size: 12px; color: var(--text3);
+          font-size: 12px; color: var(--ec-text3);
         }
 
         .au-delete-btn {
           width: 36px; height: 36px;
           border-radius: 10px;
           background: none; border: 1.5px solid var(--border);
-          color: var(--text3); cursor: pointer;
+          color: var(--ec-text3); cursor: pointer;
           display: flex; align-items: center; justify-content: center;
           transition: all .2s;
         }
@@ -843,7 +843,7 @@ export default function AdminUsers() {
         .au-loading {
           display: flex; flex-direction: column; align-items: center;
           justify-content: center; min-height: 300px; gap: 16px;
-          color: var(--text3);
+          color: var(--ec-text3);
         }
         .au-spinner {
           width: 44px; height: 44px;
@@ -856,11 +856,11 @@ export default function AdminUsers() {
           text-align: center; padding: 60px 24px;
           display: flex; flex-direction: column;
           align-items: center; gap: 16px;
-          color: var(--text3);
+          color: var(--ec-text3);
         }
         .au-empty h3 {
           font-size: 18px; font-weight: 800;
-          color: var(--text2); margin: 0;
+          color: var(--ec-text2); margin: 0;
         }
         .au-empty p { font-size: 14px; margin: 0; }
         .au-empty-btn {

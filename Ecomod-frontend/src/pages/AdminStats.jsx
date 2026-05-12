@@ -480,11 +480,11 @@ export default function AdminStats() {
         }
         .as-title {
           font-family: 'Barlow Condensed', sans-serif;
-          font-size: 32px; font-weight: 800; color: var(--text);
+          font-size: 32px; font-weight: 800; color: var(--ec-text);
           margin: 0 0 8px; display: flex; align-items: center;
           gap: 12px; letter-spacing: -.02em;
         }
-        .as-sub { font-size: 15px; color: var(--text3); margin: 0; font-weight: 500; }
+        .as-sub { font-size: 15px; color: var(--ec-text3); margin: 0; font-weight: 500; }
         .as-header-right { display: flex; align-items: center; }
         .as-live-indicator {
           display: flex; align-items: center; gap: 8px; padding: 8px 16px;
@@ -531,27 +531,27 @@ export default function AdminStats() {
           font-size: 32px; font-weight: 800; letter-spacing: -.01em; line-height: 1;
         }
         .as-stat-label {
-          display: block; font-size: 13px; color: var(--text3);
+          display: block; font-size: 13px; color: var(--ec-text3);
           margin-top: 6px; font-weight: 600;
         }
         .as-stat-bar {
-          height: 4px; background: var(--bg); border-radius: 2px; overflow: hidden;
+          height: 4px; background: var(--ec-bg); border-radius: 2px; overflow: hidden;
         }
         .as-stat-bar-fill {
           height: 100%; border-radius: 2px; transition: width 1s ease;
         }
         .as-chart-header h3 {
           font-size: 18px; font-weight: 800;
-          color: var(--text); margin: 0;
+          color: var(--ec-text); margin: 0;
         }
         .as-chart-sub {
           margin-left: auto;
           padding: 4px 12px;
-          background: var(--bg);
+          background: var(--ec-bg);
           border-radius: 20px;
           font-size: 12px;
           font-weight: 700;
-          color: var(--text3);
+          color: var(--ec-text3);
         }
 
         /* Charts Section */
@@ -570,11 +570,11 @@ export default function AdminStats() {
           display: flex; align-items: center; gap: 10px; margin-bottom: 28px;
         }
         .as-chart-header h3 {
-          font-size: 18px; font-weight: 800; color: var(--text); margin: 0;
+          font-size: 18px; font-weight: 800; color: var(--ec-text); margin: 0;
         }
         .as-chart-sub {
-          margin-left: auto; padding: 4px 12px; background: var(--bg);
-          border-radius: 20px; font-size: 12px; font-weight: 700; color: var(--text3);
+          margin-left: auto; padding: 4px 12px; background: var(--ec-bg);
+          border-radius: 20px; font-size: 12px; font-weight: 700; color: var(--ec-text3);
         }
 
         /* Circular Chart */
@@ -588,10 +588,10 @@ export default function AdminStats() {
         }
         .as-circular-value {
           font-family: 'Barlow Condensed', sans-serif;
-          font-size: 28px; font-weight: 800; color: var(--text); line-height: 1;
+          font-size: 28px; font-weight: 800; color: var(--ec-text); line-height: 1;
         }
         .as-circular-label {
-          font-size: 11px; color: var(--text3); font-weight: 600;
+          font-size: 11px; color: var(--ec-text3); font-weight: 600;
           text-transform: uppercase; letter-spacing: .05em;
         }
 
@@ -599,18 +599,18 @@ export default function AdminStats() {
         .as-chart-legend { flex: 1; display: flex; flex-direction: column; gap: 16px; }
         .as-legend-item {
           display: flex; align-items: center; gap: 12px;
-          padding: 12px; background: var(--bg2); border-radius: 12px; transition: all .2s;
+          padding: 12px; background: var(--ec-bg2); border-radius: 12px; transition: all .2s;
         }
         .as-legend-item:hover { transform: translateX(4px); }
         .as-legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
         .as-legend-info { flex: 1; }
-        .as-legend-label { display: block; font-size: 13px; color: var(--text2); font-weight: 600; }
+        .as-legend-label { display: block; font-size: 13px; color: var(--ec-text2); font-weight: 600; }
         .as-legend-value {
-          display: block; font-size: 18px; font-weight: 800; color: var(--text);
+          display: block; font-size: 18px; font-weight: 800; color: var(--ec-text);
           font-family: 'Barlow Condensed', sans-serif; margin-top: 2px;
         }
         .as-legend-percent {
-          font-size: 14px; font-weight: 800; color: var(--text3);
+          font-size: 14px; font-weight: 800; color: var(--ec-text3);
           font-family: 'Barlow Condensed', sans-serif;
         }
 
@@ -622,16 +622,16 @@ export default function AdminStats() {
         }
         .as-bar-label {
           display: flex; align-items: center; gap: 8px;
-          font-size: 14px; font-weight: 700; color: var(--text2);
+          font-size: 14px; font-weight: 700; color: var(--ec-text2);
         }
         .as-bar-value {
           font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800;
         }
-        .as-bar-track { height: 12px; background: var(--bg); border-radius: 6px; overflow: hidden; }
+        .as-bar-track { height: 12px; background: var(--ec-bg); border-radius: 6px; overflow: hidden; }
         .as-bar-fill { height: 100%; border-radius: 6px; transition: width 1s ease; }
         .as-bar-percent {
           display: block; text-align: right; font-size: 12px;
-          color: var(--text3); font-weight: 700; margin-top: 6px;
+          color: var(--ec-text3); font-weight: 700; margin-top: 6px;
         }
 
         /* Activity Summary */
@@ -649,7 +649,7 @@ export default function AdminStats() {
           font-size: 22px; font-weight: 800; line-height: 1;
         }
         .as-summary-label {
-          display: block; font-size: 12px; color: var(--text3);
+          display: block; font-size: 12px; color: var(--ec-text3);
           font-weight: 500; margin-top: 2px;
         }
         .as-summary-divider { width: 1px; height: 40px; background: var(--border); }

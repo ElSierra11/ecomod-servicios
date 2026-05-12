@@ -118,11 +118,11 @@ function AdminOnly({ user, children }) {
           </div>
           <h2
             className="text-xl font-bold mb-2"
-            style={{ color: "var(--text)" }}
+            style={{ color: "var(--ec-text)" }}
           >
             Acceso restringido
           </h2>
-          <p style={{ color: "var(--text3)", fontSize: 14 }}>
+          <p style={{ color: "var(--ec-text3)", fontSize: 14 }}>
             Esta sección requiere permisos de <strong>administrador</strong>.
           </p>
         </div>
@@ -143,7 +143,7 @@ function LoadingScreen() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "var(--bg)",
+        background: "var(--ec-bg)",
       }}
     >
       <div style={{ textAlign: "center" }}>
@@ -151,11 +151,11 @@ function LoadingScreen() {
           <LogoIcon size={48} />
           <div
             style={{
-              fontFamily: "var(--font-head)",
+              fontFamily: "var(--ec-font-head)",
               fontSize: 42,
               fontWeight: 800,
               background:
-                "linear-gradient(135deg, var(--primary), var(--secondary))",
+                "linear-gradient(135deg, var(--ec-primary), var(--secondary))",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               letterSpacing: "-1px",
@@ -164,7 +164,7 @@ function LoadingScreen() {
             EcoMod
           </div>
         </div>
-        <div style={{ color: "var(--text3)", fontSize: 13, marginTop: 12 }}>
+        <div style={{ color: "var(--ec-text3)", fontSize: 13, marginTop: 12 }}>
           Cargando tu experiencia de compra...
         </div>
         <div
@@ -172,7 +172,7 @@ function LoadingScreen() {
             width: 40,
             height: 40,
             border: "3px solid rgba(232,41,28,0.15)",
-            borderTopColor: "var(--primary)",
+            borderTopColor: "var(--ec-primary)",
             borderRadius: "50%",
             margin: "20px auto 0",
             animation: "spin 0.8s linear infinite",

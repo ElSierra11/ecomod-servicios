@@ -1159,7 +1159,7 @@ export default function CatalogPage() {
         .ec-catalog-loading {
           display: flex; flex-direction: column; align-items: center;
           justify-content: center; min-height: 50vh; gap: 16px;
-          color: var(--text3, #9ca3af); font-family: 'Inter', sans-serif;
+          color: var(--ec-text3, #9ca3af); font-family: 'Inter', sans-serif;
         }
         .ec-catalog-spinner {
           width: 44px; height: 44px;
@@ -1186,9 +1186,9 @@ export default function CatalogPage() {
         .ec-catalog-title {
           font-family: 'Barlow Condensed', sans-serif;
           font-size: 32px; font-weight: 800;
-          color: var(--text, #1a1a1a); margin: 0 0 4px; letter-spacing: -.02em;
+          color: var(--ec-text, #1a1a1a); margin: 0 0 4px; letter-spacing: -.02em;
         }
-        .ec-catalog-sub { font-size: 13px; color: var(--text3, #9ca3af); margin: 0; font-weight: 500; }
+        .ec-catalog-sub { font-size: 13px; color: var(--ec-text3, #9ca3af); margin: 0; font-weight: 500; }
         .ec-catalog-header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 
         .ec-cart-pill {
@@ -1198,14 +1198,14 @@ export default function CatalogPage() {
           border: 1.5px solid rgba(232,41,28,.2);
           border-radius: 20px;
           font-size: 13px; font-weight: 700;
-          color: var(--primary, #e8291c);
+          color: var(--ec-primary, #e8291c);
         }
 
         /* Buttons */
         .ec-btn-primary {
           display: inline-flex; align-items: center; gap: 7px;
           padding: 9px 20px;
-          background: linear-gradient(135deg, var(--primary, #e8291c), var(--primary2, #c2200f));
+          background: linear-gradient(135deg, var(--ec-primary, #e8291c), var(--ec-primary2, #c2200f));
           border: none; border-radius: 10px;
           color: #fff; font-size: 13px; font-weight: 700;
           font-family: 'Inter', sans-serif;
@@ -1216,18 +1216,18 @@ export default function CatalogPage() {
         .ec-btn-outline {
           display: inline-flex; align-items: center; gap: 7px;
           padding: 9px 18px;
-          background: var(--surface, #fff);
-          border: 1.5px solid var(--border, #e5e7eb); border-radius: 10px;
-          color: var(--text2, #4b5563); font-size: 13px; font-weight: 600;
+          background: var(--ec-surface, #fff);
+          border: 1.5px solid var(--ec-border, #e5e7eb); border-radius: 10px;
+          color: var(--ec-text2, #4b5563); font-size: 13px; font-weight: 600;
           font-family: 'Inter', sans-serif;
           cursor: pointer; transition: all .2s;
         }
-        .ec-btn-outline:hover { border-color: var(--primary, #e8291c); color: var(--primary, #e8291c); background: var(--hover-bg, #fff5f5); }
+        .ec-btn-outline:hover { border-color: var(--ec-primary, #e8291c); color: var(--ec-primary, #e8291c); background: var(--hover-bg, #fff5f5); }
 
         /* Tabs */
         .ec-tabs {
           display: flex; gap: 4px;
-          border-bottom: 2px solid var(--border, #e5e7eb);
+          border-bottom: 2px solid var(--ec-border, #e5e7eb);
           margin-bottom: 24px;
         }
         .ec-tab {
@@ -1235,19 +1235,19 @@ export default function CatalogPage() {
           padding: 10px 18px;
           background: none; border: none;
           font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 700;
-          color: var(--text3, #9ca3af); cursor: pointer;
+          color: var(--ec-text3, #9ca3af); cursor: pointer;
           border-bottom: 2px solid transparent; margin-bottom: -2px;
           transition: all .2s;
         }
-        .ec-tab:hover { color: var(--text, #1a1a1a); }
-        .ec-tab.active { color: var(--primary, #e8291c); border-bottom-color: var(--primary, #e8291c); }
+        .ec-tab:hover { color: var(--ec-text, #1a1a1a); }
+        .ec-tab.active { color: var(--ec-primary, #e8291c); border-bottom-color: var(--ec-primary, #e8291c); }
         .ec-tab-count {
           padding: 1px 8px; border-radius: 12px;
-          background: var(--bg, #f5f5f5);
+          background: var(--ec-bg, #f5f5f5);
           font-size: 11px; font-weight: 700;
-          color: var(--text3, #9ca3af);
+          color: var(--ec-text3, #9ca3af);
         }
-        .ec-tab.active .ec-tab-count { background: rgba(232,41,28,.1); color: var(--primary, #e8291c); }
+        .ec-tab.active .ec-tab-count { background: rgba(232,41,28,.1); color: var(--ec-primary, #e8291c); }
 
         /* Filters */
         .ec-filters-bar {
@@ -1257,35 +1257,35 @@ export default function CatalogPage() {
           flex: 1; min-width: 200px;
           display: flex; align-items: center; gap: 10px;
           padding: 10px 14px;
-          background: var(--surface, #fff);
-          border: 1.5px solid var(--border, #e5e7eb);
+          background: var(--ec-surface, #fff);
+          border: 1.5px solid var(--ec-border, #e5e7eb);
           border-radius: 10px; transition: all .2s;
         }
-        .ec-search-box:focus-within { border-color: var(--primary, #e8291c); box-shadow: 0 0 0 3px rgba(232,41,28,.1); }
-        .ec-search-box input { flex:1; background:none; border:none; outline:none; font-family:'Inter',sans-serif; font-size:14px; color:var(--text,#1a1a1a); }
-        .ec-search-box input::placeholder { color: var(--text3, #9ca3af); }
-        .ec-search-box button { background:none; border:none; cursor:pointer; color:var(--text3, #9ca3af); display:flex; align-items:center; transition: color .15s; }
-        .ec-search-box button:hover { color: var(--primary, #e8291c); }
+        .ec-search-box:focus-within { border-color: var(--ec-primary, #e8291c); box-shadow: 0 0 0 3px rgba(232,41,28,.1); }
+        .ec-search-box input { flex:1; background:none; border:none; outline:none; font-family:'Inter',sans-serif; font-size:14px; color:var(--ec-text,#1a1a1a); }
+        .ec-search-box input::placeholder { color: var(--ec-text3, #9ca3af); }
+        .ec-search-box button { background:none; border:none; cursor:pointer; color:var(--ec-text3, #9ca3af); display:flex; align-items:center; transition: color .15s; }
+        .ec-search-box button:hover { color: var(--ec-primary, #e8291c); }
         .ec-filter-select {
           display: flex; align-items: center; gap: 8px;
           padding: 10px 14px;
-          background: var(--surface, #fff);
-          border: 1.5px solid var(--border, #e5e7eb);
-          border-radius: 10px; color: var(--text2, #4b5563);
+          background: var(--ec-surface, #fff);
+          border: 1.5px solid var(--ec-border, #e5e7eb);
+          border-radius: 10px; color: var(--ec-text2, #4b5563);
         }
-        .ec-filter-select select { background:none; border:none; outline:none; font-family:'Inter',sans-serif; font-size:13px; font-weight:600; color:var(--text,#1a1a1a); cursor:pointer; }
+        .ec-filter-select select { background:none; border:none; outline:none; font-family:'Inter',sans-serif; font-size:13px; font-weight:600; color:var(--ec-text,#1a1a1a); cursor:pointer; }
         .ec-layout-toggle {
           display: flex; gap: 2px; padding: 4px;
-          background: var(--surface, #fff);
-          border: 1.5px solid var(--border, #e5e7eb);
+          background: var(--ec-surface, #fff);
+          border: 1.5px solid var(--ec-border, #e5e7eb);
           border-radius: 10px;
         }
         .ec-layout-toggle button {
           padding: 7px 10px; background:none; border:none;
-          border-radius: 6px; cursor:pointer; color:var(--text3, #9ca3af);
+          border-radius: 6px; cursor:pointer; color:var(--ec-text3, #9ca3af);
           display:flex; align-items:center; transition:all .15s;
         }
-        .ec-layout-toggle button.active { background: var(--primary, #e8291c); color: #fff; }
+        .ec-layout-toggle button.active { background: var(--ec-primary, #e8291c); color: #fff; }
 
         /* Category pills */
         .ec-cat-pills {
@@ -1294,17 +1294,17 @@ export default function CatalogPage() {
         .ec-cat-pill {
           display: inline-flex; align-items: center; gap: 6px;
           padding: 7px 16px;
-          background: var(--surface, #fff);
-          border: 1.5px solid var(--border, #e5e7eb);
+          background: var(--ec-surface, #fff);
+          border: 1.5px solid var(--ec-border, #e5e7eb);
           border-radius: 20px;
           font-size: 12px; font-weight: 700;
-          color: var(--text2, #4b5563); cursor: pointer; transition: all .2s;
+          color: var(--ec-text2, #4b5563); cursor: pointer; transition: all .2s;
         }
-        .ec-cat-pill span { font-size: 10px; background: var(--bg, #f5f5f5); padding: 1px 7px; border-radius: 10px; font-weight: 800; }
-        .ec-cat-pill:hover { border-color: var(--primary, #e8291c); color: var(--primary, #e8291c); }
+        .ec-cat-pill span { font-size: 10px; background: var(--ec-bg, #f5f5f5); padding: 1px 7px; border-radius: 10px; font-weight: 800; }
+        .ec-cat-pill:hover { border-color: var(--ec-primary, #e8291c); color: var(--ec-primary, #e8291c); }
         .ec-cat-pill.active { 
-          background: linear-gradient(135deg, var(--primary, #e8291c), var(--primary2, #c2200f)); 
-          border-color: var(--primary, #e8291c); 
+          background: linear-gradient(135deg, var(--ec-primary, #e8291c), var(--ec-primary2, #c2200f)); 
+          border-color: var(--ec-primary, #e8291c); 
           color: #fff; 
           box-shadow: 0 4px 12px rgba(232,41,28,.2);
         }
@@ -1314,14 +1314,14 @@ export default function CatalogPage() {
         .ec-active-filters {
           display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
           margin-bottom: 16px; padding: 10px 14px;
-          background: var(--bg2, #fafafa);
+          background: var(--ec-bg2, #fafafa);
           border-radius: 10px; font-size: 12px;
         }
-        .ec-active-filters > span:first-child { color: var(--text3, #9ca3af); font-weight: 600; }
+        .ec-active-filters > span:first-child { color: var(--ec-text3, #9ca3af); font-weight: 600; }
         .ec-filter-tag {
           display: inline-flex; align-items: center; gap: 4px;
           padding: 4px 10px;
-          background: var(--primary, #e8291c); color: #fff;
+          background: var(--ec-primary, #e8291c); color: #fff;
           border-radius: 20px; font-size: 11px; font-weight: 600;
         }
         .ec-filter-tag button {
@@ -1330,7 +1330,7 @@ export default function CatalogPage() {
         }
         .ec-clear-filters {
           background: none; border: none;
-          color: var(--primary, #e8291c); cursor: pointer;
+          color: var(--ec-primary, #e8291c); cursor: pointer;
           font-size: 11px; font-weight: 700;
           text-decoration: underline;
         }
@@ -1342,31 +1342,31 @@ export default function CatalogPage() {
           gap: 18px;
         }
         .ec-prod-card {
-          background: var(--card-bg, #fff);
-          border: 1.5px solid var(--border, #e5e7eb);
+          background: var(--ec-card-bg, #fff);
+          border: 1.5px solid var(--ec-border, #e5e7eb);
           border-radius: 16px; overflow: hidden;
           transition: all .3s; cursor: default;
         }
         .ec-prod-card:hover { 
-          border-color: var(--primary, #e8291c); 
+          border-color: var(--ec-primary, #e8291c); 
           transform: translateY(-5px); 
           box-shadow: 0 16px 40px rgba(0,0,0,.12); 
         }
 
         .ec-prod-img {
           position: relative; height: 200px;
-          background: var(--bg, #f5f5f5); overflow: hidden;
+          background: var(--ec-bg, #f5f5f5); overflow: hidden;
         }
         .ec-prod-img img { width:100%; height:100%; object-fit:cover; transition:transform .4s; }
         .ec-prod-card:hover .ec-prod-img img { transform: scale(1.08); }
-        .ec-prod-img-ph { width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:var(--text3, #9ca3af); }
+        .ec-prod-img-ph { width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:var(--ec-text3, #9ca3af); }
         
         .ec-prod-cat {
           position:absolute; top:10px; left:10px;
           padding: 4px 10px; border-radius: 20px;
           background: rgba(255,255,255,.95);
           font-size: 10px; font-weight: 800;
-          color: var(--primary, #e8291c);
+          color: var(--ec-primary, #e8291c);
           letter-spacing: .04em;
           backdrop-filter: blur(4px);
         }
@@ -1375,7 +1375,7 @@ export default function CatalogPage() {
           padding: 4px 10px; border-radius: 20px;
           font-size: 10px; font-weight: 800;
         }
-        .ec-prod-badge.hot { background: var(--primary, #e8291c); color: #fff; }
+        .ec-prod-badge.hot { background: var(--ec-primary, #e8291c); color: #fff; }
         .ec-prod-badge.out { background: #666; color: #fff; }
 
         .ec-prod-overlay {
@@ -1413,38 +1413,38 @@ export default function CatalogPage() {
           cursor:pointer; display:flex; align-items:center; justify-content:center;
           transition:all .15s;
         }
-        .ec-prod-admin-overlay button:hover { background:#fff; color:var(--primary, #e8291c); }
+        .ec-prod-admin-overlay button:hover { background:#fff; color:var(--ec-primary, #e8291c); }
 
         .ec-prod-body { padding: 16px; }
-        .ec-prod-name { font-size:15px; font-weight:800; color:var(--text, #1a1a1a); margin-bottom:5px; line-height:1.35; }
-        .ec-prod-desc { font-size:12px; color:var(--text3, #9ca3af); line-height:1.5; margin-bottom:8px; }
+        .ec-prod-name { font-size:15px; font-weight:800; color:var(--ec-text, #1a1a1a); margin-bottom:5px; line-height:1.35; }
+        .ec-prod-desc { font-size:12px; color:var(--ec-text3, #9ca3af); line-height:1.5; margin-bottom:8px; }
         .ec-prod-stars { display:flex; align-items:center; gap:2px; margin-bottom:10px; }
-        .ec-prod-reviews { font-size:10px; color:var(--text3, #9ca3af); margin-left:5px; font-weight: 500; }
+        .ec-prod-reviews { font-size:10px; color:var(--ec-text3, #9ca3af); margin-left:5px; font-weight: 500; }
         .ec-prod-price {
           font-family:'Barlow Condensed', sans-serif;
           font-size:26px; font-weight:800;
-          color:var(--primary, #e8291c); margin-bottom:14px; letter-spacing: -.01em;
+          color:var(--ec-primary, #e8291c); margin-bottom:14px; letter-spacing: -.01em;
         }
 
         /* Buy controls */
         .ec-prod-buy { display:flex; align-items:center; gap:8px; }
         .ec-qty-ctrl {
           display:flex; align-items:center; gap:0;
-          border: 1.5px solid var(--border, #e5e7eb); border-radius:10px; overflow:hidden;
+          border: 1.5px solid var(--ec-border, #e5e7eb); border-radius:10px; overflow:hidden;
           flex-shrink:0;
         }
         .ec-qty-ctrl button {
-          width:30px; height:34px; background:var(--bg, #f5f5f5); border:none;
+          width:30px; height:34px; background:var(--ec-bg, #f5f5f5); border:none;
           cursor:pointer; display:flex; align-items:center; justify-content:center;
-          color:var(--text2, #4b5563); transition:all .15s;
+          color:var(--ec-text2, #4b5563); transition:all .15s;
         }
-        .ec-qty-ctrl button:hover { background:var(--primary, #e8291c); color:#fff; }
-        .ec-qty-ctrl span { padding:0 12px; font-size:13px; font-weight:800; color:var(--text, #1a1a1a); min-width:30px; text-align:center; }
+        .ec-qty-ctrl button:hover { background:var(--ec-primary, #e8291c); color:#fff; }
+        .ec-qty-ctrl span { padding:0 12px; font-size:13px; font-weight:800; color:var(--ec-text, #1a1a1a); min-width:30px; text-align:center; }
 
         .ec-add-btn {
           flex:1; display:flex; align-items:center; justify-content:center; gap:6px;
           padding: 9px 14px;
-          background: linear-gradient(135deg, var(--primary, #e8291c), var(--primary2, #c2200f));
+          background: linear-gradient(135deg, var(--ec-primary, #e8291c), var(--ec-primary2, #c2200f));
           border:none; border-radius:10px;
           color:#fff; font-size:13px; font-weight:700; font-family:'Inter',sans-serif;
           cursor:pointer; transition:all .25s;
@@ -1474,52 +1474,52 @@ export default function CatalogPage() {
         .ec-prod-list { display:flex; flex-direction:column; gap:12px; }
         .ec-list-item {
           display:flex; align-items:center; gap:18px;
-          padding:18px; background:var(--card-bg, #fff);
-          border:1.5px solid var(--border, #e5e7eb); border-radius:14px;
+          padding:18px; background:var(--ec-card-bg, #fff);
+          border:1.5px solid var(--ec-border, #e5e7eb); border-radius:14px;
           transition:all .25s;
         }
         .ec-list-item:hover { 
-          border-color:var(--primary, #e8291c); 
+          border-color:var(--ec-primary, #e8291c); 
           box-shadow:0 6px 20px rgba(0,0,0,.08); 
           transform: translateX(4px);
         }
-        .ec-list-img { width:80px; height:80px; border-radius:12px; overflow:hidden; background:var(--bg, #f5f5f5); flex-shrink:0; }
+        .ec-list-img { width:80px; height:80px; border-radius:12px; overflow:hidden; background:var(--ec-bg, #f5f5f5); flex-shrink:0; }
         .ec-list-img img { width:100%; height:100%; object-fit:cover; }
-        .ec-list-img-ph { width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:var(--text3, #9ca3af); }
+        .ec-list-img-ph { width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:var(--ec-text3, #9ca3af); }
         .ec-list-info { flex:1; }
-        .ec-list-name { font-size:16px; font-weight:800; color:var(--text, #1a1a1a); margin-bottom:5px; }
+        .ec-list-name { font-size:16px; font-weight:800; color:var(--ec-text, #1a1a1a); margin-bottom:5px; }
         .ec-cat-badge { 
           display:inline-block; padding:3px 10px; border-radius:20px; 
           font-size:10px; font-weight:800; 
-          background:rgba(232,41,28,.1); color:var(--primary, #e8291c); 
+          background:rgba(232,41,28,.1); color:var(--ec-primary, #e8291c); 
           margin-bottom:6px; letter-spacing: .03em;
         }
-        .ec-list-desc { font-size:13px; color:var(--text3, #9ca3af); line-height:1.5; }
+        .ec-list-desc { font-size:13px; color:var(--ec-text3, #9ca3af); line-height:1.5; }
         .ec-list-right { display:flex; flex-direction:column; align-items:flex-end; gap:8px; min-width: 140px; }
         .ec-list-price { 
           font-family:'Barlow Condensed', sans-serif; 
-          font-size:24px; font-weight:800; color:var(--primary, #e8291c); 
+          font-size:24px; font-weight:800; color:var(--ec-primary, #e8291c); 
         }
         .ec-list-actions { display:flex; align-items:center; gap:8px; }
         .ec-admin-acts { display:flex; gap:6px; }
         .ec-admin-btn {
           width:34px; height:34px; border-radius:8px;
-          background:var(--bg, #f5f5f5); border:1.5px solid var(--border, #e5e7eb);
+          background:var(--ec-bg, #f5f5f5); border:1.5px solid var(--ec-border, #e5e7eb);
           cursor:pointer; display:flex; align-items:center; justify-content:center;
-          color:var(--text2, #4b5563); transition:all .15s;
+          color:var(--ec-text2, #4b5563); transition:all .15s;
         }
-        .ec-admin-btn:hover { border-color:var(--primary, #e8291c); color:var(--primary, #e8291c); }
+        .ec-admin-btn:hover { border-color:var(--ec-primary, #e8291c); color:var(--ec-primary, #e8291c); }
         .ec-admin-btn.danger:hover { border-color:#dc2626; color:#dc2626; background: rgba(220,38,38,.06); }
 
         /* Categories grid */
         .ec-cats-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; }
         .ec-cat-card {
           display:flex; align-items:center; gap:16px; padding:24px;
-          background:var(--card-bg, #fff); border:1.5px solid var(--border, #e5e7eb);
+          background:var(--ec-card-bg, #fff); border:1.5px solid var(--ec-border, #e5e7eb);
           border-radius:16px; transition:all .25s; position:relative;
         }
         .ec-cat-card:hover { 
-          border-color:var(--primary, #e8291c); 
+          border-color:var(--ec-primary, #e8291c); 
           transform:translateY(-3px); 
           box-shadow:0 12px 32px rgba(0,0,0,.1); 
         }
@@ -1527,15 +1527,15 @@ export default function CatalogPage() {
           width:56px; height:56px; border-radius:16px; 
           background: linear-gradient(135deg, rgba(232,41,28,.1), rgba(249,115,22,.08)); 
           display:flex; align-items:center; justify-content:center; 
-          color:var(--primary, #e8291c); flex-shrink:0; 
+          color:var(--ec-primary, #e8291c); flex-shrink:0; 
           font-size: 24px;
         }
         .ec-cat-card-info { flex:1; }
-        .ec-cat-card-name { font-size:17px; font-weight:800; color:var(--text, #1a1a1a); margin-bottom:5px; }
-        .ec-cat-card-desc { font-size:13px; color:var(--text3, #9ca3af); margin-bottom:8px; line-height:1.4; }
+        .ec-cat-card-name { font-size:17px; font-weight:800; color:var(--ec-text, #1a1a1a); margin-bottom:5px; }
+        .ec-cat-card-desc { font-size:13px; color:var(--ec-text3, #9ca3af); margin-bottom:8px; line-height:1.4; }
         .ec-cat-card-count { 
           display:inline-flex; align-items:center; gap:5px; 
-          font-size:12px; font-weight:700; color:var(--primary, #e8291c);
+          font-size:12px; font-weight:700; color:var(--ec-primary, #e8291c);
           background: rgba(232,41,28,.06);
           padding: 4px 12px;
           border-radius: 20px;
@@ -1551,11 +1551,11 @@ export default function CatalogPage() {
         /* Empty */
         .ec-empty {
           text-align:center; padding:60px 24px;
-          background:var(--surface, #fff); border:2px dashed var(--border, #e5e7eb);
+          background:var(--ec-surface, #fff); border:2px dashed var(--ec-border, #e5e7eb);
           border-radius:16px; display:flex; flex-direction:column; align-items:center; gap:12px;
-          color:var(--text3, #9ca3af);
+          color:var(--ec-text3, #9ca3af);
         }
-        .ec-empty h3 { font-size:18px; font-weight:800; color:var(--text2, #4b5563); margin: 0; }
+        .ec-empty h3 { font-size:18px; font-weight:800; color:var(--ec-text2, #4b5563); margin: 0; }
         .ec-empty p  { font-size:14px; margin: 0; }
 
         /* Modal */
@@ -1567,7 +1567,7 @@ export default function CatalogPage() {
         }
         @keyframes ecFadeIn { from{opacity:0} to{opacity:1} }
         .ec-modal {
-          background:var(--surface, #fff); border-radius:20px;
+          background:var(--ec-surface, #fff); border-radius:20px;
           width:100%; max-width:520px; max-height:90vh; overflow-y:auto;
           animation:ecSlideUp .25s ease; 
           box-shadow: 0 24px 64px rgba(0,0,0,.2);
@@ -1575,14 +1575,14 @@ export default function CatalogPage() {
         @keyframes ecSlideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
         .ec-modal-header {
           display:flex; justify-content:space-between; align-items:center;
-          padding:20px 24px; border-bottom:1px solid var(--border, #e5e7eb);
+          padding:20px 24px; border-bottom:1px solid var(--ec-border, #e5e7eb);
         }
-        .ec-modal-header h3 { font-size:18px; font-weight:800; color:var(--text, #1a1a1a); margin: 0; }
+        .ec-modal-header h3 { font-size:18px; font-weight:800; color:var(--ec-text, #1a1a1a); margin: 0; }
         .ec-modal-close { 
           width:34px; height:34px; border-radius:10px; 
-          background:var(--bg, #f5f5f5); border:none; 
+          background:var(--ec-bg, #f5f5f5); border:none; 
           cursor:pointer; display:flex; align-items:center; justify-content:center; 
-          color:var(--text3, #9ca3af); transition:all .15s; 
+          color:var(--ec-text3, #9ca3af); transition:all .15s; 
         }
         .ec-modal-close:hover { background:rgba(220,38,38,.08); color:#dc2626; }
         .ec-modal-body { padding:24px; }
@@ -1591,18 +1591,18 @@ export default function CatalogPage() {
         .ec-form { display:flex; flex-direction:column; gap:18px; }
         .ec-form-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
         .ec-form-group { display:flex; flex-direction:column; gap:6px; }
-        .ec-form-group label { font-size:12px; font-weight:700; color:var(--text2, #4b5563); text-transform:uppercase; letter-spacing:.05em; }
+        .ec-form-group label { font-size:12px; font-weight:700; color:var(--ec-text2, #4b5563); text-transform:uppercase; letter-spacing:.05em; }
         .ec-form-group input, .ec-form-group select, .ec-form-group textarea {
-          padding:11px 14px; background:var(--bg2, #fafafa);
-          border:1.5px solid var(--border, #e5e7eb); border-radius:10px;
-          color:var(--text, #1a1a1a); font-size:14px; font-family:'Inter',sans-serif;
+          padding:11px 14px; background:var(--ec-bg2, #fafafa);
+          border:1.5px solid var(--ec-border, #e5e7eb); border-radius:10px;
+          color:var(--ec-text, #1a1a1a); font-size:14px; font-family:'Inter',sans-serif;
           transition:all .2s; outline:none;
         }
         .ec-form-group input:focus, .ec-form-group select:focus, .ec-form-group textarea:focus { 
-          border-color:var(--primary, #e8291c); 
+          border-color:var(--ec-primary, #e8291c); 
           box-shadow:0 0 0 3px rgba(232,41,28,.1); 
         }
-        .ec-form-hint { font-size:11px; color:var(--text3, #9ca3af); margin-top: 2px; }
+        .ec-form-hint { font-size:11px; color:var(--ec-text3, #9ca3af); margin-top: 2px; }
         .ec-form-actions { display:flex; justify-content:flex-end; gap:10px; padding-top:4px; }
 
         @media(max-width:768px){

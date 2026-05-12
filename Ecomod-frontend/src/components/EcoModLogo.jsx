@@ -501,7 +501,7 @@ export default function EcoModLogo() {
           y="192"
           textAnchor="start"
           style={{
-            fill: "var(--text, #374151)",
+            fill: "var(--ec-text, #374151)",
             fontFamily: "'Syne','DM Sans',sans-serif",
             fontWeight: 900,
             fontSize: 78,
@@ -516,7 +516,7 @@ export default function EcoModLogo() {
           y="228"
           textAnchor="middle"
           style={{
-            fill: "var(--text3, #9ca3af)",
+            fill: "var(--ec-text3, #9ca3af)",
             fontFamily: "var(--font-body, sans-serif)",
             fontSize: 12,
             letterSpacing: 5,
@@ -565,7 +565,7 @@ export default function EcoModLogo() {
           y="278"
           textAnchor="middle"
           style={{
-            fill: "var(--text3, #9ca3af)",
+            fill: "var(--ec-text3, #9ca3af)",
             fontFamily: "var(--font-body, sans-serif)",
             fontSize: 9,
             letterSpacing: 2,
@@ -583,7 +583,7 @@ export default function EcoModLogo() {
             bottom: 8,
             left: "50%",
             transform: "translateX(-50%) translateY(0)",
-            background: "var(--surface, #ffffff)",
+            background: "var(--ec-surface, #ffffff)",
             border: `2px solid ${allNodes.find((n) => n.id === hovered)?.color || "#d97556"}`,
             borderRadius: 12,
             padding: "8px 18px",
@@ -610,9 +610,9 @@ export default function EcoModLogo() {
           <span
             style={{
               fontSize: 11,
-              color: "var(--text3, #9ca3af)",
+              color: "var(--ec-text3, #9ca3af)",
               fontFamily: "monospace",
-              background: "var(--bg2, #f3f4f6)",
+              background: "var(--ec-bg2, #f3f4f6)",
               padding: "2px 8px",
               borderRadius: 6,
             }}
