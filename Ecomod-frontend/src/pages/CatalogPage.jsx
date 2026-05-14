@@ -162,127 +162,79 @@ function ProductCard({
   }
 
   return (
-    <div className="ec-prod-card">
-      {/* Image */}
-      <div className="ec-prod-img">
+    <div className="group relative bg-card rounded-[2rem] p-4 border border-border/40 hover:border-primary/30 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5 flex flex-col h-full">
+      {/* Image Section */}
+      <div className="aspect-[4/5] bg-secondary/30 rounded-[1.5rem] relative overflow-hidden flex items-center justify-center p-6 mb-4 transition-colors group-hover:bg-primary/5">
         {p.image_urls?.[0] ? (
-          <img src={p.image_urls[0]} alt={p.name} loading="lazy" />
+          <img src={p.image_urls[0]} alt={p.name} className="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-700 ease-out" />
         ) : (
-          <div className="ec-prod-img-ph">
-            <ImageIcon size={36} strokeWidth={1.5} />
-          </div>
+          <div className="text-muted-foreground/20"><Package size={48} /></div>
         )}
-        {/* Badges */}
-        {p.category_id && (
-          <div className="ec-prod-cat">{catMap[p.category_id]}</div>
-        )}
-        {avail !== null && avail < 5 && avail > 0 && (
-          <div className="ec-prod-badge hot">¡Últimas {avail}!</div>
-        )}
-        {avail === 0 && <div className="ec-prod-badge out">Agotado</div>}
-        {/* Overlay actions */}
-        <div className="ec-prod-overlay">
-          <button className="ec-prod-overlay-btn" onClick={() => {}}>
-            <Eye size={15} strokeWidth={2} />
-          </button>
-          <button
-            className={`ec-prod-overlay-btn ${liked ? "liked" : ""}`}
-            onClick={() => setLiked(!liked)}
-          >
-            <Heart
-              size={15}
-              strokeWidth={2}
-              fill={liked ? "#e8291c" : "none"}
-            />
-          </button>
-          <button className="ec-prod-overlay-btn" onClick={() => {}}>
-            <Share2 size={15} strokeWidth={2} />
-          </button>
+        
+        {/* Badges Overlay */}
+        <div className="absolute top-3 left-3 flex flex-col gap-2 z-10">
+          {p.category_id && <span className="bg-white/90 backdrop-blur-md text-foreground text-[9px] font-black px-2.5 py-1 rounded-full shadow-sm border border-border/50 uppercase tracking-wider">{catMap[p.category_id]}</span>}
+          {avail === 0 && <span className="bg-red-500 text-white text-[9px] font-black px-2.5 py-1 rounded-full shadow-lg">AGOTADO</span>}
+          {avail !== null && avail < 5 && avail > 0 && <span className="bg-amber-500 text-white text-[9px] font-black px-2.5 py-1 rounded-full shadow-lg animate-pulse">¡SOLO {avail}!</span>}
         </div>
-        {/* Admin actions */}
-        {isAdmin && (
-          <div className="ec-prod-admin-overlay">
-            <button onClick={() => onEdit(p)}>
-              <Edit2 size={15} strokeWidth={2} />
-            </button>
-            <button onClick={() => onDelete(p.id)}>
-              <Trash2 size={15} strokeWidth={2} />
-            </button>
-          </div>
-        )}
+
+        {/* Interaction Overlay */}
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-3 rounded-[1.5rem]">
+          <button className="w-11 h-11 bg-white text-black rounded-xl flex items-center justify-center hover:bg-primary hover:text-white transition-all scale-75 group-hover:scale-100 shadow-xl"><Eye size={18} /></button>
+          <button onClick={() => setLiked(!liked)} className={cn("w-11 h-11 rounded-xl flex items-center justify-center transition-all scale-75 group-hover:scale-100 shadow-xl", liked ? "bg-red-500 text-white" : "bg-white text-black")}><Heart size={18} fill={liked ? "currentColor" : "none"} /></button>
+          {isAdmin && (
+            <div className="absolute bottom-3 right-3 flex gap-2">
+              <button onClick={() => onEdit(p)} className="w-9 h-9 bg-blue-500 text-white rounded-lg flex items-center justify-center shadow-lg hover:bg-blue-600 transition-colors"><Edit2 size={14} /></button>
+              <button onClick={() => onDelete(p.id)} className="w-9 h-9 bg-red-600 text-white rounded-lg flex items-center justify-center shadow-lg hover:bg-red-700 transition-colors"><Trash2 size={14} /></button>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Info */}
-      <div className="ec-prod-body">
-        <div className="ec-prod-name">{p.name}</div>
-        <div className="ec-prod-desc">
-          {p.description?.slice(0, 60) || "Sin descripción"}
-          {p.description?.length > 60 && "…"}
+      {/* Info Section */}
+      <div className="flex-1 flex flex-col px-1">
+        <div className="flex items-center gap-1 mb-2">
+          {[1,2,3,4,5].map(i => <Star key={i} size={10} fill={i <= 4 ? "#f59e0b" : "none"} color={i <= 4 ? "#f59e0b" : "#ccc"} />)}
+          <span className="text-[10px] font-bold text-muted-foreground ml-1">(24)</span>
         </div>
+        
+        <h4 className="font-black text-sm line-clamp-1 mb-1 group-hover:text-primary transition-colors">{p.name}</h4>
+        <p className="text-[11px] text-muted-foreground line-clamp-2 mb-3 leading-relaxed">{p.description || "Sin descripción disponible"}</p>
+        
+        <div className="mt-auto">
+          <div className="flex items-baseline gap-2 mb-3">
+            <span className="text-lg font-black text-foreground">${Number(p.price).toLocaleString("es-CO")}</span>
+            <span className="text-[10px] text-muted-foreground line-through opacity-50">${Number(p.price * 1.2).toLocaleString("es-CO")}</span>
+          </div>
 
-        {/* Stars */}
-        <div className="ec-prod-stars">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <Star
-              key={i}
-              size={11}
-              fill={i <= 4 ? "#f59e0b" : "none"}
-              color={i <= 4 ? "#f59e0b" : "#ccc"}
-              strokeWidth={2}
-            />
-          ))}
-          <span className="ec-prod-reviews">(24)</span>
-        </div>
-
-        <div className="ec-prod-price">
-          ${Number(p.price).toLocaleString("es-CO")}
-        </div>
-
-        {/* Qty + Add */}
-        {inStock ? (
-          <div className="ec-prod-buy">
-            <div className="ec-qty-ctrl">
-              <button onClick={() => setQty((q) => Math.max(1, q - 1))}>
-                <Minus size={12} strokeWidth={2.5} />
-              </button>
-              <span>{qty}</span>
-              <button
-                onClick={() => setQty((q) => Math.min(avail || 99, q + 1))}
-              >
-                <Plus size={12} strokeWidth={2.5} />
+          {inStock ? (
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3 bg-secondary/50 rounded-xl p-1 border border-border/50">
+                <button onClick={() => setQty(q => Math.max(1, q - 1))} className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white transition-colors"><Minus size={12} /></button>
+                <span className="text-xs font-black w-4 text-center">{qty}</span>
+                <button onClick={() => setQty(q => Math.min(avail || 99, q + 1))} className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white transition-colors"><Plus size={12} /></button>
+              </div>
+              <button onClick={handleAdd} disabled={adding} className="flex-1 h-9 bg-foreground text-background rounded-xl text-xs font-black flex items-center justify-center gap-2 hover:bg-primary hover:text-white transition-all active:scale-95 shadow-md">
+                {adding ? <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" /> : <><ShoppingCart size={14} /> Agregar</>}
               </button>
             </div>
-            <button
-              className="ec-add-btn"
-              onClick={handleAdd}
-              disabled={adding}
-            >
-              {adding ? (
-                <span className="ec-btn-spin" />
-              ) : (
-                <>
-                  <ShoppingCart size={14} strokeWidth={2} /> Agregar
-                </>
-              )}
-            </button>
-          </div>
-        ) : (
-          <button className="ec-add-btn disabled" disabled>
-            Agotado
-          </button>
-        )}
+          ) : (
+            <button className="w-full h-9 bg-secondary text-muted-foreground rounded-xl text-xs font-black cursor-not-allowed" disabled>Agotado</button>
+          )}
+        </div>
       </div>
     </div>
   );
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
-export default function CatalogPage() {
+// ─── Main ─────────────────────────────────────────────────────────────────────
+export default function CatalogPage({ initialCategory, setInitialCategory }) {
   const { user } = useAuth();
   const { isDark } = useTheme();
   const { addToast } = useToast();
   const { updateCartCount } = useCart();
-  const { success, error, warning, confirm, loading, close, toast } =
+  const { success, error, warning, confirm, loading, close, toast, delete: swalDelete } =
     useSwal(isDark); // ← SWAL INTEGRADO CON TEMA
   const isAdmin = user?.role === "admin";
 
@@ -362,6 +314,15 @@ export default function CatalogPage() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // Handle initial category from dashboard
+  useEffect(() => {
+    if (initialCategory) {
+      setCatFilter(initialCategory);
+      // Optional: clear it after applying so it doesn't persist if the user navigates back and forth
+      // setInitialCategory(""); 
+    }
+  }, [initialCategory]);
 
   // ── FILTRADO LOCAL (no recarga del backend) ─────────────────────────────────
   useEffect(() => {

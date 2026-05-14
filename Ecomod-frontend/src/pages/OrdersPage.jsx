@@ -40,7 +40,7 @@ const formatCOP = (n) =>
 const STATUS_CONFIG = {
   pending: {
     label: "Pendiente",
-    icon: Clock,
+    Icon: Clock,
     color: "#f59e0b",
     bg: "rgba(245,158,11,0.1)",
     border: "rgba(245,158,11,0.2)",
@@ -49,7 +49,7 @@ const STATUS_CONFIG = {
   },
   confirmed: {
     label: "Confirmada",
-    icon: CheckCircle,
+    Icon: CheckCircle,
     color: "#10b981",
     bg: "rgba(16,185,129,0.1)",
     border: "rgba(16,185,129,0.2)",
@@ -58,7 +58,7 @@ const STATUS_CONFIG = {
   },
   shipped: {
     label: "En camino",
-    icon: Truck,
+    Icon: Truck,
     color: "#3b82f6",
     bg: "rgba(59,130,246,0.1)",
     border: "rgba(59,130,246,0.2)",
@@ -67,7 +67,7 @@ const STATUS_CONFIG = {
   },
   delivered: {
     label: "Entregada",
-    icon: Package,
+    Icon: Package,
     color: "#059669",
     bg: "rgba(5,150,105,0.1)",
     border: "rgba(5,150,105,0.2)",
@@ -76,7 +76,7 @@ const STATUS_CONFIG = {
   },
   cancelled: {
     label: "Cancelada",
-    icon: XCircle,
+    Icon: XCircle,
     color: "#dc2626",
     bg: "rgba(220,38,38,0.1)",
     border: "rgba(220,38,38,0.2)",
@@ -86,11 +86,11 @@ const STATUS_CONFIG = {
 };
 
 const TRACKING_STEPS = [
-  { label: "Orden recibida", icon: ShoppingBag },
-  { label: "Pago confirmado", icon: CheckCircle2 },
-  { label: "En preparación", icon: Box },
-  { label: "Enviado", icon: Truck },
-  { label: "Entregado", icon: Package },
+  { label: "Orden recibida", Icon: ShoppingBag },
+  { label: "Pago confirmado", Icon: CheckCircle2 },
+  { label: "En preparación", Icon: Box },
+  { label: "Enviado", Icon: Truck },
+  { label: "Entregado", Icon: Package },
 ];
 
 export default function OrdersPage() {
@@ -462,33 +462,32 @@ export default function OrdersPage() {
         ) : (
           filteredOrders.map((order, idx) => {
             const status = STATUS_CONFIG[order.status] || STATUS_CONFIG.pending;
-            const StatusIcon = status.icon;
+            const StatusIcon = status.Icon;
             const isExpanded = selectedOrder === order.id;
             const shipInfo = shippingData[order.id];
 
             return (
               <div
                 key={order.id}
-                className={`ord-card ${isExpanded ? "expanded" : ""}`}
+                className={cn("bg-card rounded-[2rem] border border-border/40 overflow-hidden mb-5 transition-all duration-300 hover:shadow-2xl hover:shadow-black/5", isExpanded && "ring-2 ring-primary/20 shadow-2xl")}
                 style={{ animationDelay: `${idx * 0.05}s` }}
               >
                 {/* Card Header */}
                 <div
-                  className="ord-card-header"
+                  className="p-6 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-4"
                   onClick={() => setSelectedOrder(isExpanded ? null : order.id)}
                 >
-                  <div className="ord-card-main">
-                    <div className="ord-card-id">
-                      <span>Pedido #{order.id}</span>
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-3">
+                      <span className="font-black text-lg tracking-tight uppercase">Orden #{order.id}</span>
                       <div
-                        className="ord-status-badge"
+                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider"
                         style={{
                           background: status.bg,
                           color: status.color,
-                          border: `1px solid ${status.border}`,
                         }}
                       >
-                        <StatusIcon size={12} strokeWidth={2.5} />
+                        <StatusIcon size={12} strokeWidth={3} />
                         {status.label}
                       </div>
                     </div>
@@ -531,7 +530,7 @@ export default function OrdersPage() {
                         <h4>Seguimiento del pedido</h4>
                         <div className="ord-tracking-steps">
                           {TRACKING_STEPS.map((step, i) => {
-                            const StepIcon = step.icon;
+                            const StepIcon = step.Icon;
                             const isActive = i < status.step;
                             const isCurrent = i === status.step - 1;
                             return (

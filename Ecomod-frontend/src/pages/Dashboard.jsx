@@ -20,11 +20,11 @@ const formatCOP = (n) =>
   }).format(n);
 
 const STATUS_MAP = {
-  confirmed: { label: "Confirmado", color: "text-green-600", bg: "bg-green-600/10", icon: CheckCircle },
-  completed: { label: "Completado", color: "text-green-600", bg: "bg-green-600/10", icon: CheckCircle },
-  pending: { label: "Pendiente", color: "text-amber-500", bg: "bg-amber-500/10", icon: Clock },
-  shipped: { label: "Enviado", color: "text-blue-500", bg: "bg-blue-500/10", icon: Truck },
-  cancelled: { label: "Cancelado", color: "text-red-500", bg: "bg-red-500/10", icon: AlertCircle },
+  confirmed: { label: "Confirmado", color: "text-green-600", bg: "bg-green-600/10", Icon: CheckCircle },
+  completed: { label: "Completado", color: "text-green-600", bg: "bg-green-600/10", Icon: CheckCircle },
+  pending: { label: "Pendiente", color: "text-amber-500", bg: "bg-amber-500/10", Icon: Clock },
+  shipped: { label: "Enviado", color: "text-blue-500", bg: "bg-blue-500/10", Icon: Truck },
+  cancelled: { label: "Cancelado", color: "text-red-500", bg: "bg-red-500/10", Icon: AlertCircle },
 };
 
 // ─── Flash Sale Countdown ─────────────────────────────────────────────────────
@@ -362,7 +362,7 @@ export default function Dashboard({ setPage, setInitialCategory }) {
             onClick={() => setPage("orders")}
             className="p-5 rounded-2xl border border-border/30 bg-card flex items-center gap-4 cursor-pointer hover:border-primary/40 transition-colors">
             <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-amber-500/10 text-amber-500">
-              {lastStatus ? <lastStatus.icon className="w-6 h-6" /> : <ShoppingBag className="w-6 h-6" />}
+              {lastStatus ? <lastStatus.Icon className="w-6 h-6" /> : <ShoppingBag className="w-6 h-6" />}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-[10px] text-muted-foreground font-black uppercase tracking-widest">Último pedido</p>

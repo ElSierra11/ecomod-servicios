@@ -190,6 +190,7 @@ function AppContent() {
   const { user, loading } = useAuth();
   const [page, setPage] = useState(null);
   const [checkoutOrderId, setCheckoutOrderId] = useState(null);
+  const [initialCategory, setInitialCategory] = useState("");
 
   // Establecer página inicial según rol
   useEffect(() => {
@@ -209,8 +210,15 @@ function AppContent() {
 
   return (
     <AppLayout page={page} setPage={setPage}>
-      {page === "dashboard" && <Dashboard setPage={setPage} />}
-      {page === "catalog" && <CatalogPage />}
+      {page === "dashboard" && (
+        <Dashboard setPage={setPage} setInitialCategory={setInitialCategory} />
+      )}
+      {page === "catalog" && (
+        <CatalogPage 
+          initialCategory={initialCategory} 
+          setInitialCategory={setInitialCategory} 
+        />
+      )}
       {page === "inventory" && (
         <AdminOnly user={user}>
           <InventoryPage />

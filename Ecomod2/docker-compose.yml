@@ -169,7 +169,9 @@ services:
   # MICROSERVICIOS
   # ─────────────────────────────────────────
   auth-service:
-    build: ./auth-service
+    build:
+      context: ..
+      dockerfile: Ecomod2/auth-service/Dockerfile
     ports:
       - "8002:8000"
     depends_on:
@@ -193,7 +195,9 @@ services:
       - ecomod-network
 
   catalog-service:
-    build: ./catalog-service
+    build:
+      context: ..
+      dockerfile: Ecomod2/catalog-service/Dockerfile
     ports:
       - "8003:8001"
     depends_on:
@@ -213,7 +217,9 @@ services:
       - ecomod-network
 
   inventory-service:
-    build: ./inventory-service
+    build:
+      context: ..
+      dockerfile: Ecomod2/inventory-service/Dockerfile
     ports:
       - "8004:8002"
     depends_on:
@@ -234,7 +240,9 @@ services:
       - ecomod-network
 
   cart-service:
-    build: ./cart-service
+    build:
+      context: ..
+      dockerfile: Ecomod2/cart-service/Dockerfile
     ports:
       - "8005:8003"
     depends_on:
@@ -252,7 +260,9 @@ services:
       - ecomod-network
 
   order-service:
-    build: ./order-service
+    build:
+      context: ..
+      dockerfile: Ecomod2/order-service/Dockerfile
     ports:
       - "8006:8004"
     depends_on:
@@ -273,7 +283,9 @@ services:
       - ecomod-network
 
   payment-service:
-    build: ./payment-service
+    build:
+      context: ..
+      dockerfile: Ecomod2/payment-service/Dockerfile
     ports:
       - "8007:8005"
     depends_on:
@@ -301,7 +313,9 @@ services:
       - ecomod-network
 
   shipping-service:
-    build: ./shipping-service
+    build:
+      context: ..
+      dockerfile: Ecomod2/shipping-service/Dockerfile
     ports:
       - "8008:8006"
     depends_on:
@@ -321,7 +335,9 @@ services:
       - ecomod-network
 
   notification-service:
-    build: ./notification-service
+    build:
+      context: ..
+      dockerfile: Ecomod2/notification-service/Dockerfile
     ports:
       - "8009:8007"
     depends_on:

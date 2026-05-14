@@ -50,24 +50,24 @@ export default function AppLayout({ children, page, setPage }) {
   const isAdmin = user?.role === "admin";
 
   const userNavItems = [
-    { id: "dashboard", icon: ShoppingBag, label: "Inicio" },
-    { id: "catalog", icon: Package, label: "Catálogo" },
-    { id: "cart", icon: ShoppingCart, label: "Carrito" },
-    { id: "orders", icon: ClipboardList, label: "Pedidos" },
-    { id: "payments", icon: CreditCard, label: "Pagos" },
-    { id: "shipping", icon: Truck, label: "Envíos" },
-    { id: "notifications", icon: Bell, label: "Alertas" },
+    { id: "dashboard", Icon: ShoppingBag, label: "Inicio" },
+    { id: "catalog", Icon: Package, label: "Catálogo" },
+    { id: "cart", Icon: ShoppingCart, label: "Carrito" },
+    { id: "orders", Icon: ClipboardList, label: "Pedidos" },
+    { id: "payments", Icon: CreditCard, label: "Pagos" },
+    { id: "shipping", Icon: Truck, label: "Envíos" },
+    { id: "notifications", Icon: Bell, label: "Alertas" },
   ];
 
   const adminNavItems = [
-    { id: "admin-stats", icon: BarChart3, label: "Dashboard" },
-    { id: "catalog", icon: Package, label: "Catálogo" },
-    { id: "inventory", icon: Package, label: "Inventario" },
-    { id: "orders", icon: ClipboardList, label: "Pedidos" },
-    { id: "payments", icon: CreditCard, label: "Pagos" },
-    { id: "shipping", icon: Truck, label: "Envíos" },
-    { id: "admin-users", icon: Users, label: "Usuarios" },
-    { id: "notifications", icon: Bell, label: "Alertas" },
+    { id: "admin-stats", Icon: BarChart3, label: "Dashboard" },
+    { id: "catalog", Icon: Package, label: "Catálogo" },
+    { id: "inventory", Icon: Package, label: "Inventario" },
+    { id: "orders", Icon: ClipboardList, label: "Pedidos" },
+    { id: "payments", Icon: CreditCard, label: "Pagos" },
+    { id: "shipping", Icon: Truck, label: "Envíos" },
+    { id: "admin-users", Icon: Users, label: "Usuarios" },
+    { id: "notifications", Icon: Bell, label: "Alertas" },
   ];
 
   const visibleNav = isAdmin ? adminNavItems : userNavItems;
@@ -202,7 +202,7 @@ export default function AppLayout({ children, page, setPage }) {
                             onClick={() => { setPage(item.id); setUserMenuOpen(false); }}
                             className="flex items-center gap-3 w-full px-3 py-2 text-sm text-foreground hover:bg-secondary hover:text-primary rounded-md transition-colors"
                           >
-                            <item.icon className="h-4 w-4" />
+                            <item.Icon className="h-4 w-4" />
                             {item.label}
                           </button>
                         ))}
@@ -255,7 +255,7 @@ export default function AppLayout({ children, page, setPage }) {
                   : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
               )}
             >
-              <item.icon className="h-4 w-4" />
+              <item.Icon className="h-4 w-4" />
               {item.label}
             </button>
           ))}
