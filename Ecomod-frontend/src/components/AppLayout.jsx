@@ -356,3 +356,9 @@ export default function AppLayout({ children, page, setPage }) {
                 <li><a href="#" className="hover:text-primary transition-colors">Privacidad</a></li>
               </ul>
             </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}

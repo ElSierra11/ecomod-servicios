@@ -1104,6 +1104,7 @@ export default function CatalogPage({ initialCategory, setInitialCategory }) {
         </Modal>
       )}
 
+      <style>{`
         .ec-catalog { font-family: 'Inter', sans-serif; animation: ecFadeUp .3s ease; color: var(--ec-text); }
         @keyframes ecFadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
 

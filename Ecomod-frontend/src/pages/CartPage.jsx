@@ -190,7 +190,8 @@ export default function CartPage({ setPage, onCheckout }) {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         {/* Left Column (Items) */}
-        <div className="lg:col-span-2           <div className="bg-card rounded-[2.5rem] border border-border/40 shadow-xl shadow-black/5 overflow-hidden">
+        <div className="lg:col-span-2">
+          <div className="bg-card rounded-[2.5rem] border border-border/40 shadow-xl shadow-black/5 overflow-hidden">
             <div className="p-8 border-b border-border/40 flex justify-between items-center bg-secondary/10">
               <h2 className="text-xl font-head font-black flex items-center gap-3"><Package className="w-6 h-6 text-primary" /> Tus Productos</h2>
               {cart?.items?.length > 0 && (
